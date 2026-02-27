@@ -1,0 +1,61 @@
+import Controller from "App/Http/Controllers/Controller.ts";
+
+class {{ ClassName }} extends Controller {
+    // GET /resource
+    public index: HttpDispatch = async ({ request }) => {
+        // List all resources
+        return response().json({
+            message:"index"
+        })
+    };
+
+    // GET /resource/{{{ paramName }}}
+    public show: HttpDispatch = async ({ request }, {{{ paramName }}}) => {
+        // Show a single resource by ID
+        return response().json({
+            message:`show ${{{ paramName }}}`
+        })
+    };
+
+    // GET /resource/create
+    public create: HttpDispatch = async ({ request }) => {
+        // Return form or data for creating resource
+        return response().json({
+            message:`create`
+        })
+    };
+
+    // POST /resource
+    public store: HttpDispatch = async ({ request }) => {
+        // Create a new resource
+        return response().json({
+            message:`store`
+        })
+    };
+
+    // GET /resource/{{{ paramName }}}/edit
+    public edit: HttpDispatch = async ({ request }, {{{ paramName }}}) => {
+        // Return form or data for editing resource
+        return response().json({
+            message:`edit ${{{ paramName }}}`
+        })
+    };
+
+    // PUT or PATCH /resource/{{{ paramName }}}
+    public update: HttpDispatch = async ({ request }, {{{ paramName }}}) => {
+        // Update a resource by ID
+        return response().json({
+            message:`update ${{{ paramName }}}`
+        })
+    };
+
+    // DELETE /resource/{{{ paramName }}}
+    public destroy: HttpDispatch = async ({ request }, {{{ paramName }}}) => {
+        // Delete a resource by ID
+        return response().json({
+            message:`delete ${{{ paramName }}}`
+        })
+    };
+}
+
+export default {{ ClassName }};
