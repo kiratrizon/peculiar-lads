@@ -154,6 +154,12 @@ interface MySQLConnectionOptions {
    * Higher values allow more concurrent queries but use more resources
    */
   maxConnection: number;
+
+  /**
+   * Return date/time values as strings instead of JavaScript Date objects
+   * This can help avoid timezone issues and preserve original formatting
+   */
+  dateStrings?: boolean;
 }
 
 export interface MySQLConnectionConfigRaw {

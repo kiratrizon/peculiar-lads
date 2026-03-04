@@ -289,10 +289,13 @@ export class Database {
                   database: defaultDatabase,
                   charset: defaultCharset,
                   ssl: defaultSSL,
-                  dateStrings: true, // MySQL date strings
                 };
                 if (isset(defaultOptions?.maxConnection)) {
                   poolParams.connectionLimit = defaultOptions.maxConnection;
+                }
+                // date string
+                if (defaultOptions?.dateStrings) {
+                  poolParams.dateStrings = true;
                 }
                 Database.connections[key].write.push(
                   mysql.createPool(poolParams),
@@ -311,10 +314,12 @@ export class Database {
                   database: forMySQL.write?.database || defaultDatabase,
                   charset: forMySQL.write?.charset || defaultCharset,
                   ssl: forMySQL.write?.ssl || defaultSSL,
-                  dateStrings: true, // MySQL date strings
                 };
                 if (isset(defaultOptions?.maxConnection)) {
                   poolParams.connectionLimit = defaultOptions.maxConnection;
+                }
+                if (defaultOptions?.dateStrings) {
+                  poolParams.dateStrings = true;
                 }
                 Database.connections[key].write.push(
                   mysql.createPool(poolParams),
@@ -340,10 +345,12 @@ export class Database {
                   database: forMySQL.read?.database || defaultDatabase,
                   charset: forMySQL.read?.charset || defaultCharset,
                   ssl: forMySQL.read?.ssl || defaultSSL,
-                  dateStrings: true, // MySQL date strings
                 };
                 if (isset(defaultOptions?.maxConnection)) {
                   poolParams.connectionLimit = defaultOptions.maxConnection;
+                }
+                if (defaultOptions?.dateStrings) {
+                  poolParams.dateStrings = true;
                 }
                 Database.connections[key].read.push(
                   mysql.createPool(poolParams),
