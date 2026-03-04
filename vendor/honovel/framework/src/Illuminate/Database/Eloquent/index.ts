@@ -5,6 +5,8 @@ import {
 } from "../../../../../@types/declaration/Base/IBaseModel.d.ts";
 import { DB } from "../../Support/Facades/index.ts";
 
+import pluralize from "pluralize";
+
 export type ModelWithAttributes<
   T extends Record<string, unknown>,
   C extends new (attr: T) => unknown,
@@ -66,6 +68,22 @@ export abstract class Model<T extends ModelAttributes = ModelAttributes> {
       return ctor._table;
     }
     return generateTableName(ctor.name);
+  }
+
+  private singularizeLastWord(name: string, separator: string = "_"): string {
+    const parts = name.split(separator);
+    if (parts.length === 0) {
+      return name;
+    }
+    const lastWord = parts.pop()!;
+    const singularLastWord = pluralize.singular(lastWord);
+    parts.push(singularLastWord);
+    return parts.join(separator);
+  }
+
+  public getSingularTableName(): string {
+    const tableName = this.getTableName();
+    return this.singularizeLastWord(tableName);
   }
 
   private _connection?: string;
@@ -914,7 +932,7 @@ export abstract class Model<T extends ModelAttributes = ModelAttributes> {
   ) {
     if (!foreignKey) {
       const primaryKey = this.getKeyName();
-      foreignKey = `${this.getTableName()}_${primaryKey}`;
+      foreignKey = `${this.getSingularTableName()}_${primaryKey}`;
     }
     const primaryValue = this.getKey();
     if (!isset(primaryValue)) {
@@ -943,7 +961,7 @@ export abstract class Model<T extends ModelAttributes = ModelAttributes> {
   ) {
     if (!foreignKey) {
       const primaryKey = this.getKeyName();
-      foreignKey = `${this.getTableName()}_${primaryKey}`;
+      foreignKey = `${this.getSingularTableName()}_${primaryKey}`;
     }
     const primaryValue = this.getKey();
     if (!isset(primaryValue)) {

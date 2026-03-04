@@ -1,6 +1,10 @@
 import Seeder from "Illuminate/Database/Seeder.ts";
 import User from "App/Models/User.ts";
+import FirstClass from "App/Models/FirstClass.ts";
+import SecondClass from "App/Models/SecondClass.ts";
+import ThirdClass from "App/Models/ThirdClass.ts";
 
+// Dragon Nest SEA
 export default class DatabaseSeeder extends Seeder {
   public async run() {
     // const userFactory = await User.factory();
@@ -32,40 +36,54 @@ export default class DatabaseSeeder extends Seeder {
       Kali: {
         Screamer: ["Soul Eater", "Dark Summoner"],
         Dancer: ["Blade Dancer", "Spirit Dancer"],
+        Oracle: ["Oracle Elder"],
       },
       Assassin: {
         Chaser: ["Raven", "Ripper"],
         Bringer: ["Light Fury", "Abyss Walker"],
-      },
-      Lancea: {
-        Lancer: ["Flurry", "Sting Breezer"],
-        Gladiator: ["Highlander", "Knightess"],
+        Phantom: ["Bleed Phantom"],
       },
       Academic: {
         Engineer: ["Shooting Star", "Gear Master"],
         Alchemist: ["Adept", "Physician"],
+        Mechanic: ["Ray Mechanic"],
       },
       Machina: {
         Patrona: ["Ruina", "Defensio"],
-        Gearmaster: ["Artillery", "Liberator"],
+        Launcher: ["Impactor", "Buster"],
+        Beastia: ["Beastia Reina"],
+      },
+      Lancea: {
+        Piercier: ["Flurry", "Sting Breezer"],
+        Knightess: ["Avalanche", "Randgrid"],
+        Plaga: ["Vena Plaga"],
       },
       Vandar: {
-        Barbarian: ["Destroyer", "Rage Knight"],
-        Avenger: ["Dark Avenger", "Nightmare"],
+        "Treasure Hunter": ["Duelist", "Trickster"],
+        Wanderer: ["Revenant", "Maverick"],
       },
-      Arta: {},
+      Arta: {
+        Artist: ["Ringmaster"],
+      },
     };
 
-    // Output class tree structure
-    console.log("Dragon Nest SEA Class Tree:");
-    for (const [baseClass, secondClasses] of Object.entries(classes)) {
-      console.log(`\n${baseClass}:`);
-      for (const [secondClass, thirdClasses] of Object.entries(secondClasses)) {
-        console.log(`  └─ ${secondClass}`);
-        if (Array.isArray(thirdClasses) && thirdClasses.length > 0) {
-          thirdClasses.forEach((thirdClass: string, index: number) => {
-            const prefix = index === thirdClasses.length - 1 ? "└─" : "├─";
-            console.log(`      ${prefix} ${thirdClass}`);
+    for (const [mainClass, secondaryClasses] of Object.entries(classes)) {
+      const firstClassData = await FirstClass.create({
+        name: mainClass,
+      });
+      const id = firstClassData.getKey();
+      for (const [secondaryClass, thirdClasses] of Object.entries(
+        secondaryClasses,
+      )) {
+        const secondClassData = await SecondClass.create({
+          first_class_id: id,
+          name: secondaryClass,
+        });
+        const secondClassId = secondClassData.getKey();
+        for (const thirdClass of thirdClasses) {
+          await ThirdClass.create({
+            second_class_id: secondClassId,
+            name: thirdClass,
           });
         }
       }
