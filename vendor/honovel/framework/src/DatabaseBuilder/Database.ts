@@ -371,7 +371,6 @@ export class Database {
             const defaultDatabase = forPgSQL.database || "honovel";
             const defaultUser = forPgSQL.user || "postgres";
             const defaultPassword = forPgSQL.password || "";
-            const defaultOptions = forPgSQL.options || {};
             const tls = forPgSQL.tls || { enabled: false };
             // In clever setups: pick the first host as primary (for now)
             for (const host of defaultHosts) {
@@ -383,7 +382,6 @@ export class Database {
                   password: defaultPassword,
                   database: defaultDatabase,
                   tls,
-                  ...defaultOptions,
                 },
                 // pool size (connections per host)
                 5,
