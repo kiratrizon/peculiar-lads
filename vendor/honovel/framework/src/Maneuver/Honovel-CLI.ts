@@ -112,13 +112,22 @@ class MyArtisan {
       resource?: boolean;
       all?: boolean;
       pivot?: boolean;
+      table?: string;
     },
     name: string,
   ) {
     const modelPath = basePath(`app/Models/${name}.ts`);
     const stubPath = honovelPath("stubs/Model.stub");
     const stubContent = getFileContents(stubPath);
-    const modelContent = stubContent.replace(/{{ ClassName }}/g, name);
+    let modelContent = stubContent.replace(/{{ ClassName }}/g, name);
+
+    // If a custom table is specified, add the _table property
+    if (options.table) {
+      modelContent = modelContent.replace(
+        /protected static override _fillable = \[\];/,
+        `protected static override _table = "${options.table}";\n\n  protected static override _fillable = [];`,
+      );
+    }
 
     writeFile(modelPath, modelContent);
     console.log(
@@ -126,7 +135,8 @@ class MyArtisan {
     );
 
     if (options.migration || options.all) {
-      this.makeMigration({}, generateTableName(name));
+      const tableName = options.table || generateTableName(name);
+      this.makeMigration({}, tableName);
     }
 
     if (options.controller || options.all) {
@@ -747,6 +757,7 @@ class MyArtisan {
       .option("-r, --resource", "Make the controller resourceful")
       .option("--all", "Generate migration, factory, and controller")
       .option("--pivot", "Indicate the model is a pivot table")
+      .option("--table <table:string>", "Specify the table name for the model")
       .action(
         (
           options: {
@@ -756,6 +767,7 @@ class MyArtisan {
             resource?: boolean;
             all?: boolean;
             pivot?: boolean;
+            table?: string;
           },
           name: string,
         ) => this.makeModel(options, name),

@@ -1,12 +1,13 @@
 import { Route } from "Illuminate/Support/Facades/index.ts";
 import FirstClass from "App/Models/FirstClass.ts";
+import ThirdClass from "App/Models/ThirdClass.ts";
+import NSTGLevel from "App/Models/NSTGLevel.ts";
 
-Route.view("/", "welcome");
-
-Route.get("/test", async () => {
-  const classes = await FirstClass.with("secondClasses.thirdClasses").first();
-
-  console.log(classes);
-
-  return response().json(classes);
+Route.get("/", async ({ request }) => {
+  const allClass = await ThirdClass.all();
+  const nstg = await NSTGLevel.all();
+  return view("welcome", {
+    allClass,
+    nstg,
+  });
 });

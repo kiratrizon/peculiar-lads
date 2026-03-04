@@ -1037,9 +1037,9 @@ export class Builder<
   }
 
   // @ts-ignore //
-  public override async get<
-    M extends Model<ModelAttributes> = Model<B>,
-  >(): Promise<Collection<M>> {
+  public override async get<M extends Model<B> = Model<B>>(): Promise<
+    Collection<M>
+  > {
     const data = await super.get();
     const mapped = data.map((item) => {
       // @ts-ignore //
