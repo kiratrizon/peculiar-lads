@@ -333,6 +333,8 @@ export abstract class Model<T extends ModelAttributes = ModelAttributes> {
         data[key] = value.toObject(); // single related model
       } else if (value instanceof Collection) {
         data[key] = value.toArray(); // collection of related models
+      } else if (value instanceof Date) {
+        data[key] = value.toISOString(); // convert Date to ISO string
       }
     }
 

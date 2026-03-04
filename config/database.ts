@@ -20,6 +20,21 @@ const constant: DatabaseConfig = {
       driver: "sqlite",
       database: databasePath("database.sqlite"),
     },
+
+    pgsql: {
+      driver: "pgsql",
+      host: env("DB_HOST", "127.0.0.1"),
+      port: env("DB_PORT", 5432),
+      user: env("DB_USERNAME", "postgres"),
+      password: env("DB_PASSWORD", ""),
+      database: env("DB_DATABASE", "postgres"),
+      charset: "utf8",
+      tls: {
+        enabled: env("DB_PGSQL_TLS_ENABLED", false),
+        enforce: env("DB_PGSQL_TLS_ENFORCE", false),
+        caCertificates: [],
+      },
+    },
   },
 
   redis: {

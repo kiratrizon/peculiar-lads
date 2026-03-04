@@ -372,7 +372,7 @@ export class Database {
             const defaultUser = forPgSQL.user || "postgres";
             const defaultPassword = forPgSQL.password || "";
             const defaultOptions = forPgSQL.options || {};
-
+            const tls = forPgSQL.tls || { enabled: false };
             // In clever setups: pick the first host as primary (for now)
             for (const host of defaultHosts) {
               const pool = new PgPool(
@@ -382,6 +382,7 @@ export class Database {
                   user: defaultUser,
                   password: defaultPassword,
                   database: defaultDatabase,
+                  tls,
                   ...defaultOptions,
                 },
                 // pool size (connections per host)
@@ -841,6 +842,7 @@ export class DatabaseHelper {
           user: fromReadOrWrite?.user || dbConfig.user || "postgres",
           password: fromReadOrWrite?.password || dbConfig.password || "",
           database: "postgres",
+          tls: dbConfig.tls || { enabled: false },
         };
 
         const poolSize = dbConfig.poolSize || 5;

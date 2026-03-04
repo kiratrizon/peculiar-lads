@@ -383,7 +383,7 @@ class MyArtisan {
 
       case "pgsql": {
         const result = await DB.connection(connection).select(
-          `SELECT tablename FROM pg_tables WHERE schemaname = 'public'`,
+          `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = current_user`,
         );
         tables = result.map((row) => `"${row.tablename}"`);
         break;
