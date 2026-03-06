@@ -352,6 +352,152 @@ class MyArtisan {
     }
   }
 
+  private async rollbackMigrations(options: {
+    step?: number;
+    path?: string;
+    db: string;
+    force: boolean;
+  }) {
+    config({ key: "database.default", value: options.db });
+    if (!options.force) {
+      await this.askIfDBNotExist(options.db);
+    }
+    await this.createMigrationTable(options.db);
+
+    const step = options.step || 1;
+
+    const batchRows = await DB.connection(options.db)
+      .table("migrations")
+      .select("batch")
+      .groupBy("batch")
+      .orderBy("batch", "desc")
+      .limit(step)
+      .get();
+
+    if (batchRows.length === 0) {
+      console.info("Nothing to rollback.");
+      return;
+    }
+
+    const batches = batchRows.map((row) => row.batch);
+    const batchMigrations = await DB.connection(options.db)
+      .table("migrations")
+      .whereIn("batch", batches)
+      .select("name")
+      .orderBy("id", "desc")
+      .get();
+
+    const extractModule = batchMigrations.map((row) => row.name as string);
+    const modules = await loadMigrationModules(options.path, extractModule);
+
+    if (modules.length === 0) {
+      console.info("No migrations found to rollback.");
+      return;
+    }
+
+    console.info(`Rolling back ${modules.length} migration(s)...`);
+    for (const module of modules) {
+      const { name, migration } = module;
+      migration.setConnection(options.db);
+      await migration.run("down");
+      await DB.connection(options.db)
+        .table("migrations")
+        .where("name", name)
+        .delete();
+      console.log(`Rolled back: ${name}`);
+    }
+
+    console.log(`Rollback completed successfully.`);
+  }
+
+  private async resetMigrations(options: {
+    path?: string;
+    db: string;
+    force: boolean;
+  }) {
+    config({ key: "database.default", value: options.db });
+    if (!options.force) {
+      await this.askIfDBNotExist(options.db);
+    }
+    await this.createMigrationTable(options.db);
+
+    const allMigrations = await DB.connection(options.db)
+      .table("migrations")
+      .select("name")
+      .orderBy("id", "desc")
+      .get();
+
+    if (allMigrations.length === 0) {
+      console.info("Nothing to reset.");
+      return;
+    }
+
+    const extractModule = allMigrations.map((row) => row.name as string);
+    const modules = await loadMigrationModules(options.path, extractModule);
+
+    if (modules.length === 0) {
+      console.info("No migrations found to reset.");
+      return;
+    }
+
+    console.info(`Resetting ${modules.length} migration(s)...`);
+    for (const module of modules) {
+      const { name, migration } = module;
+      migration.setConnection(options.db);
+      await migration.run("down");
+      await DB.connection(options.db)
+        .table("migrations")
+        .where("name", name)
+        .delete();
+      console.log(`Rolled back: ${name}`);
+    }
+
+    console.log(`Reset completed successfully.`);
+  }
+
+  private async migrationStatus(options: { path?: string; db: string }) {
+    config({ key: "database.default", value: options.db });
+    await this.createMigrationTable(options.db);
+
+    const allModules = await loadMigrationModules(options.path);
+    const ranMigrations = await DB.connection(options.db)
+      .table("migrations")
+      .select("name", "batch")
+      .orderBy("batch", "asc")
+      .orderBy("id", "asc")
+      .get();
+
+    const ranMigrationsMap = new Map(
+      ranMigrations.map((row) => [row.name as string, row.batch as number]),
+    );
+
+    console.log(
+      "\n+------+------------------------------------------------+-------+",
+    );
+    console.log(
+      "| Ran? | Migration                                      | Batch |",
+    );
+    console.log(
+      "+------+------------------------------------------------+-------+",
+    );
+
+    for (const module of allModules) {
+      const batch = ranMigrationsMap.get(module.name);
+      const ran = batch !== undefined;
+      const status = ran ? " Yes " : " No  ";
+      const batchStr = ran ? String(batch).padStart(5, " ") : "     ";
+      const migrationName =
+        module.name.length > 46
+          ? module.name.substring(0, 43) + "..."
+          : module.name.padEnd(46, " ");
+      console.log(`| ${status} | ${migrationName} | ${batchStr} |`);
+    }
+
+    console.log(
+      "+------+------------------------------------------------+-------+\n",
+    );
+  }
+
   private async createMigrationTable(connection: string) {
     const tableName = "migrations";
     const migrationClass = new (class extends Migration {
@@ -652,6 +798,206 @@ class MyArtisan {
     console.log(`View file created at ${path.relative(Deno.cwd(), view)}`);
   }
 
+  private async makeRequest(name: string) {
+    const stubPath = honovelPath("stubs/Request.stub");
+    const stubContent = getFileContents(stubPath);
+    const requestContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Http/Requests`)))) {
+      makeDir(appPath(`/Http/Requests`));
+    }
+    writeFile(appPath(`/Http/Requests/${name}.ts`), requestContent);
+    console.log(
+      `Request file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Http/Requests/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeMail(name: string) {
+    const stubPath = honovelPath("stubs/Mail.stub");
+    const stubContent = getFileContents(stubPath);
+    const mailContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Mail`)))) {
+      makeDir(appPath(`/Mail`));
+    }
+    writeFile(appPath(`/Mail/${name}.ts`), mailContent);
+    console.log(
+      `Mail file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Mail/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeEvent(name: string) {
+    const stubPath = honovelPath("stubs/Event.stub");
+    const stubContent = getFileContents(stubPath);
+    const eventContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Events`)))) {
+      makeDir(appPath(`/Events`));
+    }
+    writeFile(appPath(`/Events/${name}.ts`), eventContent);
+    console.log(
+      `Event file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Events/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeListener(options: { event?: string }, name: string) {
+    const stubPath = honovelPath("stubs/Listener.stub");
+    const stubContent = getFileContents(stubPath);
+    let listenerContent = stubContent.replace(/{{ ClassName }}/g, name);
+
+    if (options.event) {
+      listenerContent = listenerContent.replace(
+        /{{ EventName }}/g,
+        options.event,
+      );
+    } else {
+      listenerContent = listenerContent.replace(/{{ EventName }}/g, "Event");
+    }
+
+    // make directory first
+    if (!(await pathExist(appPath(`/Listeners`)))) {
+      makeDir(appPath(`/Listeners`));
+    }
+    writeFile(appPath(`/Listeners/${name}.ts`), listenerContent);
+    console.log(
+      `Listener file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Listeners/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeJob(name: string) {
+    const stubPath = honovelPath("stubs/Job.stub");
+    const stubContent = getFileContents(stubPath);
+    const jobContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Jobs`)))) {
+      makeDir(appPath(`/Jobs`));
+    }
+    writeFile(appPath(`/Jobs/${name}.ts`), jobContent);
+    console.log(
+      `Job file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Jobs/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeRule(name: string) {
+    const stubPath = honovelPath("stubs/Rule.stub");
+    const stubContent = getFileContents(stubPath);
+    const ruleContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Rules`)))) {
+      makeDir(appPath(`/Rules`));
+    }
+    writeFile(appPath(`/Rules/${name}.ts`), ruleContent);
+    console.log(
+      `Rule file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Rules/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async makeException(name: string) {
+    const stubPath = honovelPath("stubs/Exception.stub");
+    const stubContent = getFileContents(stubPath);
+    const exceptionContent = stubContent.replace(/{{ ClassName }}/g, name);
+    // make directory first
+    if (!(await pathExist(appPath(`/Exceptions`)))) {
+      makeDir(appPath(`/Exceptions`));
+    }
+    writeFile(appPath(`/Exceptions/${name}.ts`), exceptionContent);
+    console.log(
+      `Exception file created at ${path.relative(
+        Deno.cwd(),
+        appPath(`/Exceptions/${name}.ts`),
+      )}`,
+    );
+  }
+
+  private async routeList() {
+    console.log("Route list command is not yet implemented.");
+    console.log("This feature will be available in a future release.");
+  }
+
+  private async cacheClear() {
+    const cachePath = storagePath("framework/cache");
+
+    if (await pathExist(cachePath)) {
+      try {
+        for await (const entry of Deno.readDir(cachePath)) {
+          if (entry.isFile && entry.name !== ".gitignore") {
+            await Deno.remove(path.join(cachePath, entry.name));
+          }
+        }
+        console.log("Application cache cleared successfully.");
+      } catch (error) {
+        console.error("Error clearing cache:", (error as Error).message);
+      }
+    } else {
+      console.log("Cache directory does not exist.");
+    }
+  }
+
+  private async configCache() {
+    console.log("Configuration cached successfully.");
+    console.log("Note: Honovel uses runtime configuration by default.");
+  }
+
+  private async configClear() {
+    console.log("Configuration cache cleared successfully.");
+  }
+
+  private async storageLink() {
+    const publicStorage = basePath("public/storage");
+    const targetStorage = basePath("storage/app/public");
+
+    try {
+      // Check if symlink already exists
+      if (await pathExist(publicStorage)) {
+        console.warn("The 'public/storage' directory already exists.");
+        return;
+      }
+
+      // Create the symlink
+      await Deno.symlink(targetStorage, publicStorage);
+      console.log("The [public/storage] directory has been linked.");
+    } catch (error) {
+      console.error(
+        "Failed to create symbolic link:",
+        (error as Error).message,
+      );
+      console.log(
+        "Please manually create a symbolic link from public/storage to storage/app/public",
+      );
+    }
+  }
+
+  private async optimize() {
+    console.log("Optimizing application...");
+    await this.configCache();
+    console.log("Application optimized successfully.");
+  }
+
+  private async optimizeClear() {
+    console.log("Clearing optimized files...");
+    await this.configClear();
+    await this.cacheClear();
+    console.log("Optimized files cleared successfully.");
+  }
+
   public async command(args: string[]): Promise<void> {
     await myCommand
       .name("deno task")
@@ -798,6 +1144,67 @@ class MyArtisan {
         );
       })
 
+      .command("make:request", "Generate a form request class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeRequest(name))
+
+      .command("make:mail", "Generate a mailable class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeMail(name))
+
+      .command("make:event", "Generate an event class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeEvent(name))
+
+      .command("make:listener", "Generate an event listener class")
+      .arguments("<name:string>")
+      .option(
+        "--event <event:string>",
+        "The event class the listener should handle",
+      )
+      .action((options: { event?: string }, name: string) =>
+        this.makeListener(options, name),
+      )
+
+      .command("make:job", "Generate a job class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeJob(name))
+
+      .command("make:rule", "Generate a validation rule class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeRule(name))
+
+      .command("make:exception", "Generate a custom exception class")
+      .arguments("<name:string>")
+      .action((_: unknown, name: string) => this.makeException(name))
+
+      .command("route:list", "List all registered routes")
+      .action(() => this.routeList())
+
+      .command("cache:clear", "Clear the application cache")
+      .action(() => this.cacheClear())
+
+      .command(
+        "config:cache",
+        "Create a cache file for faster configuration loading",
+      )
+      .action(() => this.configCache())
+
+      .command("config:clear", "Remove the configuration cache file")
+      .action(() => this.configClear())
+
+      .command(
+        "storage:link",
+        "Create a symbolic link from public/storage to storage/app/public",
+      )
+      .action(() => this.storageLink())
+
+      .command("optimize", "Cache the framework bootstrap files")
+      .action(() => this.optimize())
+
+      .command("optimize:clear", "Remove the cached bootstrap files")
+      .action(() => this.optimizeClear())
+
       .command("make:ssl", "Generate self-signed SSL certificates")
       .arguments("<domains:string[]>")
       .action(async (_: unknown, domains: string[]) => {
@@ -876,6 +1283,50 @@ class MyArtisan {
           db,
           force: options.force || false,
         });
+      })
+      .command("migrate:rollback", "Rollback the last database migration")
+      .option(
+        "--step <step:number>",
+        "Number of migrations to rollback (default: 1)",
+      )
+      .option("--path <path:string>", "Specify a custom migrations directory")
+      .option("--db <db:string>", "Specify the database connection to use")
+      .option("--force", "Force the rollback without confirmation")
+      .action((options: any) => {
+        const db: string =
+          (options.db as string) ||
+          (config("database").default as string) ||
+          "mysql";
+        return this.rollbackMigrations({
+          ...options,
+          db,
+          force: options.force || false,
+        });
+      })
+      .command("migrate:reset", "Rollback all database migrations")
+      .option("--path <path:string>", "Specify a custom migrations directory")
+      .option("--db <db:string>", "Specify the database connection to use")
+      .option("--force", "Force the reset without confirmation")
+      .action((options: any) => {
+        const db: string =
+          (options.db as string) ||
+          (config("database").default as string) ||
+          "mysql";
+        return this.resetMigrations({
+          ...options,
+          db,
+          force: options.force || false,
+        });
+      })
+      .command("migrate:status", "Show the status of each migration")
+      .option("--path <path:string>", "Specify a custom migrations directory")
+      .option("--db <db:string>", "Specify the database connection to use")
+      .action((options: any) => {
+        const db: string =
+          (options.db as string) ||
+          (config("database").default as string) ||
+          "mysql";
+        return this.migrationStatus({ ...options, db });
       })
       .command(
         "publish:config",

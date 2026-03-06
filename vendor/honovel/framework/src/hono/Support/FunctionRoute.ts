@@ -12,7 +12,6 @@ import { MiddlewareLikeClass } from "Illuminate/Foundation/Http/index.ts";
 import { SQLError } from "Illuminate/Database/Query/index.ts";
 import { Model } from "Illuminate/Database/Eloquent/index.ts";
 import { ModelAttributes } from "../../../../@types/declaration/Base/IBaseModel.d.ts";
-import HonoRequest from "HonoHttp/HonoRequest.d.ts";
 import { ValidationException } from "Illuminate/Validation/ValidationException.ts";
 import { TagContract } from "edge.js/types";
 import HonoView from "HonoHttp/HonoView.ts";
@@ -23,6 +22,7 @@ import { SessionDataTypes } from "../../../../@types/declaration/imain.d.ts";
 import viteConfig from "../../../../../vite/vite-manipulate.ts";
 import HRequest from "HonoHttp/HonoRequest.d.ts";
 import BindingRegistry from "../Core/BindingRegistry.ts";
+import HonoRequest from "HonoHttp/HonoRequest.ts";
 
 export const regexObj = {
   number: /^\d+$/,
@@ -603,6 +603,7 @@ interface MiddlewareOrDispatch {
   debugString: string;
   args: HttpMiddleware | IMyConfig["callback"];
   from?: "handle" | "fallback" | "dispatch" | "notfound";
+  customRequest?: typeof HonoRequest;
 }
 function generateMiddlewareOrDispatch(
   type: "middleware" | "dispatch" | "notfound",
@@ -672,6 +673,10 @@ function generateMiddlewareOrDispatch(
                 }
                 abort(404);
               }
+            }
+            if (type === "dispatch" && objArgs.customRequest) {
+              // @ts-ignore //
+              myHono.changeRequest(objArgs.customRequest);
             }
             middlewareResp = await args(myHono, newParams);
           }
@@ -849,12 +854,12 @@ function generateFallback(
   };
 }
 
-export const returnResponse = async (c: MyContext) => {
+export const returnResponse: MiddlewareHandler = async (c: MyContext) => {
   const response = c.get("response");
   // dispose session
   const myHono = c.get("myHono");
   await myHono.request.dispose();
-  return response;
+  return response as Response;
 };
 
 export function renderErrorHtml(e: Error): string {
@@ -1293,7 +1298,7 @@ function tracingLocation(
 async function handleErrors(
   e: unknown,
   c: MyContext,
-  request: HonoRequest,
+  request: HRequest,
 ): Promise<Response> {
   let resp: Response | undefined;
   if (e instanceof DDError) {

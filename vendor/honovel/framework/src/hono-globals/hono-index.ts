@@ -4,6 +4,7 @@ import HonoView from "HonoHttp/HonoView.ts";
 import { AbortError, DDError } from "../Maneuver/HonovelErrors.ts";
 import HonoRedirect from "HonoHttp/HonoRedirect.ts";
 import HonoResponseV2 from "HonoHttp/HonoResponse.ts";
+import Event from "Illuminate/Events/index.ts";
 
 globalFn("response", function (html = null, status = 200) {
   if (!isset(html)) {
@@ -31,4 +32,8 @@ globalFn("abort", (statusCode = 500, message = null) => {
 
 globalFn("redirect", (url = null) => {
   return new HonoRedirect(url);
+});
+
+globalFn("event", async (event: string | object, payload: any[] = []) => {
+  return await Event.dispatch(event, payload);
 });

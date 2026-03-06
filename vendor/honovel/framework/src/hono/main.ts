@@ -105,39 +105,19 @@ const headFunction: MiddlewareHandler = async (
   }
   return await next();
 };
-function domainGroup(
-  mainstring: string,
-  {
-    sequenceParams,
-  }: {
-    sequenceParams: string[];
-  },
-): MiddlewareHandler {
-  return async (c: MyContext, next: () => Promise<void>) => {
-    const workingParams = [...sequenceParams];
-    const host = c.req.raw.url.split("://")[1].split("/")[0];
-    const domainParts = host.split(".");
-    const domainPattern = mainstring.split(".");
-    const domainParams: Record<string, string> = {};
-    if (!empty(sequenceParams)) {
-      domainPattern.forEach((part, index) => {
-        if (part === "*" && sequenceParams.length > 0) {
-          const key = workingParams.shift();
-          const value = domainParts[index];
-          if (isset(key) && isset(value)) {
-            domainParams[key] = value;
-          }
-        }
-      });
-    }
-    c.set("subdomain", domainParams);
-    return await next();
-  };
-}
+// Moved to RouteHelpers.ts
+const domainGroup = createDomainGroup;
 
-function convertLaravelDomainToWildcard(domain: string): string {
-  return domain.replace(/\{[^.}]+\}/g, "*");
-}
+import {
+  convertLaravelDomainToWildcard,
+  domainGroup as createDomainGroup,
+  matchesDomainPattern,
+  extractHost,
+  validateRouteName,
+  registerRoute,
+  buildRouteUrl,
+} from "./Support/RouteHelpers.ts";
+
 const myStaticDefaults: MiddlewareHandler[] = [
   serveStatic({ root: path.relative(Deno.cwd(), publicPath()) }),
   serveStatic({
@@ -157,45 +137,46 @@ const _forDomain: MiddlewareHandler = async (
 ) => {
   const requestUrl = new URL(c.req.url);
   const appUrl = env("APP_URL", "").toLowerCase();
-  const [protocol, domain] = requestUrl.toString().toLowerCase().split("://");
-  const [incoming, uri] = domain.split("/");
-  let incomingUrl: string;
-  if (isset(env("DENO_DEPLOYMENT_ID"))) {
-    incomingUrl = `${protocol}://${incoming.replace(
-      `-${env("DENO_DEPLOYMENT_ID", "")}`,
-      "",
-    )}`;
-  } else {
-    incomingUrl = `${protocol}://${incoming}`;
-  }
-  incomingUrl = [incomingUrl, uri || ""].join("/");
-  let key: string = "web";
-  if (c.req.raw.url.startsWith("/api/")) {
-    key = "api";
-  }
-  if (!incomingUrl.startsWith(appUrl)) {
-    const host = c.req.raw.url.split("://")[1].split("/")[0];
+  const incomingUrl = buildIncomingUrl(requestUrl);
+  const key: string = c.req.raw.url.startsWith("/api/") ? "api" : "web";
 
+  if (!incomingUrl.startsWith(appUrl)) {
+    const host = extractHost(c.req.raw.url);
+
+    // Direct match
     if (keyExist(Server.domainPattern[key], host)) {
       return await Server.domainPattern[key][host].fetch(c.req.raw);
     }
-    // Check for patterns with wildcards
-    for (const pattern in Server.domainPattern[key]) {
-      if (pattern.includes("*")) {
-        const regex = new RegExp(
-          "^" + pattern.replace(/\./g, "\\.").replace(/\*/g, "[^.]+") + "$",
-        );
 
-        if (regex.test(host)) {
-          return await Server.domainPattern[key][pattern].fetch(c.req.raw);
-        }
+    // Wildcard pattern match
+    for (const pattern in Server.domainPattern[key]) {
+      if (matchesDomainPattern(pattern, host)) {
+        return await Server.domainPattern[key][pattern].fetch(c.req.raw);
       }
     }
+
     return await myError(c);
   }
 
   return await next();
 };
+
+/**
+ * Build incoming URL from request
+ */
+function buildIncomingUrl(requestUrl: URL): string {
+  const [protocol, domain] = requestUrl.toString().toLowerCase().split("://");
+  const [incoming, uri] = domain.split("/");
+
+  let incomingHost: string;
+  if (isset(env("DENO_DEPLOYMENT_ID"))) {
+    incomingHost = incoming.replace(`-${env("DENO_DEPLOYMENT_ID", "")}`, "");
+  } else {
+    incomingHost = incoming;
+  }
+
+  return `${protocol}://${incomingHost}/${uri || ""}`;
+}
 
 class Server {
   private static Hono = Hono;
@@ -423,6 +404,8 @@ class Server {
               const flagMiddleware = flag.middleware || [];
 
               const myConfig = routeUsed.config;
+              // custom request class handling
+              const customRequestClass = myConfig.customRequest;
               const arrangerDispatch = URLArranger.urlCombiner(myConfig.uri);
               const newApp = await this.generateNewApp();
 
@@ -432,18 +415,14 @@ class Server {
                 flagWhere,
               );
               if (flagName !== "") {
-                const fixUri = `${routePrefix == "/" ? "" : routePrefix}${
-                  myConfig.uri
-                }`;
-                if (!keyExist(this.routes, flagName)) {
-                  this.routes[flagName] = {
-                    url: fixUri,
-                    requiredParams: arrangerDispatch.requiredParams,
-                    optionalParams: arrangerDispatch.optionalParams,
-                  };
-                } else {
-                  console.warn(
-                    `Route name "${flagName}" already exists. Overriding it is not allowed.`,
+                const fixUri = buildRouteUrl(routePrefix, myConfig.uri);
+                if (validateRouteName(this.routes, flagName)) {
+                  registerRoute(
+                    this.routes,
+                    flagName,
+                    fixUri,
+                    arrangerDispatch.requiredParams,
+                    arrangerDispatch.optionalParams,
                   );
                 }
               }
@@ -452,6 +431,7 @@ class Server {
                 {
                   args: myConfig.callback as IMyConfig["callback"],
                   debugString: myConfig.debugString,
+                  customRequest: customRequestClass,
                 },
                 arrangerDispatch.sequenceParams,
               );
@@ -577,6 +557,8 @@ class Server {
               groupEntries.forEach(([routeId, methodarr]) => {
                 const routeUsed = methods[routeId];
                 const myConfig = routeUsed.config;
+                // custom request class handling
+                const customRequestClass = myConfig.customRequest;
                 const flag = routeUsed.myFlag;
                 const myParam: string[] = [...domainParam];
                 const combinedGroupDispatch = URLArranger.urlCombiner([
@@ -588,6 +570,7 @@ class Server {
                   {
                     args: myConfig.callback as IMyConfig["callback"],
                     debugString: myConfig.debugString,
+                    customRequest: customRequestClass,
                   },
                   myParam,
                 );
@@ -607,25 +590,20 @@ class Server {
                 );
                 const flagName = flag.name || "";
                 if (flagName !== "") {
-                  // combine as and flagName
-                  let finalName = "";
-                  if (!empty(as)) {
-                    finalName += `${as}.`;
-                  }
-                  finalName += flagName;
-                  if (keyExist(this.routes, finalName)) {
-                    console.warn(
-                      `Route name "${flagName}" already exists. Overriding it is not allowed.`,
+                  const finalName = !empty(as) ? `${as}.${flagName}` : flagName;
+                  const finalUrl = buildRouteUrl(
+                    routePrefix,
+                    `${arrangerGroup.string}${myConfig.uri}`,
+                  );
+
+                  if (validateRouteName(this.routes, finalName)) {
+                    registerRoute(
+                      this.routes,
+                      finalName,
+                      finalUrl,
+                      arrangerDispatch.requiredParams,
+                      arrangerDispatch.optionalParams,
                     );
-                  } else {
-                    const finalUrl = `${routePrefix == "/" ? "" : routePrefix}${
-                      arrangerGroup.string
-                    }${myConfig.uri}`;
-                    this.routes[finalName] = {
-                      url: finalUrl,
-                      requiredParams: arrangerDispatch.requiredParams,
-                      optionalParams: arrangerDispatch.optionalParams,
-                    };
                   }
                 }
                 const flagMiddleware = flag.middleware || [];
