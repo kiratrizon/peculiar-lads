@@ -334,16 +334,13 @@ const configure = new Constants(myConfigData as Record<string, unknown>);
 globalFn(
   "config",
   function (
-    key: string | { key: string; value: any },
+    key: string,
     defaultValue: unknown = null,
   ) {
     if (isString(key)) {
       return configure.read(key) || defaultValue;
     }
-    if (isObject(key)) {
-      configure.write(key.key, key.value);
-      return key.value;
-    }
+    throw new Error("Invalid key");
   },
 );
 

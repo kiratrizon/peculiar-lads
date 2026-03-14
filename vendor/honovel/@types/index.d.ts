@@ -110,13 +110,6 @@ declare global {
     defaultValue?: ConfigItems[T],
   ): ConfigItems[T];
   function config(key: string, defaultValue?: unknown): unknown;
-  function config({
-    key,
-    value,
-  }: {
-    key: string;
-    value: unknown;
-  }): typeof value;
   /**
    * Initializes the configuration store by reading all configuration files in the config directory.
    */

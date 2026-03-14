@@ -137,8 +137,8 @@ import { SslOptions } from "mysql2";
 import { Authenticatable } from "Illuminate/Contracts/Auth/index.ts";
 import { ServiceProvider } from "Illuminate/Support/index.ts";
 import { IStorage } from "Illuminate/Support/Facades/Storage.ts";
-import { AbstractStore } from "Illuminate/Cache/index.ts";
 import { TLSOptions } from "@db/pgsql";
+import AbstractStore from "Illuminate/Cache/Stores/AbstractStore.ts";
 
 /**
  * Supported database drivers
@@ -662,9 +662,7 @@ export interface CacheConfig {
 
 // this is the basis for the config items
 // example config("database") will return this type
-// or from Configure inside the function of route
-// Route.get("/example", async ({request, Configure}) => {
-//  const dbConfig = Configure.read("database");
+// Route.get("/example", async ({request}) => {
 //  this will return the DatabaseConfig type
 //  console.log(dbConfig.default); // "mysql", "pgsql", "sqlite", or "sqlsrv"
 // })

@@ -179,7 +179,7 @@ class MyArtisan {
     force: boolean;
     seeder?: string;
   }) {
-    config({ key: "database.default", value: options.db });
+    
     if (!options.force) {
       await this.askIfDBNotExist(options.db);
     }
@@ -225,7 +225,7 @@ class MyArtisan {
     force: boolean;
     seeder?: string;
   }) {
-    config({ key: "database.default", value: options.db });
+    
     if (!options.force) {
       await this.askIfDBNotExist(options.db);
     }
@@ -272,7 +272,7 @@ class MyArtisan {
     force: boolean;
     seeder?: string;
   }) {
-    config({ key: "database.default", value: options.db });
+    
     if (!options.force) {
       await this.askIfDBNotExist(options.db);
     }
@@ -358,7 +358,7 @@ class MyArtisan {
     db: string;
     force: boolean;
   }) {
-    config({ key: "database.default", value: options.db });
+    
     if (!options.force) {
       await this.askIfDBNotExist(options.db);
     }
@@ -415,7 +415,7 @@ class MyArtisan {
     db: string;
     force: boolean;
   }) {
-    config({ key: "database.default", value: options.db });
+    
     if (!options.force) {
       await this.askIfDBNotExist(options.db);
     }
@@ -456,7 +456,7 @@ class MyArtisan {
   }
 
   private async migrationStatus(options: { path?: string; db: string }) {
-    config({ key: "database.default", value: options.db });
+    
     await this.createMigrationTable(options.db);
 
     const allModules = await loadMigrationModules(options.path);
@@ -998,6 +998,30 @@ class MyArtisan {
     console.log("Optimized files cleared successfully.");
   }
 
+  private async installApi() {
+    const apiPath = basePath("routes/api.ts");
+
+    try {
+      if (await pathExist(apiPath)) {
+        console.info(`API routes file ${apiPath} already exist.`);
+        return;
+      }
+      // create api.ts file
+      const stubPath = honovelPath("stubs/backend.stub");
+      const stubContent = getFileContents(stubPath);
+      writeFile(apiPath, stubContent);
+      console.log(`API routes file created at ${path.relative(Deno.cwd(), apiPath)}`);
+    } finally {
+      // make yellow color
+      console.log(
+        `Please add this to your bootstrap/app.ts file under withRouting({}):`
+      );
+  
+      // Entire import line in yellow
+      console.log("\x1b[33m%s\x1b[0m", 'api: async () => await import("../routes/api.ts"),');
+    }
+  }
+
   public async command(args: string[]): Promise<void> {
     await myCommand
       .name("deno task")
@@ -1015,6 +1039,9 @@ class MyArtisan {
           db: options.database,
         }),
       )
+
+      .command("install:api", "Install the API routes")
+      .action(()=>this.installApi())
 
       .command("install:driver", "Install optional database/cache drivers")
       .option(

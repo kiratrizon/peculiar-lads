@@ -9,9 +9,9 @@ import { CookieOptions } from "hono/utils/cookie";
 import { deleteCookie } from "hono/cookie";
 import { SessionModifier } from "HonoHttp/HonoSession.ts";
 import { Authenticatable } from "Illuminate/Contracts/Auth/index.ts";
-import { Model } from "Illuminate/Database/Eloquent/index.ts";
+import Model from "Illuminate/Database/Eloquent/Model.ts";
 import { ModelAttributes } from "../../../../@types/declaration/Base/IBaseModel.d.ts";
-import { ValidationException } from "Illuminate/Validation/ValidationException.ts";
+import ValidationException from "Illuminate/Validation/ValidationException.ts";
 import HonoFile from "./HonoFile.ts";
 
 import { XMLParser } from "fast-xml-parser";
@@ -31,7 +31,7 @@ class HonoRequest extends Macroable {
     this.#c = c;
     (this.constructor as typeof HonoRequest).applyMacrosTo(this);
 
-    if (!this.#c.get("_calibrated")) {
+    if (!isset(this.#c.get("_calibrated"))) {
       // Initialize context storage
       this.#c.set("_files", {});
       this.#c.set("_myAll", {});
@@ -67,8 +67,8 @@ class HonoRequest extends Macroable {
             // multiparser supports both single and multiple files
             const fileToObj = Array.isArray(file)
               ? file.map((e) => {
-                  return new HonoFile(e);
-                })
+                return new HonoFile(e);
+              })
               : [new HonoFile(file)];
             files[key] = fileToObj;
           }
@@ -185,7 +185,7 @@ class HonoRequest extends Macroable {
   }
 
   public merge(data: Record<string, unknown>): void {
-    if (!this.#c.get("_built")) {
+    if (this.#c.get("_built") !== true) {
       throw new Error("Request not built yet. Call buildRequest() first.");
     }
     const myAll = this.#c.get("_myAll") as Record<string, unknown>;
@@ -576,19 +576,9 @@ class HonoRequest extends Macroable {
 
     if (validation.fails()) {
       const errors = validation.getErrors();
-      const valExc = new ValidationException(errors);
-      let action;
-      if (this.ajax() || this.expectsJson()) {
-        action = response().json({
-          message: "The given data was invalid.",
-          errors: errors,
-          input: data,
-        });
-      } else {
-        this.session.flash("errors", errors);
-        action = redirect().back();
-      }
-      valExc.setDefaultResponse(action);
+      const valExc = new ValidationException();
+      valExc.errors = errors;
+      valExc.input = data;
       throw valExc;
     }
 
