@@ -171,18 +171,19 @@
 			<section id="join" class="mb-16">
 				<div class="max-w-2xl mx-auto">
 					<div class="bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 p-1 rounded-2xl shadow-2xl">
-						<form class="bg-gradient-to-br from-white to-indigo-50 rounded-2xl p-8 flex flex-col gap-5">
+						<form class="bg-gradient-to-br from-white to-indigo-50 rounded-2xl p-8 flex flex-col gap-5" action="{{ route('apply') }}" method="post">
+							@csrf()
 							<div class="text-center mb-4">
 								<h3 class="text-3xl font-bold text-indigo-900 mb-2">Join {{ env('GUILD_NAME') }}! 🚀</h3>
 								<p class="text-indigo-700">Fill out the form below to start your adventure with us</p>
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Character Name *</label>
-								<input type="text" placeholder="Enter your Dragon Nest character name" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Class *</label>
-								<select class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<select class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required name="class">
 									<option value="" disabled selected>Select your class</option>
 									@each($class in $allClass)
 										<option value="{{ $class.id }}">{{ $class.name }}</option>
@@ -201,13 +202,13 @@
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Contact (Discord/Email) *</label>
-								<input type="text" placeholder="Discord username or email" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<input type="text" placeholder="Discord username or email" name="discord" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Why do you want to join? *</label>
-								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" rows="4" required></textarea>
+								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" rows="4" required></textarea>
 							</div>
-							<button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg">
+							<button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg hover:cursor-pointer">
 								🎯 Submit Application
 							</button>
 							<p class="text-center text-sm text-indigo-600">
@@ -241,6 +242,10 @@
 
 		</div>
 	</main>
+
+	@if(isset($message))
+		<input type="text" id="message" value="{{ $message }}">
+	@end
 @endslot
 
 @end

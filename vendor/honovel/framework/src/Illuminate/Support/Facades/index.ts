@@ -437,7 +437,7 @@ export class Validator {
     validations: Record<string, string>,
   ) {
     this.#data = data;
-    this.#validations = validations;
+    this.#validations = {...validations};
   }
 
   getErrors() {

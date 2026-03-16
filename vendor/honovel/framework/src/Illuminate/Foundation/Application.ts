@@ -1,4 +1,3 @@
-import { ICallback } from "../../../../@types/declaration/IRoute.d.ts";
 import Middleware from "./Configuration/Middleware.ts";
 import Exception from "./Execptions/Exception.ts";
 import Exceptions, { IExceptionCallback } from "./Execptions/Exceptions.ts";

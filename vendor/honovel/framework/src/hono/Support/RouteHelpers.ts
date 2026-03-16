@@ -124,7 +124,8 @@ export function registerRoute(
  * Build final route URL with prefix
  */
 export function buildRouteUrl(prefix: string, uri: string): string {
-  return `${prefix === "/" ? "" : prefix}${uri}`;
+  const url = (`${prefix === "/" ? "" : prefix}${uri}`).replace(/\/\//g, "/");
+  return url;
 }
 
 /**

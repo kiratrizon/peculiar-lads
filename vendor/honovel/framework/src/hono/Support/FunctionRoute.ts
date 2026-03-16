@@ -1380,6 +1380,10 @@ export async function handleAction(
           return request.session;
         },
         env: env,
+        route: function (name: string, params: Record<string, unknown> = {}) {
+          console.log(request.getHost());
+          return request.getHost() + route(name, params);
+        },
         request: function () {
           return request;
         },
@@ -1622,14 +1626,11 @@ export async function exceptionToResponse(c: MyContext, exception: Exception): P
   const getException = Application.getException(exception);
   if (getException && myHono) {
     const firstResp = await getException.cb(myHono, exception);
-    if (firstResp instanceof RedirectResponse) {
-      saveSessionIfRedirect(myHono.request);
-    }
-    if (firstResp instanceof HonoView) {
-      const rendered = await firstResp.element();
-      return c.html(rendered, 200);
-    }
     if (firstResp instanceof HonoResponse) {
+      if (firstResp instanceof RedirectResponse) {
+        saveSessionIfRedirect(myHono.request);
+        console.log("redirect")
+      }
       // @ts-ignore //
       const cookies = firstResp.getCookies();
       for (const [name, [value, options]] of Object.entries(cookies)) {
@@ -1637,7 +1638,26 @@ export async function exceptionToResponse(c: MyContext, exception: Exception): P
       }
       // @ts-ignore //
       const res = firstResp.toResponse();
+
       return convertToResponse(c, res);
+    }
+    if (firstResp instanceof HonoView) {
+      const rendered = await firstResp.element();
+      return c.html(rendered, 200);
+    }
+    if (firstResp instanceof HonoRedirect) {
+      saveSessionIfRedirect(myHono.request);
+      switch (firstResp.type) {
+        case "back":
+          // @ts-ignore //
+          return c.redirect(myHono.request.session.get("_previous.url") || "/", 302);
+        case "redirect":
+        case "to":
+        case "route":
+          return c.redirect(firstResp.getTargetUrl(), 302);
+        default:
+          throw new Error("Invalid use of redirect()");
+      }
     }
     if (isset(firstResp)) {
       // stringify the response
