@@ -1,0 +1,21 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<title>{{ env('GUILD_NAME') }} | {{ $entity }} Login</title>
+	@vite('resources/ts/app.ts')
+</head>
+
+<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-violet-950 min-h-screen flex items-center justify-center relative overflow-hidden">
+
+	<!-- Background glow -->
+	<div class="fixed inset-0 opacity-20 pointer-events-none">
+		<div class="absolute top-20 left-20 w-40 h-40 bg-yellow-400 blur-3xl rounded-full"></div>
+		<div class="absolute bottom-20 right-20 w-40 h-40 bg-purple-500 blur-3xl rounded-full"></div>
+	</div>
+
+	{{{ await $slots.main() }}}
+
+</body>
+</html>

@@ -3,8 +3,9 @@ import Controller from "App/Http/Controllers/Controller.ts";
 class AdminController extends Controller {
 
     public login: HttpDispatch = async ({ request }) => {
-        return response().json({
-            message:"login"
+        
+        return view("admin.login", {
+            entity: "Admin"
         })
     };
 
