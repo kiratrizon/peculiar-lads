@@ -20,8 +20,6 @@ export default class StartSession {
       old: sessionFlash.new, // now readable in controller
       new: [], // reset for new flashes
     });
-    // then flash
-    request.flash();
 
     return next();
   };

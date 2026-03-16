@@ -1402,7 +1402,7 @@ export async function handleAction(
             )
             .join("");
         },
-        old: function (key: string, defaultValue: unknown = null) {
+        old: function (key: string, defaultValue: unknown = '') {
           const oldInput = (request.session.get("_old_input") || {}) as Record<
             string,
             unknown
@@ -1560,7 +1560,7 @@ export async function handleAction(
       });
       return c.html(rendered, 200);
     } else if (data instanceof HonoRedirect) {
-      saveSessionIfRedirect(request);
+      saveSessionIfRedirect(request, data);
       switch (data.type) {
         case "back":
           // @ts-ignore //
@@ -1573,9 +1573,6 @@ export async function handleAction(
           throw new Error("Invalid use of redirect()");
       }
     } else if (data instanceof HonoResponse) {
-      if (data instanceof RedirectResponse) {
-        saveSessionIfRedirect(request);
-      }
       // @ts-ignore //
       const cookies = data.getCookies();
       for (const [name, [value, options]] of Object.entries(cookies)) {
@@ -1597,7 +1594,21 @@ export async function handleAction(
   }
 }
 
-export function saveSessionIfRedirect(request: HRequest) {
+export function saveSessionIfRedirect(request: HRequest, data: HonoRedirect) {
+  const withInputValue = data.withInputValue;
+  if (!isObject(withInputValue) && withInputValue === true) {
+    request.flash();
+  } else if (isObject(withInputValue)) {
+    request.session.flash("_old_input", withInputValue);
+  }
+  if (isset(data.flashData)) {
+    Object.entries(data.flashData).forEach(([key, value]) => {
+      request.session.flash(key, value);
+    });
+  }
+  if (isset(data.errorData)) {
+    request.session.flash("errors", data.errorData)
+  }
   const sessionFlashData = request.session.get(
     "_flash",
   ) as SessionDataTypes["_flash"];
@@ -1627,10 +1638,6 @@ export async function exceptionToResponse(c: MyContext, exception: Exception): P
   if (getException && myHono) {
     const firstResp = await getException.cb(myHono, exception);
     if (firstResp instanceof HonoResponse) {
-      if (firstResp instanceof RedirectResponse) {
-        saveSessionIfRedirect(myHono.request);
-        console.log("redirect")
-      }
       // @ts-ignore //
       const cookies = firstResp.getCookies();
       for (const [name, [value, options]] of Object.entries(cookies)) {
@@ -1646,7 +1653,7 @@ export async function exceptionToResponse(c: MyContext, exception: Exception): P
       return c.html(rendered, 200);
     }
     if (firstResp instanceof HonoRedirect) {
-      saveSessionIfRedirect(myHono.request);
+      saveSessionIfRedirect(myHono.request, firstResp);
       switch (firstResp.type) {
         case "back":
           // @ts-ignore //

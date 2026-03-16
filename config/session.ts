@@ -30,7 +30,7 @@ const constant: SessionConfig = {
 
   secure: env("SESSION_SECURE_COOKIE", false), // Set to true in production or if you have certificate
 
-  httpOnly: env("SESSION_HTTP_ONLY", true),
+  httpOnly: env("SESSION_HTTP_ONLY", false),
 
   sameSite: env("SESSION_SAME_SITE", "lax"),
 

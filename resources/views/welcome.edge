@@ -179,34 +179,59 @@
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Character Name *</label>
-								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('ign') }}">
+								<!-- for errors -->
+								@if(errors.has('ign'))
+									<div class="text-red-500 text-sm">
+										{{ errors.first('ign') }}
+									</div>
+								@end
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Class *</label>
 								<select class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required name="class">
 									<option value="" disabled selected>Select your class</option>
 									@each($class in $allClass)
-										<option value="{{ $class.id }}">{{ $class.name }}</option>
+										<option value="{{ $class.id }}" {{ old('class') == $class.id ? 'selected' : '' }}>{{ $class.name }}</option>
 									@end
 								</select>
+								@if(errors.has('class'))
+									<div class="text-red-500 text-sm">
+										{{ errors.first('class') }}
+									</div>
+								@end
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">NSTG</label>
-								<select name="nstg" id="nstg" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<select name="nstg" id="nstg" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('nstg') }}">
 									<option value="" disabled selected>Select your NSTG level</option>
 									@each($level in $nstg)
-										<option value="{{ $level.id }}">{{ $level.name }}</option>
+										<option value="{{ $level.id }}" {{ old('nstg') == $level.id ? 'selected' : '' }}>{{ $level.name }}</option>
 									@end
 								</select>
-								
+								@if(errors.has('nstg'))
+									<div class="text-red-500 text-sm">
+										{{ errors.first('nstg') }}
+									</div>
+								@end
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Contact (Discord/Email) *</label>
-								<input type="text" placeholder="Discord username or email" name="discord" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required>
+								<input type="text" placeholder="Discord username or email" name="discord" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('discord') }}">
+								@if(errors.has('discord'))
+									<div class="text-red-500 text-sm">
+										{{ errors.first('discord') }}
+									</div>
+								@end
 							</div>
 							<div>
 								<label class="block text-indigo-900 font-semibold mb-2">Why do you want to join? *</label>
-								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" rows="4" required></textarea>
+								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" rows="4" required>{{ old('reason') }}</textarea>
+								@if(errors.has('reason'))
+									<div class="text-red-500 text-sm">
+										{{ errors.first('reason') }}
+									</div>
+								@end
 							</div>
 							<button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg hover:cursor-pointer">
 								🎯 Submit Application
@@ -243,9 +268,11 @@
 		</div>
 	</main>
 
-	@if(isset($message))
-		<input type="text" id="message" value="{{ $message }}">
+	@if(session().has("message"))
+		<input type="hidden" id="message" value="{{ session().get('message') }}">
 	@end
+
+	@vite('resources/ts/welcome.ts')
 @endslot
 
 @end

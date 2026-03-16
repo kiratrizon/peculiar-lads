@@ -15,7 +15,7 @@ import {
   WherePrimitive,
 } from "../Query/index.ts";
 
-export default abstract class Model<
+export default class Model<
   T extends ModelAttributes = ModelAttributes,
 > {
   constructor(attributes: Partial<T> = {}) {
@@ -542,6 +542,7 @@ export default abstract class Model<
     if (!methodExist(factoryClass, "getFactoryByModel")) {
       throw new Error(`${this.name} does not have a factory method.`);
     }
+    // @ts-ignore //
     const factory = await factoryClass.getFactoryByModel(this);
     // @ts-ignore //
     factory.setConnection(connection);
