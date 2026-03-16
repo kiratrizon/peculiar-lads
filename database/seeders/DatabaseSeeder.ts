@@ -4,6 +4,7 @@ import FirstClass from "App/Models/FirstClass.ts";
 import SecondClass from "App/Models/SecondClass.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import NSTGLevel from "App/Models/NSTGLevel.ts";
+import Admin from "App/Models/Admin.ts";
 
 // Dragon Nest SEA
 export default class DatabaseSeeder extends Seeder {
@@ -102,5 +103,9 @@ export default class DatabaseSeeder extends Seeder {
         });
       }
     }
+
+    const adminFactory = await Admin.factory();
+    adminFactory.count(1);
+    await adminFactory.create();
   }
 }

@@ -51,7 +51,7 @@ declare class IRedirectResponse {
    * Attach input data to the session.
    * @param data - Input data as a key-value map.
    */
-  public withInput(data: Record<string, unknown>): this;
+  public withInput(data?: Record<string, unknown>): this;
 
   /**
    * Simulate sending the response.

@@ -2,8 +2,22 @@ import Controller from "App/Http/Controllers/Controller.ts";
 
 class AdminController extends Controller {
 
-    public login: HttpDispatch = async ({ request }) => {
-        
+    public login: HttpDispatch = async ({ request, Auth }) => {
+        if (request.method === "POST") {
+            const credentials = await request.validate({
+                email: "required|email",
+                password: "required|min:8",
+            });
+            
+            if (await Auth.guard("admin").attempt(credentials)) {
+                return redirect().route("admin.index");
+            } else {
+                return redirect().back().withErrors({
+                    email: "Invalid credentials",
+                    password: "Invalid credentials"
+                }).withInput(request.except(['password']));
+            }
+        }
         return view("admin.login", {
             entity: "Admin"
         })

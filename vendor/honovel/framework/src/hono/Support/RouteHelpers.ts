@@ -113,6 +113,9 @@ export function registerRoute(
   requiredParams: string[],
   optionalParams: string[],
 ): void {
+  if (url.endsWith("/") && url.length > 1) {
+    url = url.slice(0, -1);
+  }
   routes[name] = {
     url,
     requiredParams,

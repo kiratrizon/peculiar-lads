@@ -1,5 +1,6 @@
 import { Factory } from "Illuminate/Database/Eloquent/Factories/index.ts";
 import Admin from "App/Models/Admin.ts";
+import { Hash } from "Illuminate/Support/Facades/index.ts";
 
 export default class AdminFactory extends Factory {
 
@@ -8,7 +9,7 @@ export default class AdminFactory extends Factory {
   public definition() {
     return {
       email: "admin@admin.com",
-      password: "password",
+      password: Hash.make("password"),
       name: this.faker.name()
     };
   }

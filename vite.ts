@@ -10,7 +10,7 @@ const inlineConfig = {
     emptyOutDir: true,
     manifest: true,
     rollupOptions: {
-      input: ["resources/css/app.css", "resources/ts/app.ts"],
+      input: ["resources/ts/app.ts", "resources/ts/welcome.ts"],
     },
   },
   publicDir: "public/assets",

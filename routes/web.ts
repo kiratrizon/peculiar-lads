@@ -69,5 +69,5 @@ Route.prefix("/admin").group(()=>{
   Route.middleware("isAdmin").group(()=>{
     Route.get("/", [AdminController, "index"]).name("admin.index");
   })
-  Route.get("/login", [AdminController, "login"]).name("admin.login").middleware("guest:admin,/admin");
+  Route.match(["get", "post"], "/login", [AdminController, "login"]).name("admin.login").middleware("guest:admin,/admin");
 });
