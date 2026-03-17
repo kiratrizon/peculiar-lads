@@ -20,7 +20,7 @@ class RecruitController extends Controller {
 
   // GET /resource
   public index: HttpDispatch = async ({ request }) => {
-
+    return "hello world";
   };
 
   public getRecruits: HttpDispatch = async ({ request }) => {

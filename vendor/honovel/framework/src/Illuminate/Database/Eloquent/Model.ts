@@ -515,6 +515,16 @@ export default class Model<
     return instance;
   }
 
+  public static async createMany<Attr extends Record<string, unknown>>(
+    attributes: Attr[],
+  ) {
+    const instances = attributes.map((attribute) => {
+      return new this(attribute) as Model<ModelAttributes>;
+    });
+    await Promise.all(instances.map((instance) => instance.save()));
+    return instances;
+  }
+
   /**
    * Create a new model instance.
    * @param connection The database connection name.

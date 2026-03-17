@@ -4,9 +4,18 @@ import Event from "App/Models/Event.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import Recruit from "../../Models/Recruit.ts";
 import { Cache } from "Illuminate/Support/Facades/index.ts";
+import HonoRequest from "HonoHttp/HonoRequest.d.ts";
+import EventRead from "../../Models/EventRead.ts";
+import RecruitRead from "../../Models/RecruitRead.ts";
 
 class AdminController extends Controller {
 
+    private async getUnreads({ request }: { request: HonoRequest }) {
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+        const stats = await Cache.get(`admin.${userId}.unreads`) || {};
+        return stats;
+    }
     public logout: HttpDispatch = async ({ request, Auth }) => {
         Auth.guard("admin").logout();
         return redirect().route("admin.login");
@@ -49,18 +58,79 @@ class AdminController extends Controller {
         };
 
         const members = await User.count();
-        const events = await Event.count();
-        const recruits = await Recruit.count();
+        const events = await Event.where("status", "!=", 2).get();
+        const recruits = await Recruit.where("status", "!=", 2).get();
         stats.members = members;
-        stats.events = events;
-        stats.recruits = recruits;
-        // cache the stats for 1 hour
-        await Cache.put("admin.stats", stats, 1 * 60 * 60);
+        stats.events = events.length;
+        stats.recruits = recruits.length;
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+
+        const unreads = {
+            recruits: 0,
+            events: 0,
+        };
+
+        const eventIds: number[] = [];
+        events.forEach((event) => {
+            // @ts-ignore //
+            eventIds.push(event.id);
+        });
+        const recruitIds: number[] = [];
+        recruits.forEach((recruit) => {
+            // @ts-ignore //
+            recruitIds.push(recruit.id);
+        });
+
+        for (const eventId of eventIds) {
+            // check if event has read by admin
+            const eventRead = await EventRead.where("event_id", eventId).where("admin_user_id", userId).where("read", false).where("role", 0).first();
+            if (!eventRead) {
+                unreads.events++;
+            }
+        }
+
+        if (eventIds.length > 0) {
+            const data = [];
+            for (const eventId of eventIds) {
+                data.push({
+                    event_id: eventId,
+                    read: 1,
+                    role: 0,
+                    admin_user_id: userId,
+                });
+            }
+            await EventRead.createMany(data);
+        }
+
+        for (const recruitId of recruitIds) {
+            // check if recruit has read by admin
+            const recruitRead = await RecruitRead.where("recruit_id", recruitId).where("admin_id", userId).where("read", false).first();
+            if (!recruitRead) {
+                unreads.recruits++;
+            }
+        }
+
+        if (recruitIds.length > 0) {
+            const data = [];
+            for (const recruitId of recruitIds) {
+                data.push({
+                    recruit_id: recruitId,
+                    read: 1,
+                    admin_id: userId,
+                });
+            }
+            await RecruitRead.createMany(data);
+        }
+
+        // save to cache
+        await Cache.put(`admin.${userId}.unreads`, unreads, 1 * 60 * 60);
         return view("admin.home", {
             selected: "home",
             entity: "Admin",
             title: "Home",
-            stats
+            stats,
+            unreads,
         });
     };
 
@@ -79,54 +149,46 @@ class AdminController extends Controller {
     };
 
     public recruits: HttpDispatch = async ({ request }) => {
-        // @ts-ignore //
-        const userId = request.user()?.id!;
-        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        const notif = await this.getUnreads({ request });
         // List all resources
         return view("admin.recruits", {
             selected: "recruits",
             entity: "Admin",
             title: "Recruits",
-            stats
+            notif
         });
     };
 
     public events: HttpDispatch = async ({ request }) => {
-        // @ts-ignore //
-        const userId = request.user()?.id!;
-        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        const notif = await this.getUnreads({ request });
         // List all resources
         return view("admin.events", {
             selected: "events",
             entity: "Admin",
             title: "Events",
-            stats
+            notif
         });
     };
 
     public settings: HttpDispatch = async ({ request }) => {
-        // @ts-ignore //
-        const userId = request.user()?.id!;
-        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        const notif = await this.getUnreads({ request });
         // List all resources
         return view("admin.settings", {
             selected: "settings",
             entity: "Admin",
             title: "Settings",
-            stats
+            notif
         });
     };
 
     public members: HttpDispatch = async ({ request }) => {
-        // @ts-ignore //
-        const userId = request.user()?.id!;
-        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        const notif = await this.getUnreads({ request });
         // List all resources
         return view("admin.members", {
             selected: "members",
             entity: "Admin",
             title: "Members",
-            stats
+            notif
         });
     };
 }
