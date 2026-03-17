@@ -10,10 +10,25 @@ import RecruitRead from "../../Models/RecruitRead.ts";
 
 class AdminController extends Controller {
 
-    private async getUnreads({ request }: { request: HonoRequest }) {
+    private async getUnreads({ request }: { request: HonoRequest }): Promise<{
+        recruits: number[],
+        events: number[],
+    }> {
+        // const test data
+        // const testData = {
+        //     recruits: [1,2,3,4],
+        //     events: [1,2,3,4],
+        // };
+        // return testData;
         // @ts-ignore //
         const userId = request.user()?.id!;
-        const stats = await Cache.get(`admin.${userId}.unreads`) || {};
+        const stats: {
+            recruits: number[],
+            events: number[],
+        } = (await Cache.get(`admin.${userId}.unreads`)) || {
+            recruits: [],
+            events: [],
+        };
         return stats;
     }
     public logout: HttpDispatch = async ({ request, Auth }) => {
@@ -66,9 +81,13 @@ class AdminController extends Controller {
         // @ts-ignore //
         const userId = request.user()?.id!;
 
-        const unreads = {
-            recruits: 0,
-            events: 0,
+        const unreads:
+            {
+                recruits: number[],
+                events: number[],
+            } = {
+            recruits: [],
+            events: [],
         };
 
         const eventIds: number[] = [];
@@ -86,41 +105,16 @@ class AdminController extends Controller {
             // check if event has read by admin
             const eventRead = await EventRead.where("event_id", eventId).where("admin_user_id", userId).where("read", false).where("role", 0).first();
             if (!eventRead) {
-                unreads.events++;
+                unreads.events.push(eventId);
             }
-        }
-
-        if (eventIds.length > 0) {
-            const data = [];
-            for (const eventId of eventIds) {
-                data.push({
-                    event_id: eventId,
-                    read: 1,
-                    role: 0,
-                    admin_user_id: userId,
-                });
-            }
-            await EventRead.createMany(data);
         }
 
         for (const recruitId of recruitIds) {
             // check if recruit has read by admin
             const recruitRead = await RecruitRead.where("recruit_id", recruitId).where("admin_id", userId).where("read", false).first();
             if (!recruitRead) {
-                unreads.recruits++;
+                unreads.recruits.push(recruitId);
             }
-        }
-
-        if (recruitIds.length > 0) {
-            const data = [];
-            for (const recruitId of recruitIds) {
-                data.push({
-                    recruit_id: recruitId,
-                    read: 1,
-                    admin_id: userId,
-                });
-            }
-            await RecruitRead.createMany(data);
         }
 
         // save to cache
@@ -130,7 +124,7 @@ class AdminController extends Controller {
             entity: "Admin",
             title: "Home",
             stats,
-            unreads,
+            notif: unreads,
         });
     };
 

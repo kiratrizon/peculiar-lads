@@ -37,7 +37,7 @@ Route.prefix(adminPrefix).as("admin").group(() => {
     Route.get("/members", [AdminController, "members"]).name("members");
     Route.get("/recruits", [AdminController, "recruits"]).name("recruits");
     Route.get("/events", [AdminController, "events"]).name("events");
-    Route.get("/settings", [AdminController, "index"]).name("settings");
+    Route.get("/settings", [AdminController, "settings"]).name("settings");
 
     Route.get("/get-members", [AdminController, "getMembers"]).name("get-members").middleware("ensure_accepts_json");
     Route.get("/get-recruits", [RecruitController, "getRecruits"]).name("get-recruits").middleware("ensure_accepts_json");
