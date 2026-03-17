@@ -164,6 +164,7 @@ export class Schema {
     callback(blueprint);
     blueprint.alterMode();
     const converted = blueprint.toSql();
+    // console.error("converted", converted);
     await DB.connection(connection).statement(converted);
   }
 }
@@ -437,7 +438,7 @@ export class Validator {
     validations: Record<string, string>,
   ) {
     this.#data = data;
-    this.#validations = {...validations};
+    this.#validations = { ...validations };
   }
 
   getErrors() {
@@ -908,12 +909,12 @@ type GuardDriver<G extends GuardName> = AuthConfig["guards"][G]["driver"];
 
 type GuardInstance<G extends GuardName> =
   GuardDriver<G> extends "jwt"
-    ? JwtGuard
-    : GuardDriver<G> extends "session"
-      ? SessionGuard
-      : GuardDriver<G> extends "token"
-        ? TokenGuard
-        : never;
+  ? JwtGuard
+  : GuardDriver<G> extends "session"
+  ? SessionGuard
+  : GuardDriver<G> extends "token"
+  ? TokenGuard
+  : never;
 
 export class Auth {
   private static defaultGuard: string;

@@ -112,6 +112,7 @@ export function registerRoute(
   url: string,
   requiredParams: string[],
   optionalParams: string[],
+  method: string[],
 ): void {
   if (url.endsWith("/") && url.length > 1) {
     url = url.slice(0, -1);
@@ -120,6 +121,7 @@ export function registerRoute(
     url,
     requiredParams,
     optionalParams,
+    method,
   };
 }
 

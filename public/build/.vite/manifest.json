@@ -1,17 +1,33 @@
 {
+  "_jquery.module-gzd0YkcT.js": {
+    "file": "assets/jquery.module-gzd0YkcT.js",
+    "name": "jquery.module"
+  },
+  "resources/ts/admin/members.ts": {
+    "file": "assets/members-BkiDHj1g.js",
+    "name": "members",
+    "src": "resources/ts/admin/members.ts",
+    "isEntry": true,
+    "imports": [
+      "_jquery.module-gzd0YkcT.js"
+    ]
+  },
   "resources/ts/app.ts": {
-    "file": "assets/app-Bdjrb36E.js",
+    "file": "assets/app-cbPBI58R.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-Cjb7yISC.css"
+      "assets/app-CYB-6ob6.css"
     ]
   },
   "resources/ts/welcome.ts": {
-    "file": "assets/welcome-DqMxOEIO.js",
+    "file": "assets/welcome-B_uGMpj6.js",
     "name": "welcome",
     "src": "resources/ts/welcome.ts",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_jquery.module-gzd0YkcT.js"
+    ]
   }
 }

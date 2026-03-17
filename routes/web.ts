@@ -5,9 +5,15 @@ import NSTGLevel from "App/Models/NSTGLevel.ts";
 import Recruit from "App/Models/Recruit.ts";
 import HomeController from "App/Http/Controllers/HomeController.ts";
 import AdminController from "App/Http/Controllers/AdminController.ts";
+import UserController from "App/Http/Controllers/UserController.ts";
+import EventController from "App/Http/Controllers/EventController.ts";
+import ThirdClassController from "App/Http/Controllers/ThirdClassController.ts";
+import RecruitController from "App/Http/Controllers/RecruitController.ts";
 
 
 Route.middleware("guest").group(() => {
+
+
   Route.get("/", async ({ request }) => {
     const allClass = await ThirdClass.all();
     const nstg = await NSTGLevel.all();
@@ -16,58 +22,33 @@ Route.middleware("guest").group(() => {
       nstg,
     });
   }).name("welcome");
-  Route.post("/join-guild", async ({ request }) => {
-    const credentials = await request.validate({
-      ign: "required|min:4|max:10",
-      class: "required",
-      nstg: "required",
-      discord: "required|min:4|max:50",
-      reason: "required|min:10|max:500",
-    });
-    
-    // check if class is a number and exist in ThirdClass
-    const classId = parseInt(credentials.class);
-    if (!isInteger(classId)) {
-      return redirect().back().withErrors({
-        class: "Class is required",
-      }).withInput(request.except(['class']));
-    }
-    // @ts-ignore //
-    credentials.class = classId;
-    const classExist = await ThirdClass.find(classId);
-    if (!classExist) {
-      return redirect().back().withErrors({
-        class: "Class is not valid",
-      }).withInput(request.except(['class']));
-    }
-    // check if nstg is a number and exist in NSTGLevel
-    const nstgId = parseInt(credentials.nstg);
-    if (!isInteger(nstgId)) {
-      return redirect().back().withErrors({
-        nstg: "NSTG is required",
-      }).withInput(request.except(['nstg']));
-    }
-    // @ts-ignore //
-    credentials.nstg = nstgId;
-    const nstgExist = await NSTGLevel.find(nstgId);
-    if (!nstgExist) {
-      return redirect().back().withErrors({
-        nstg: "NSTG is not valid",
-      }).withInput(request.except(['nstg']));
-    }
-    const recruit = await Recruit.create(credentials);
-    return redirect().route("welcome").with("message", `Hello ${recruit.getAttribute("ign")}, your application has been submitted successfully. Please wait for review.`);
-  }).name("apply");
+
+
+  const throttleTime = 1 * 60 * 24; // 1 day
+  const testDev = config("app").env !== "production";
+  const throttleMax = !testDev ? 5 : 100;
+  Route.post("/join-guild", [RecruitController, "store"]).name("apply").middleware(`throttle:${throttleMax},${throttleTime}`);
+
 })
 
 
 Route.get("/home", [HomeController, "index"]).middleware("auth");
 
+const adminPrefix = "/admin";
 
-Route.prefix("/admin").group(()=>{
-  
-  Route.middleware("isAdmin").group(()=>{
-    Route.get("/", [AdminController, "index"]).name("admin.index");
-  })
-  Route.match(["get", "post"], "/login", [AdminController, "login"]).name("admin.login").middleware("guest:admin,/admin");
+Route.prefix(adminPrefix).as("admin").group(() => {
+  Route.middleware("isAdmin").group(() => {
+    Route.get("/", [AdminController, "index"]).name("index");
+    Route.get("/members", [UserController, "index"]).name("members");
+    Route.get("/recruits", [RecruitController, "index"]).name("recruits");
+    Route.get("/events", [EventController, "index"]).name("events");
+    Route.get("/settings", [AdminController, "index"]).name("settings");
+
+    Route.get("/get-members", [AdminController, "getMembers"]).name("get-members").middleware("ensure_accepts_json");
+    Route.get("/get-recruits", [RecruitController, "getRecruits"]).name("get-recruits").middleware("ensure_accepts_json");
+
+
+    Route.get("/logout", [AdminController, "logout"]).name("logout");
+  });
+  Route.match(["get", "post"], "/login", [AdminController, "login"]).name("login").middleware(`guest:admin,${adminPrefix}`);
 });

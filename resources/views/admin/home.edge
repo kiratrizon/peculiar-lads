@@ -1,0 +1,51 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<section class="flex flex-col items-center justify-center flex-1 px-4 py-20 gap-8">
+
+  <!-- Welcome Card -->
+  <div class="w-full max-w-3xl bg-black/50 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-8 shadow-2xl text-center">
+    <h1 class="text-3xl font-bold text-yellow-300 mb-2">
+      Welcome to {{ env('GUILD_NAME') }}!
+    </h1>
+    <p class="text-indigo-200 mb-4">
+      Manage your guild, check events, and keep your adventurers organized.
+    </p>
+    <div class="flex justify-center gap-4 mt-4">
+      <a href="/admin/members" class="px-4 py-2 bg-yellow-500/20 hover:bg-yellow-500/50 rounded-lg text-yellow-300 font-semibold transition">
+        View Members
+      </a>
+      <a href="/admin/events" class="px-4 py-2 bg-purple-500/20 hover:bg-purple-500/50 rounded-lg text-purple-300 font-semibold transition">
+        Upcoming Events
+      </a>
+    </div>
+  </div>
+
+  <!-- Quick Stats Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl">
+    
+    <div class="bg-black/40 backdrop-blur-md border border-yellow-500/30 rounded-2xl p-6 text-center shadow-lg">
+      <h2 class="text-xl font-bold text-yellow-300">Members</h2>
+      <p class="text-indigo-200 text-3xl mt-2">{{ $stats?.members ?? 0 }}</p>
+    </div>
+
+    <div class="bg-black/40 backdrop-blur-md border border-purple-500/30 rounded-2xl p-6 text-center shadow-lg">
+      <h2 class="text-xl font-bold text-purple-300">Events</h2>
+      <p class="text-indigo-200 text-3xl mt-2">{{ $stats?.events ?? 0 }}</p>
+    </div>
+
+    <div class="bg-black/40 backdrop-blur-md border border-indigo-500/30 rounded-2xl p-6 text-center shadow-lg">
+      <h2 class="text-xl font-bold text-indigo-300">Recruits</h2>
+      <p class="text-indigo-200 text-3xl mt-2">{{ $stats?.recruits ?? 0 }}</p>
+    </div>
+
+  </div>
+
+  <!-- Optional Featured Message -->
+  <div class="w-full max-w-3xl mt-8 text-center text-indigo-200">
+    <p class="italic">“A dragon is only as strong as the guild that stands behind it.”</p>
+  </div>
+
+</section>
+@end
+@endlayouts.pecu.dashboard

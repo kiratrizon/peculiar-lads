@@ -829,6 +829,17 @@ export default class Model<
   }
 
   /**
+   * Get the count of records from the database.
+   * @returns The count of records.
+   */
+  public static async count(): Promise<number> {
+    return await new Builder({
+      model: this,
+      fields: ["*"],
+    }).count();
+  }
+
+  /**
    * Get the first record from the database.
    * @returns The first model instance or null.
    */

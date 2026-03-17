@@ -296,7 +296,7 @@ class Server {
 
     // initialize the app
     await this.loadAndValidateRoutes();
-    this.endInit();
+    await this.endInit();
   }
 
   private static async generateNewApp(
@@ -432,6 +432,7 @@ class Server {
                     fixUri,
                     arrangerDispatch.requiredParams,
                     arrangerDispatch.optionalParams,
+                    methodarr
                   );
                 }
               }
@@ -563,6 +564,17 @@ class Server {
                 MiddlewareHandler[],
                 TFallbackMiddleware[],
               ] = toMiddleware(middleware);
+
+              const hasOnlySlash: {
+                found: boolean;
+                method: string[];
+                allBuilds: MiddlewareHandler[];
+              } = {
+                found: false,
+                method: [],
+                allBuilds: [],
+              };
+
               groupEntries.forEach(([routeId, methodarr]) => {
                 const routeUsed = methods[routeId];
                 const myConfig = routeUsed.config;
@@ -592,7 +604,7 @@ class Server {
                 ];
 
                 const flagWhere = flag.where || {};
-                const splittedUri = URLArranger.generateOptionalParamRoutes(
+                let splittedUri = URLArranger.generateOptionalParamRoutes(
                   newMethodUri,
                   "dispatch",
                   flagWhere,
@@ -612,6 +624,7 @@ class Server {
                       finalUrl,
                       arrangerDispatch.requiredParams,
                       arrangerDispatch.optionalParams,
+                      methodarr
                     );
                   }
                 }
@@ -639,6 +652,18 @@ class Server {
                   returnResponse,
                 ];
 
+                // make sure splittedUri is not only "/" else splice
+                splittedUri = splittedUri.filter(str => {
+                  if (str === "/") {
+                    hasOnlySlash.found = true;
+                  }
+                  return true;    // keep this element
+                });
+
+                if (hasOnlySlash.found) {
+                  hasOnlySlash.method = methodarr;
+                  hasOnlySlash.allBuilds = [...allBuilds];
+                }
                 if (
                   methodarr.length === 1 &&
                   arrayFirst(methodarr) === "head"
@@ -663,6 +688,19 @@ class Server {
                 "group",
                 where,
               );
+
+              if (hasOnlySlash.found) {
+                generatedopts.forEach((grp) => {
+                  if (hasOnlySlash.method.length === 1 && hasOnlySlash.method[0] === "head") {
+                    hasOnlySlash.allBuilds.splice(1, 0, headFunction);
+                    // @ts-ignore //
+                    newAppGroup.get(grp == "/" ? grp : `${grp}/`, ...hasOnlySlash.allBuilds);
+                  } else {
+                    // @ts-ignore //
+                    newAppGroup.on(hasOnlySlash.method, grp == "/" ? grp : `${grp}/`, ...hasOnlySlash.allBuilds);
+                  }
+                });
+              }
               generatedopts.forEach((grp) => {
                 // apply the middlewares here
                 // @ts-ignore //
@@ -708,7 +746,7 @@ class Server {
     }
   }
 
-  private static endInit() {
+  private static async endInit() {
     this.app.notFound(async function (c: MyContext) {
       const notFoundInstance = new NotFoundHttpException();
       return await exceptionToResponse(c, notFoundInstance);
@@ -725,6 +763,17 @@ class Server {
         });
       });
     });
+
+    // save routes in a file cache
+    if (!isset(env("DENO_DEPLOYMENT_ID")) || empty(env("DENO_DEPLOYMENT_ID"))) {
+      if (!(await pathExist(storagePath("framework/route")))) {
+        makeDir(storagePath("framework/route"));
+      }
+      
+      // arrange json file with pretty format
+      const prettyRoutes = JSON.stringify(this.routes, null, 2);
+      writeFile(path.join(storagePath("framework/route"), "routes.json"), prettyRoutes);
+    }
   }
 }
 

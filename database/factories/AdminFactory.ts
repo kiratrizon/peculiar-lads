@@ -8,8 +8,8 @@ export default class AdminFactory extends Factory {
 
   public definition() {
     return {
-      email: "admin@admin.com",
-      password: Hash.make("password"),
+      email: "tgenesistroy@gmail.com",
+      password: Hash.make("asterda23"),
       name: this.faker.name()
     };
   }

@@ -7,6 +7,7 @@ export type RecruitSchema = {
   ign: string;
   discord: string;
   reason: string;
+  email: string;
   // 0: pending, 1: approved, 2: rejected
   status: 0 | 1 | 2;
 };
@@ -19,6 +20,7 @@ class Recruit extends Model<RecruitSchema> {
     "discord",
     "reason",
     "status",
+    "email",
   ];
 
   

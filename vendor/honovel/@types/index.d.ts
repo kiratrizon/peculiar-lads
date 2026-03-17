@@ -1,7 +1,7 @@
 import { ConfigItems } from "configs/@types/index.d.ts";
 import { Carbon } from "helpers";
 
-export {};
+export { };
 
 type IGetType =
   | "string"
@@ -446,7 +446,7 @@ declare global {
    * @param data - The data to encode.
    * @returns A string representing the JSON-encoded version of the data.
    */
-  function jsonEncode(data: unknown): string;
+  function jsonEncode(data: unknown, pretty?: boolean): string;
 
   /**
    * Decodes the given JSON string into a JavaScript object or returns the data if it's not a string.

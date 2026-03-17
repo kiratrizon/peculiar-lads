@@ -107,5 +107,9 @@ export default class DatabaseSeeder extends Seeder {
     const adminFactory = await Admin.factory();
     adminFactory.count(1);
     await adminFactory.create();
+
+    const userFactory = await User.factory();
+    userFactory.count(10);
+    await userFactory.create();
   }
 }

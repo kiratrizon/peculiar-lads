@@ -6,6 +6,7 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{{ env('GUILD_NAME') }} | {{ $title }}</title>
 	@vite('resources/ts/app.ts')
+	{{{ $slots.styles ? await $slots.styles() : '' }}}
 
 <style>
 	@keyframes float {
@@ -33,28 +34,33 @@
 
 	<nav class="flex-1 p-4 space-y-2">
 
-		<a href="/dashboard"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition">
+		@let(routePrefix = $entity === "Admin" ? "admin" : ($entity === "User" ? "user" : ""))
+
+		<!-- selected and disabled -->
+		<a href="{{ route(`${routePrefix}.index`) }}"
+		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'home' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
 			🏠 Dashboard
 		</a>
 
-		<a href="/members"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition">
+		<a href="{{ route(`${routePrefix}.members`) }}"
+		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'members' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
 			👥 Guild Members
 		</a>
 
-		<a href="/events"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition">
+		<a href="{{ route(`${routePrefix}.events`) }}"
+		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'events' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
 			📅 Events
 		</a>
 
-		<a href="/classes"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition">
-			⚔️ Classes
+		@if($entity === "Admin")
+		<a href="{{ route(`${routePrefix}.recruits`) }}"
+		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'recruits' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
+			📝 Recruits
 		</a>
+		@end
 
-		<a href="/settings"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition">
+		<a href="{{ route(`${routePrefix}.settings`) }}"
+		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'settings' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
 			⚙️ Settings
 		</a>
 
@@ -79,12 +85,12 @@
 		<div class="flex items-center gap-4">
 
 			<div class="text-sm text-indigo-300">
-				Welcome, {{ auth()?.user()?.name ?? 'Adventurer' }}
+				Hello, {{ request().user()?.name ?? 'Adventurer' }}!
 			</div>
 
-			<form method="POST" action="/logout">
+			<form method="get" action="{{ route(`${routePrefix}.logout`) }}">
 				<button
-					class="px-3 py-1 rounded bg-red-600/80 hover:bg-red-500 text-white text-sm transition">
+					class="px-3 py-1 rounded bg-red-600/80 hover:bg-red-500 text-white text-sm transition hover:cursor-pointer">
 					Logout
 				</button>
 			</form>

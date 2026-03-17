@@ -1,0 +1,55 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6">
+
+  <!-- Header -->
+  <div class="flex flex-col gap-2">
+    <h1 class="text-2xl font-bold text-yellow-300">Recruits</h1>
+    <p class="text-indigo-200 text-sm">Manage all new guild recruits here.</p>
+  </div>
+
+  <!-- Segregation Buttons -->
+  <div class="flex flex-wrap gap-3">
+    <button class="px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 transition">
+      All
+    </button>
+    <button class="px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 transition">
+      Pending
+    </button>
+    <button class="px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 transition">
+      Approved
+    </button>
+    <button class="px-4 py-2 rounded-lg bg-yellow-500/20 text-yellow-300 hover:bg-yellow-500/30 transition">
+      Rejected
+    </button>
+  </div>
+
+  <!-- Table -->
+  <div class="bg-black/50 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-4 shadow-2xl overflow-x-auto">
+    <table class="w-full text-sm text-indigo-200">
+      <thead class="text-yellow-300">
+        <tr>
+          <th class="px-4 py-2 text-left">ID</th>
+          <th class="px-4 py-2 text-left">IGN</th>
+          <th class="px-4 py-2 text-left">Class</th>
+          <th class="px-4 py-2 text-left">NSTG</th>
+          <th class="px-4 py-2 text-left">Discord</th>
+          <th class="px-4 py-2 text-left">Reason</th>
+          <th class="px-4 py-2 text-left">Email</th>
+          <th class="px-4 py-2 text-left">Status</th>
+          <th class="px-4 py-2 text-left" colspan="2">Actions</th>
+        </tr>
+      </thead>
+      <tbody id="recruits-table-body" class="divide-y divide-yellow-500/20">
+        <!-- JS will populate rows here -->
+      </tbody>
+    </table>
+  </div>
+
+</div>
+
+@vite('resources/ts/admin/recruits.ts')
+@end
+
+@endlayouts.pecu.dashboard
