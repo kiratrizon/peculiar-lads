@@ -40,7 +40,6 @@ class AdminController extends Controller {
         })
     };
 
-    // GET /resource
     public index: HttpDispatch = async ({ request }) => {
 
         const stats = {
@@ -65,52 +64,70 @@ class AdminController extends Controller {
         });
     };
 
-    // GET /resource/{Admin}
-    public show: HttpDispatch = async ({ request }, { Admin }) => {
-        // Show a single resource by ID
+    public getEvents: HttpDispatch = async ({ request }) => {
+        const events = await Event.all();
         return response().json({
-            message: `show ${Admin}`
-        })
+            events
+        });
     };
 
-    // GET /resource/create
-    public create: HttpDispatch = async ({ request }) => {
-        // Return form or data for creating resource
+    public getRecruits: HttpDispatch = async ({ request }) => {
+        const recruits = await Recruit.all();
         return response().json({
-            message: `create`
-        })
+            recruits
+        });
     };
 
-    // POST /resource
-    public store: HttpDispatch = async ({ request }) => {
-        // Create a new resource
-        return response().json({
-            message: `store`
-        })
+    public recruits: HttpDispatch = async ({ request }) => {
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        // List all resources
+        return view("admin.recruits", {
+            selected: "recruits",
+            entity: "Admin",
+            title: "Recruits",
+            stats
+        });
     };
 
-    // GET /resource/{Admin}/edit
-    public edit: HttpDispatch = async ({ request }, { Admin }) => {
-        // Return form or data for editing resource
-        return response().json({
-            message: `edit ${Admin}`
-        })
+    public events: HttpDispatch = async ({ request }) => {
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        // List all resources
+        return view("admin.events", {
+            selected: "events",
+            entity: "Admin",
+            title: "Events",
+            stats
+        });
     };
 
-    // PUT or PATCH /resource/{Admin}
-    public update: HttpDispatch = async ({ request }, { Admin }) => {
-        // Update a resource by ID
-        return response().json({
-            message: `update ${Admin}`
-        })
+    public settings: HttpDispatch = async ({ request }) => {
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        // List all resources
+        return view("admin.settings", {
+            selected: "settings",
+            entity: "Admin",
+            title: "Settings",
+            stats
+        });
     };
 
-    // DELETE /resource/{Admin}
-    public destroy: HttpDispatch = async ({ request }, { Admin }) => {
-        // Delete a resource by ID
-        return response().json({
-            message: `delete ${Admin}`
-        })
+    public members: HttpDispatch = async ({ request }) => {
+        // @ts-ignore //
+        const userId = request.user()?.id!;
+        const stats = await Cache.get(`admin.${userId}.stats`) || {};
+        // List all resources
+        return view("admin.members", {
+            selected: "members",
+            entity: "Admin",
+            title: "Members",
+            stats
+        });
     };
 }
 

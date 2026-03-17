@@ -1,13 +1,8 @@
 import { Route } from "Illuminate/Support/Facades/index.ts";
-import FirstClass from "App/Models/FirstClass.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import NSTGLevel from "App/Models/NSTGLevel.ts";
-import Recruit from "App/Models/Recruit.ts";
 import HomeController from "App/Http/Controllers/HomeController.ts";
 import AdminController from "App/Http/Controllers/AdminController.ts";
-import UserController from "App/Http/Controllers/UserController.ts";
-import EventController from "App/Http/Controllers/EventController.ts";
-import ThirdClassController from "App/Http/Controllers/ThirdClassController.ts";
 import RecruitController from "App/Http/Controllers/RecruitController.ts";
 
 
@@ -39,9 +34,9 @@ const adminPrefix = "/admin";
 Route.prefix(adminPrefix).as("admin").group(() => {
   Route.middleware("isAdmin").group(() => {
     Route.get("/", [AdminController, "index"]).name("index");
-    Route.get("/members", [UserController, "index"]).name("members");
-    Route.get("/recruits", [RecruitController, "index"]).name("recruits");
-    Route.get("/events", [EventController, "index"]).name("events");
+    Route.get("/members", [AdminController, "members"]).name("members");
+    Route.get("/recruits", [AdminController, "recruits"]).name("recruits");
+    Route.get("/events", [AdminController, "events"]).name("events");
     Route.get("/settings", [AdminController, "index"]).name("settings");
 
     Route.get("/get-members", [AdminController, "getMembers"]).name("get-members").middleware("ensure_accepts_json");

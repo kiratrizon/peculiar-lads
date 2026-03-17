@@ -20,14 +20,7 @@ class RecruitController extends Controller {
 
   // GET /resource
   public index: HttpDispatch = async ({ request }) => {
-    const stats = await Cache.get("admin.stats") || {};
-    // List all resources
-    return view("admin.recruits", {
-      selected: "recruits",
-      entity: "Admin",
-      title: "Recruits",
-      stats
-    });
+
   };
 
   public getRecruits: HttpDispatch = async ({ request }) => {
