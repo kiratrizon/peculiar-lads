@@ -54,11 +54,11 @@ Route.prefix(adminPrefix).as("admin").group(() => {
 });
 
 Route.prefix("/blocklisted").group(() => {
-  Route.resource("players", BlockListedPlayerController).only(["show"]);
+  Route.resource("blocklistedplayers", BlockListedPlayerController).only(["show"]);
   Route.middleware("allowed_user").group(() => {
-    Route.resource("players", BlockListedPlayerController).only(["create", "store", "edit", "update"]);
+    Route.resource("blocklistedplayers", BlockListedPlayerController).only(["create", "store", "edit", "update"]);
     Route.middleware("isAdmin").group(() => {
-      Route.resource("players", BlockListedPlayerController).only(["destroy"]);
+      Route.resource("blocklistedplayers", BlockListedPlayerController).only(["destroy"]);
     });
   });
 });
