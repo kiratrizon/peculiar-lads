@@ -1201,11 +1201,11 @@ class MyRoute {
     const identifier: IResourceRouteConf["identifier"] = {
       index: 0,
       create: 0,
-      post: 0,
       show: 0,
       edit: 0,
       update: 0,
       destroy: 0,
+      store: 0,
     };
     this.registerRoute(
       ["get"],
@@ -1228,9 +1228,9 @@ class MyRoute {
       `${baseUri}`,
       [controller, "store" as K],
       rsrcId,
-    ).name(`${pluralized}.post`);
+    ).name(`${pluralized}.store`);
     thisRoutes[this.routeId] = ["post"];
-    identifier.post = this.routeId;
+    identifier.store = this.routeId;
     this.registerRoute(
       ["get"],
       `${baseUri}/{${singularized}}`,

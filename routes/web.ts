@@ -4,6 +4,7 @@ import NSTGLevel from "App/Models/NSTGLevel.ts";
 import HomeController from "App/Http/Controllers/HomeController.ts";
 import AdminController from "App/Http/Controllers/AdminController.ts";
 import RecruitController from "App/Http/Controllers/RecruitController.ts";
+import BlockListedPlayerController from "App/Http/Controllers/BlockListedPlayerController.ts";
 
 
 Route.middleware("guest").group(() => {
@@ -50,4 +51,14 @@ Route.prefix(adminPrefix).as("admin").group(() => {
     Route.get("/logout", [AdminController, "logout"]).name("logout");
   });
   Route.match(["get", "post"], "/login", [AdminController, "login"]).name("login").middleware(`guest:admin,${adminPrefix}`);
+});
+
+Route.prefix("/blocklisted").group(() => {
+  Route.resource("players", BlockListedPlayerController).only(["show"]);
+  Route.middleware("allowed_user").group(() => {
+    Route.resource("players", BlockListedPlayerController).only(["create", "store", "edit", "update"]);
+    Route.middleware("isAdmin").group(() => {
+      Route.resource("players", BlockListedPlayerController).only(["destroy"]);
+    });
+  });
 });

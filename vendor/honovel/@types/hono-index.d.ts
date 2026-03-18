@@ -57,7 +57,7 @@ declare global {
     ...args: string[]
   ) => Promise<unknown>;
 
-  type HttpDispatch<T = {}> = (
+  type HttpDispatch<T = { [key: string]: any }> = (
     myHono: HttpHono,
     args: T
   ) => Promise<number | null | boolean | string | object | []>;
