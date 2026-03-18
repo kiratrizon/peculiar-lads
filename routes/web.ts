@@ -42,7 +42,9 @@ Route.prefix(adminPrefix).as("admin").group(() => {
     Route.get("/get-members", [AdminController, "getMembers"]).name("get-members").middleware("ensure_accepts_json");
     Route.get("/get-recruits", [AdminController, "getRecruits"]).name("get-recruits").middleware("ensure_accepts_json");
 
-    Route.resource("recruits", RecruitController).only(["show"]);
+    Route.middleware("bind_recruit").group(() => {
+      Route.resource("recruits", RecruitController).only(["show"]);
+    });
 
 
     Route.get("/logout", [AdminController, "logout"]).name("logout");

@@ -1,6 +1,8 @@
 import Application from "Illuminate/Foundation/Application.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
 import IsAdmin from "App/Http/Middlewares/IsAdmin.ts";
+import BindRecruit from "App/Http/Middlewares/BindRecruit.ts";
+
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -8,6 +10,7 @@ export default Application.withRouting({
 }).withMiddleware((middleware) => {
   middleware.alias({
     "isAdmin": IsAdmin,
+    "bind_recruit": BindRecruit,
   })
 })
   .withExceptions((exceptions) => {

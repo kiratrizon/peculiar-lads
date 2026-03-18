@@ -10,27 +10,6 @@ import RecruitRead from "../../Models/RecruitRead.ts";
 
 class AdminController extends Controller {
 
-    private async getUnreads({ request }: { request: HonoRequest }): Promise<{
-        recruits: number[],
-        events: number[],
-    }> {
-        // const test data
-        // const testData = {
-        //     recruits: [1,2,3,4],
-        //     events: [1,2,3,4],
-        // };
-        // return testData;
-        // @ts-ignore //
-        const userId = request.user()?.id!;
-        const stats: {
-            recruits: number[],
-            events: number[],
-        } = (await Cache.get(`admin.${userId}.unreads`)) || {
-            recruits: [],
-            events: [],
-        };
-        return stats;
-    }
     public logout: HttpDispatch = async ({ request, Auth }) => {
         Auth.guard("admin").logout();
         return redirect().route("admin.login");

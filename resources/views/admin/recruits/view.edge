@@ -1,0 +1,58 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6">
+
+    <!-- Header -->
+    <div class="flex flex-col gap-2">
+        <h1 class="text-3xl font-bold text-yellow-300">Recruit: {{ $recruit.ign }}</h1>
+        <p class="text-gray-400">Recruit ID: {{ $recruit.id || 'N/A' }}</p>
+    </div>
+
+    <!-- Recruit Info Card -->
+    <div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 flex flex-col gap-4">
+        
+        <!-- Top Info -->
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p class="text-gray-400 font-semibold">NSTG</p>
+                <p class="text-white">{{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400 font-semibold">Class</p>
+                <p class="text-white">{{ $recruit.myClass.name }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400 font-semibold">Discord</p>
+                <p class="text-white">{{ $recruit.discord }}</p>
+            </div>
+            <div>
+                <p class="text-gray-400 font-semibold">Email</p>
+                <p class="text-white">{{ $recruit.email }}</p>
+            </div>
+        </div>
+
+        <!-- Reason -->
+        <div>
+            <p class="text-gray-400 font-semibold">Reason</p>
+            <p class="text-white">{{ $recruit.reason }}</p>
+        </div>
+
+        <!-- Status -->
+        <div>
+            <p class="text-gray-400 font-semibold">Status</p>
+            @if($recruit.status === 0)
+                <span class="inline-block px-3 py-1 rounded-full bg-yellow-500 text-black font-semibold">Pending</span>
+            @elseif($recruit.status === 1)
+                <span class="inline-block px-3 py-1 rounded-full bg-green-500 text-white font-semibold">Approved</span>
+            @elseif($recruit.status === 2)
+                <span class="inline-block px-3 py-1 rounded-full bg-red-500 text-white font-semibold">Rejected</span>
+            @endif
+        </div>
+
+    </div>
+
+</div>
+@end
+
+@endlayouts.pecu.dashboard

@@ -29,11 +29,31 @@ class RecruitController extends Controller {
   };
 
   // GET /resource/{Recruit}
-  public show: HttpDispatch = async ({ request }, { recruit }) => {
-    // Show a single resource by ID
-    return response().json({
-      message: `show ${recruit}`
-    })
+  public show: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+
+    const nstgID = recruit.getAttribute("nstg") as number;
+    const classID = recruit.getAttribute("class") as number;
+    const nstg = await NSTGLevel.find(nstgID);
+    const classJob = await ThirdClass.find(classID);
+    if (!nstg) {
+      return redirect().route("admin.recruits").with("message", "NSTG not found");
+    }
+    if (!classJob) {
+      return redirect().route("admin.recruits").with("message", "Class not found");
+    }
+
+    recruit.forceFill({
+      myNstg: nstg.toObject(),
+      myClass: classJob.toObject(),
+    });
+    // check if recruit has read by admin
+    return view("admin.recruits.view", {
+      title: "View Recruit",
+      recruit: recruit,
+      entity: "Admin",
+      selected: "recruits",
+      notif: await this.getUnreads({ request }),
+    });
   };
 
   // GET /resource/create
