@@ -39,7 +39,7 @@
 		<!-- selected and disabled -->
 		<a href="{{ route(`${routePrefix}.index`) }}"
 		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'home' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			🏠 Dashboard
+			🏠 Home
 		</a>
 
 		<a href="{{ route(`${routePrefix}.members`) }}"
@@ -48,11 +48,12 @@
 		</a>
 
 		<a href="{{ route(`${routePrefix}.events`) }}"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'events' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			📅 Events&nbsp;
+		class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'events' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
+			📅 Events
 			@if($notif?.events?.length > 0)
-			<!-- rounded with red background -->
-			<span class="inline-block w-2 h-2 bg-red-500 rounded-full" style="background-color: red;">&nbsp;{{ $notif?.events?.length }}&nbsp;</span>
+				<span class="ml-1 inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
+					{{ $notif?.events?.length }}
+				</span>
 			@end
 		</a>
 
@@ -61,7 +62,9 @@
 		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'recruits' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
 			📝 Recruits&nbsp;
 			@if($notif?.recruits?.length > 0)
-			<span class="inline-block w-2 h-2 bg-red-500 rounded-full" style="background-color: red;">&nbsp;{{ $notif?.recruits?.length }}&nbsp;</span>
+			<span class="ml-1 inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
+				{{ $notif?.recruits?.length }}
+			</span>
 			@end
 		</a>
 		@end

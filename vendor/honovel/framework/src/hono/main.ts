@@ -129,8 +129,8 @@ const myStaticDefaults: MiddlewareHandler[] = [
   }),
 ];
 
-const globalMiddleware:MiddlewareHandler[] = [];
-const globalMiddlewareFallback:TFallbackMiddleware[] = [];
+const globalMiddleware: MiddlewareHandler[] = [];
+const globalMiddlewareFallback: TFallbackMiddleware[] = [];
 
 // domain on beta test
 const _forDomain: MiddlewareHandler = async (
@@ -215,6 +215,10 @@ class Server {
     const conditionalLogger = async (c: any, next: () => Promise<void>) => {
       const url = c.req.url;
       // skip if path ends with __warmup
+      const skipPaths = ['/.well-known', '/robots.txt', '/favicon.ico'];
+      if (skipPaths.some(path => new URL(url).pathname.startsWith(path))) {
+        return await next(); // skip logging
+      }
       if (!url.endsWith("__warmup")) {
         await logger()(c, next); // call logger middleware
       } else {
@@ -340,7 +344,7 @@ class Server {
       MiddlewareHandler[],
       TFallbackMiddleware[],
     ] = [...toMiddleware(mainMiddleware)];
-    
+
     // @ts-ignore //
     app.use(
       "*",
@@ -371,7 +375,7 @@ class Server {
       ),
       ...(routers.web !== undefined && { web: routers.web })
     };
-    
+
     for (const [key, val] of Object.entries(ordered)) {
       try {
         await val();
@@ -769,7 +773,7 @@ class Server {
       if (!(await pathExist(storagePath("framework/route")))) {
         makeDir(storagePath("framework/route"));
       }
-      
+
       // arrange json file with pretty format
       const prettyRoutes = JSON.stringify(this.routes, null, 2);
       writeFile(path.join(storagePath("framework/route"), "routes.json"), prettyRoutes);
@@ -818,7 +822,19 @@ globalFn(
       }
     });
 
-    return finalUrl;
+    // $_GET build
+    const allParams = [...requiredParams, ...optionalParams];
+    let buildUrl = config("app.url") + finalUrl;
+    const $_GET: string[] = [];
+    Object.entries(params).forEach(([key, value]) => {
+      if (!allParams.includes(key) && isset(value)) {
+        $_GET.push(`${key}=${encodeURIComponent(value)}`);
+      }
+    });
+    if ($_GET.length > 0) {
+      buildUrl += `?${$_GET.join("&")}`;
+    }
+    return buildUrl;
   },
 );
 

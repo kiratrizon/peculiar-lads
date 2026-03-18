@@ -74,7 +74,7 @@ class MyArtisan {
 
     if (options.resource) {
       // remove the Controller in name
-      const paramName = name.replace("Controller", "");
+      const paramName = name.replace("Controller", "").toLowerCase();
       controllerContent = controllerContent.replace(
         /{{ paramName }}/g,
         paramName,

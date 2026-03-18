@@ -3,7 +3,12 @@ export default class IsAdmin {
     // Implement logic here
 
     if (!(await Auth.guard("admin").check())) {
-      return redirect().route("admin.login");
+      let redirectUrl = null;
+      if (request.method === "GET") {
+        redirectUrl = request.url;
+      }
+
+      return redirect().route("admin.login", { redirect: redirectUrl });
     }
     return next();
   };

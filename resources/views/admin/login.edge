@@ -18,13 +18,15 @@
             <!-- Login Form -->
             <form method="POST" action="{{ route('admin.login') }}" class="space-y-5">
                 @csrf()
-    
+                <!-- Hidden Redirect -->
+                <input type="hidden" name="redirect" value="{{ request().query('redirect') }}">
                 <!-- Email -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1">
+                    <label class="block text-sm text-indigo-200 mb-1" for="email">
                         Email
                     </label>
                     <input
+                        id="email"
                         type="email"
                         name="email"
                         required
@@ -38,10 +40,11 @@
                 @end
                 <!-- Password -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1">
+                    <label class="block text-sm text-indigo-200 mb-1" for="password">
                         Password
                     </label>
                     <input
+                        id="password"
                         type="password"
                         name="password"
                         required
@@ -57,11 +60,11 @@
                 <!-- Remember -->
                 <div class="flex items-center justify-between text-sm">
                     <label class="flex items-center gap-2 text-indigo-300">
-                        <input type="checkbox" name="remember" class="accent-yellow-400">
+                        <input type="checkbox" name="remember" id="remember" class="accent-yellow-400">
                         Remember me
                     </label>
     
-                    <a href="/forgot-password" class="text-yellow-300 hover:underline">
+                    <a href="/admin/forgot-password" class="text-yellow-300 hover:underline">
                         Forgot password?
                     </a>
                 </div>

@@ -12,9 +12,7 @@ class RecruitController extends Controller {
 
   private static initMailer() {
     if (!this.mailer) {
-      this.mailer = new Resend(env("RESEND_API_KEY",
-        ""
-      ));
+      this.mailer = new Resend(env("RESEND_API_KEY") as string);
     }
   }
 
@@ -31,10 +29,10 @@ class RecruitController extends Controller {
   };
 
   // GET /resource/{Recruit}
-  public show: HttpDispatch = async ({ request }, { Recruit }) => {
+  public show: HttpDispatch = async ({ request }, { recruit }) => {
     // Show a single resource by ID
     return response().json({
-      message: `show ${Recruit}`
+      message: `show ${recruit}`
     })
   };
 
@@ -95,22 +93,24 @@ class RecruitController extends Controller {
 
         RecruitController.initMailer();
         try {
-          const to: string[] = [];
+          const to: string[] = ["genesistroy.fdc@gmail.com"];
           const emails = adminEmails.map((admin) => admin.getAttribute("email") as string);
           if (to.length > 0) {
+            const data = {
+              ign: recruit.getAttribute("ign") as string,
+              className: classExist.getAttribute("name") as string,
+              nstgCode: nstgExist.getAttribute("code") as string,
+              nstgName: nstgExist.getAttribute("name") as string,
+              discord: recruit.getAttribute("discord") as string,
+              email: recruit.getAttribute("email") as string,
+              reason: recruit.getAttribute("reason") as string,
+              reviewUrl: route("admin.recruits.show", { recruit: recruit.getAttribute("id") }),
+            }
             await RecruitController.mailer.emails.send({
               from: "Eirazyn <onboarding@resend.dev>",
-              to: emails,
+              to,
               subject: "New Recruit Application - " + recruit.getAttribute("ign"),
-              html: `
-            <p>A new recruit application has been submitted. Please review it.</p>
-            <p>IGN: ${recruit.getAttribute("ign")}</p>
-            <p>Class: ${classExist.getAttribute("name")}</p>
-            <p>NSTG: ${nstgExist.getAttribute("level")}</p>
-            <p>Discord: ${recruit.getAttribute("discord")}</p>
-            <p>Reason: ${recruit.getAttribute("reason")}</p>
-            <p>Email: ${recruit.getAttribute("email") as string}</p>
-            `,
+              html: this.recruitApplicationTemplate(data),
             });
           }
         } catch (error) {
@@ -123,29 +123,83 @@ class RecruitController extends Controller {
     return redirect().route("welcome").with("message", `Something went wrong. Please try again later.`).withInput();
   };
 
-  // GET /resource/{Recruit}/edit
-  public edit: HttpDispatch = async ({ request }, { Recruit }) => {
-    // Return form or data for editing resource
-    return response().json({
-      message: `edit ${Recruit}`
-    })
-  };
+  private recruitApplicationTemplate(data: {
+    ign: string;
+    className: string;
+    nstgCode: string;
+    nstgName: string;
+    discord: string;
+    email: string;
+    reason: string;
+    reviewUrl?: string;
+  }) {
+    return `
+  <div style="font-family: Arial, sans-serif; background-color: #0f172a; padding: 20px; color: #e2e8f0;">
+    
+    <div style="max-width: 600px; margin: auto; background: rgba(15,23,42,0.95); border-radius: 12px; overflow: hidden; border: 1px solid rgba(234,179,8,0.4);">
+      
+      <!-- Header -->
+      <div style="background: linear-gradient(90deg, #eab308, #facc15); padding: 16px; text-align: center;">
+        <h2 style="margin: 0; color: #1e293b;">📩 New Recruit Application</h2>
+      </div>
 
-  // PUT or PATCH /resource/{Recruit}
-  public update: HttpDispatch = async ({ request }, { Recruit }) => {
-    // Update a resource by ID
-    return response().json({
-      message: `update ${Recruit}`
-    })
-  };
+      <!-- Body -->
+      <div style="padding: 20px;">
+        <p style="margin-bottom: 16px; color: #cbd5f5;">
+          A new recruit has applied to join your guild.
+        </p>
 
-  // DELETE /resource/{Recruit}
-  public destroy: HttpDispatch = async ({ request }, { Recruit }) => {
-    // Delete a resource by ID
-    return response().json({
-      message: `delete ${Recruit}`
-    })
-  };
+        <table style="width: 100%; border-collapse: collapse;">
+          <tr>
+            <td style="padding: 8px; color: #94a3b8;">IGN</td>
+            <td style="padding: 8px; font-weight: bold;">${data.ign}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; color: #94a3b8;">Class</td>
+            <td style="padding: 8px;">${data.className}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; color: #94a3b8;">NSTG</td>
+            <td style="padding: 8px;">${data.nstgCode} - ${data.nstgName}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; color: #94a3b8;">Discord</td>
+            <td style="padding: 8px;">${data.discord}</td>
+          </tr>
+          <tr>
+            <td style="padding: 8px; color: #94a3b8;">Email</td>
+            <td style="padding: 8px;">${data.email}</td>
+          </tr>
+        </table>
+
+        <!-- Reason -->
+        <div style="margin-top: 16px; padding: 12px; background: rgba(30,41,59,0.8); border-radius: 8px; border-left: 4px solid #eab308;">
+          <p style="margin: 0; color: #94a3b8;">Reason</p>
+          <p style="margin-top: 6px;">${data.reason}</p>
+        </div>
+
+        ${data.reviewUrl
+        ? `
+        <div style="text-align: center; margin-top: 24px;">
+          <a href="${data.reviewUrl}" style="display: inline-block; padding: 10px 18px; background: #eab308; color: #1e293b; text-decoration: none; border-radius: 6px; font-weight: bold;">
+            Review Application
+          </a>
+        </div>
+        `
+        : ""
+      }
+
+      </div>
+
+      <!-- Footer -->
+      <div style="text-align: center; padding: 12px; font-size: 12px; color: #64748b;">
+        Guild Recruitment System
+      </div>
+
+    </div>
+  </div>
+  `;
+  }
 }
 
 export default RecruitController;

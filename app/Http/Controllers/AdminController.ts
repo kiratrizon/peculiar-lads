@@ -43,15 +43,21 @@ class AdminController extends Controller {
         });
     };
 
+    /**
+     * Login admin
+     */
     public login: HttpDispatch = async ({ request, Auth }) => {
         if (request.method === "POST") {
             const credentials = await request.validate({
                 email: "required|email",
                 password: "required|min:8",
+                redirect: "nullable|url",
+                remember: "nullable|boolean",
             });
 
             if (await Auth.guard("admin").attempt(credentials)) {
-                return redirect().route("admin.index");
+                const redirectUrl = credentials.redirect || route("admin.index");
+                return redirect().to(redirectUrl);
             } else {
                 return redirect().back().withErrors({
                     email: "Invalid credentials",

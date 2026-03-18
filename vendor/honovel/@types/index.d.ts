@@ -518,4 +518,11 @@ declare global {
    * Indicates if the Vite development server is currently running.
    */
   const viteServer: boolean;
+
+  /**
+   * Checks if the given value is a valid URL.
+   * @param url - The URL to check.
+   * @returns `true` if the URL is valid, otherwise `false`.
+   */
+  function isURL(url: string): boolean;
 }
