@@ -13,12 +13,11 @@ class UserController extends Controller {
         // verify the invite link
         const recruit = await Recruit.where("invitation_link", inviteLink).first();
         if (!recruit) {
-            console.log("not found");
-            return redirect().to("/");
+            return redirect().route("welcome");
         }
 
         return view("user.signup", {
-            inviteLink
+            recruit
         });
     }
 }
