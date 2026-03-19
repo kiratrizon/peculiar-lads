@@ -10,6 +10,7 @@ import Builder from "./Builder.ts";
 import { Factory, HasFactory } from "./Factories/index.ts";
 import Collection from "./Collection.ts";
 import {
+  SQLRaw,
   WhereInterpolator,
   WhereOperator,
   WherePrimitive,
@@ -625,6 +626,13 @@ export default class Model<
     }).where(...args);
   }
 
+  public static whereRaw(raw: SQLRaw, bindings: unknown[] = []): Builder {
+    return new Builder({
+      model: this,
+      fields: ["*"],
+    }).whereRaw(raw, bindings);
+  }
+
   /**
    * Add a whereIn clause to the query.
    * @param column The column name.
@@ -942,6 +950,7 @@ export default class Model<
         newRecord.lastInsertRowId as T[typeof primaryKey],
       );
     }
+    return this;
   }
 
   /**

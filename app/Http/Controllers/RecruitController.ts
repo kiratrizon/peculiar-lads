@@ -1,10 +1,11 @@
 import Controller from "App/Http/Controllers/Controller.ts";
-import Recruit from "../../Models/Recruit.ts";
+import Recruit, { RecruitSchema } from "../../Models/Recruit.ts";
 import NSTGLevel from "../../Models/NSTGLevel.ts";
 import ThirdClass from "../../Models/ThirdClass.ts";
 import { Resend } from "resend";
 import Admin from "../../Models/Admin.ts";
-import { Cache } from "Illuminate/Support/Facades/index.ts";
+import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
+import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
 
 class RecruitController extends Controller {
 
@@ -67,7 +68,7 @@ class RecruitController extends Controller {
   // POST /resource
   public store: HttpDispatch = async ({ request }) => {
     const credentials = await request.validate({
-      ign: "required|min:4|max:10",
+      ign: "required|alpha_num|min:4|max:10",
       class: "required",
       nstg: "required",
       discord: "required|min:4|max:50",
@@ -219,6 +220,55 @@ class RecruitController extends Controller {
     </div>
   </div>
   `;
+  }
+
+  public inviteRecruit: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+
+    // @ts-ignore //
+    const recruitId = recruit.id;
+    const timeNow = date("YmdHis");
+    const randomString = `${recruitId}-${timeNow}-${crypto.randomUUID()}`;
+
+    recruit.fill({
+      status: 1,
+      invitation_link: randomString,
+    });
+    const saved = await recruit.save();
+
+    if (saved) {
+      return response().json({
+        message: "Invitation link sent successfully",
+        invitation_link: recruit.getAttribute("invitation_link") as string
+      })
+    }
+    return response().json({
+      message: "Something went wrong"
+    }, 500)
+  };
+
+  public verify: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+
+    // @ts-ignore //
+    const ign = recruit.ign as string;
+
+    const isBlackListed = await BlockListedPlayer.whereRaw(DB.raw(`lower(ign) = ?`), [ign.toLowerCase()]).count();
+    let verifyValue: RecruitSchema["verified"] = 0;
+    if (isBlackListed > 0) {
+      verifyValue = 2;
+    } else {
+      verifyValue = 1;
+    }
+    recruit.fill({
+      verified: verifyValue,
+    });
+    try {
+      const _ = await recruit.save();
+    } catch (_error) {
+      // 
+    }
+    return response().json({
+      verified: verifyValue
+    })
   }
 }
 

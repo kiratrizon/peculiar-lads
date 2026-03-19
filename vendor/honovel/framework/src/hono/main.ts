@@ -658,7 +658,7 @@ class Server {
 
                 // make sure splittedUri is not only "/" else splice
                 splittedUri = splittedUri.filter(str => {
-                  if (str === "/") {
+                  if (str === "/" && key !== "web") {
                     hasOnlySlash.found = true;
                   }
                   return true;    // keep this element

@@ -1,0 +1,1 @@
+import{j as e}from"./jquery.module-gzd0YkcT.js";import{S as a}from"./sweetalert2.esm.all-BjNi2kua.js";e(document).ready(function(){const o=e("#message").val();o&&a.fire({title:"Thank you for your application!",text:o,icon:"success"})});

@@ -10,6 +10,9 @@ export type RecruitSchema = {
   email: string;
   // 0: pending, 1: approved, 2: rejected
   status: 0 | 1 | 2;
+  invitation_link?: string;
+  // 0: not verified, 1: verified, 2: blocklisted
+  verified: 0 | 1 | 2;
 };
 
 class Recruit extends Model<RecruitSchema> {
@@ -21,9 +24,19 @@ class Recruit extends Model<RecruitSchema> {
     "reason",
     "status",
     "email",
+    "invitation_link",
+    "verified",
   ];
 
-  
+  protected static override _accessors = {
+    invitation_link: (value: unknown) => {
+      if (!isset(value)) {
+        return null;
+      }
+      return `${config("app.url")}/signup/${String(value)}`;
+    }
+  }
+
 }
 
 export default Recruit;

@@ -1,66 +1,26 @@
 import Controller from "App/Http/Controllers/Controller.ts";
-import { Cache } from "Illuminate/Support/Facades/index.ts";
+import Recruit from "../../Models/Recruit.ts";
 
 class UserController extends Controller {
-    // GET /resource
+    // create function like this
     public index: HttpDispatch = async ({ request }) => {
-        const stats = await Cache.get("admin.stats") || {};
-        // List all resources
-        return view("admin.members", {
-            selected: "members",
-            entity: "Admin",
-            title: "Members",
-            stats
+        // your logic here
+    }
+
+    public signup: HttpDispatch = async ({ request }, { inviteLink }) => {
+        // your logic here
+
+        // verify the invite link
+        const recruit = await Recruit.where("invitation_link", inviteLink).first();
+        if (!recruit) {
+            console.log("not found");
+            return redirect().to("/");
+        }
+
+        return view("user.signup", {
+            inviteLink
         });
-    };
-
-    // GET /resource/{User}
-    public show: HttpDispatch = async ({ request }, { User }) => {
-        // Show a single resource by ID
-        return response().json({
-            message: `show ${User}`
-        })
-    };
-
-    // GET /resource/create
-    public create: HttpDispatch = async ({ request }) => {
-        // Return form or data for creating resource
-        return response().json({
-            message: `create`
-        })
-    };
-
-    // POST /resource
-    public store: HttpDispatch = async ({ request }) => {
-        // Create a new resource
-        return response().json({
-            message: `store`
-        })
-    };
-
-    // GET /resource/{User}/edit
-    public edit: HttpDispatch = async ({ request }, { User }) => {
-        // Return form or data for editing resource
-        return response().json({
-            message: `edit ${User}`
-        })
-    };
-
-    // PUT or PATCH /resource/{User}
-    public update: HttpDispatch = async ({ request }, { User }) => {
-        // Update a resource by ID
-        return response().json({
-            message: `update ${User}`
-        })
-    };
-
-    // DELETE /resource/{User}
-    public destroy: HttpDispatch = async ({ request }, { User }) => {
-        // Delete a resource by ID
-        return response().json({
-            message: `delete ${User}`
-        })
-    };
+    }
 }
 
 export default UserController;

@@ -132,11 +132,16 @@ class Group {
     const previousGroupId = Group.groupId;
     if (previousGroupId > 0) {
       const previousGroupInstance = Group.groupReference[previousGroupId];
-      // get the middleware of the previous group
-      const flagConf = previousGroupInstance?.flagConfig;
-      const previousMiddleware = flagConf?.middleware;
-      if (previousMiddleware) {
-        this.flag["middleware"] = [...(previousMiddleware as any[]), ...(this.flag["middleware"] as string[])];
+      if (previousGroupInstance) {
+        // get the middleware of the previous group
+        const flagConf = previousGroupInstance?.flagConfig;
+        const previousMiddleware = flagConf?.middleware;
+        if (!isset(this.flag["middleware"])) {
+          this.flag["middleware"] = [];
+        }
+        if (previousMiddleware) {
+          this.flag["middleware"] = [...(previousMiddleware as any[]), ...(this.flag["middleware"] as string[])];
+        }
       }
     }
     if (Group.groupIdList.length === 0) {

@@ -1,1 +1,14 @@
-@import "tailwindcss"
+@import "tailwindcss";
+
+button {
+  @apply transition cursor-pointer;
+}
+
+/* when disabled then cursor: not-allowed */
+button:disabled {
+  @apply cursor-not-allowed;
+}
+
+button:hover {
+  opacity: 0.8;
+}

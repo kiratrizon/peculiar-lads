@@ -819,6 +819,13 @@ export class Validator {
         // parse val and check dimensions if you implement image parser
         break;
       }
+      case "mimes": {
+        const allowed = (val as string).split(",");
+        if (!((v as FormFile[])[0]?.contentType) || !allowed.includes((v as FormFile[])[0]?.contentType as string)) {
+          e.push(`The file must be of type: ${allowed.join(", ")}.`);
+        }
+        break;
+      }
       case "exists": {
         const [tableRef, column] = (val as string).split(",");
         if (!tableRef || !column) {
@@ -1016,8 +1023,11 @@ export class Validator {
         }
         break;
       }
+      case "nullable": {
+        break;
+      }
       default: {
-        abort(422, `Invalid validation rule: ${val}`);
+        abort(422, `Invalid validation rule: ${name}`);
       }
     }
   }

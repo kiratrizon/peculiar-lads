@@ -1,58 +1,151 @@
 @layouts.pecu.dashboard()
 
+@slot('styles')
+
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/7.0.1/css/all.min.css">
+
+@end
+
 @slot('main')
-<div class="flex flex-col gap-6">
+<div class="flex flex-col gap-8">
 
     <!-- Header -->
-    <div class="flex flex-col gap-2">
-        <h1 class="text-3xl font-bold text-yellow-300">Recruit: {{ $recruit.ign }}</h1>
-        <p class="text-gray-400">Recruit ID: {{ $recruit.id || 'N/A' }}</p>
+    <div class="flex flex-col gap-1">
+        <div class="flex items-center gap-2">
+            <h1 class="text-3xl font-bold text-yellow-400">
+                Recruit: <span class="text-white">{{ $recruit.ign }}</span>
+            </h1>
+            <div id="verify_indicator">
+                @if($recruit.verified === 0)
+                <!-- force red color -->
+                <button class="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-500/80 transition text-white font-semibold flex items-center gap-2" id="verify_{{ $recruit.id }}">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    Verify
+                </button>
+                @elseif($recruit.verified === 1)
+                <!-- green color not button -->
+                <span class="px-5 py-2 rounded-lg bg-green-500 text-white font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-circle-check"></i>
+                    Verified
+                </span>
+                @elseif($recruit.verified === 2)
+                <!-- green color not button -->
+                <span class="px-5 py-2 rounded-lg bg-red-500 text-white font-semibold flex items-center gap-2">
+                    <i class="fa-solid fa-circle-exclamation"></i>
+                    Blocklisted
+                </span>
+                @endif
+            </div>
+        </div>
+        <p class="text-sm text-yellow-500">
+            Recruit ID: <span class="text-gray-300">{{ $recruit.id || 'N/A' }}</span>
+        </p>
     </div>
 
-    <!-- Recruit Info Card -->
-    <div class="bg-gray-900 p-6 rounded-xl shadow-lg border border-gray-700 flex flex-col gap-4">
-        
-        <!-- Top Info -->
-        <div class="grid grid-cols-2 gap-4">
+    <!-- Card -->
+    <div class="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 flex flex-col gap-6">
+
+        <!-- Grid Info -->
+        <div class="grid grid-cols-2 gap-6">
+
             <div>
-                <p class="text-gray-400 font-semibold">NSTG</p>
-                <p class="text-white">{{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}</p>
+                <p class="text-xs uppercase tracking-wide text-yellow-500">NSTG</p>
+                <p class="text-lg font-semibold text-white">
+                    {{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}
+                </p>
             </div>
+
             <div>
-                <p class="text-gray-400 font-semibold">Class</p>
-                <p class="text-white">{{ $recruit.myClass.name }}</p>
+                <p class="text-xs uppercase tracking-wide text-yellow-500">Class</p>
+                <p class="text-lg font-semibold text-white">
+                    {{ $recruit.myClass.name }}
+                </p>
             </div>
+
             <div>
-                <p class="text-gray-400 font-semibold">Discord</p>
-                <p class="text-white">{{ $recruit.discord }}</p>
+                <p class="text-xs uppercase tracking-wide text-yellow-500">Discord</p>
+                <p class="text-lg text-gray-200">
+                    {{ $recruit.discord }}
+                </p>
             </div>
+
             <div>
-                <p class="text-gray-400 font-semibold">Email</p>
-                <p class="text-white">{{ $recruit.email }}</p>
+                <p class="text-xs uppercase tracking-wide text-yellow-500">Email</p>
+                <p class="text-lg text-gray-200">
+                    {{ $recruit.email }}
+                </p>
             </div>
         </div>
 
+        <!-- Divider -->
+        <div class="border-t border-gray-800"></div>
+
         <!-- Reason -->
         <div>
-            <p class="text-gray-400 font-semibold">Reason</p>
-            <p class="text-white">{{ $recruit.reason }}</p>
+            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">Reason</p>
+            <p class="text-gray-200 leading-relaxed">
+                {{ $recruit.reason }}
+            </p>
         </div>
 
         <!-- Status -->
         <div>
-            <p class="text-gray-400 font-semibold">Status</p>
+            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-2">Status</p>
+
             @if($recruit.status === 0)
-                <span class="inline-block px-3 py-1 rounded-full bg-yellow-500 text-black font-semibold">Pending</span>
+                <span class="px-3 py-1 text-sm rounded-full bg-yellow-400/20 text-yellow-300 font-semibold">
+                    Pending
+                </span>
             @elseif($recruit.status === 1)
-                <span class="inline-block px-3 py-1 rounded-full bg-green-500 text-white font-semibold">Approved</span>
+                <span class="px-3 py-1 text-sm rounded-full bg-blue-400/20 text-blue-300 font-semibold">
+                    Invited
+                </span>
             @elseif($recruit.status === 2)
-                <span class="inline-block px-3 py-1 rounded-full bg-red-500 text-white font-semibold">Rejected</span>
+                <span class="px-3 py-1 text-sm rounded-full bg-red-400/20 text-red-300 font-semibold">
+                    Rejected
+                </span>
+            @elseif($recruit.status === 3)
+                <span class="px-3 py-1 text-sm rounded-full bg-green-400/20 text-green-300 font-semibold">
+                    Member
+                </span>
             @endif
         </div>
 
-    </div>
+        <!-- Invitation -->
+        @if (isset($recruit.invitation_link))
+            <div>
+                <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">
+                    Invitation Link
+                </p>
+                <div class="flex items-center gap-2">
+                    <a href="{{ $recruit.invitation_link }}" 
+                    class="text-blue-400 hover:underline break-all">
+                        {{ $recruit.invitation_link }}
+                    </a>
+                    <!-- clipboard  -->
+                    <button 
+                        class="px-5 py-2 rounded-lg bg-gray-500 hover:bg-gray-500/80 transition text-white font-semibold flex items-center gap-2" id="copy_invitation_link" value="{{ $recruit.invitation_link }}">
+                        <i class="fa-solid fa-copy"></i>
+                    </button>
+                </div>
+            </div>
+        @elseif($recruit.status != 1)
 
+            <div class="pt-2">
+                <button 
+                    class="px-5 py-2 rounded-lg bg-blue-500 hover:bg-blue-500/80 transition text-white font-semibold"
+                    id="invite_{{ $recruit.id }}">
+                    Send Invitation Link
+                </button>
+            </div>
+
+        @endif
+        {{{ csrf("csrf_token") }}}
+
+    </div>
 </div>
+
+@vite('resources/ts/recruit/view.ts')
 @end
 
 @endlayouts.pecu.dashboard

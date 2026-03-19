@@ -73,6 +73,15 @@ export class WhereInterpolator {
     return this;
   }
 
+  // whereRaw
+  public whereRaw(raw: SQLRaw, bindings: WhereValue[] = []): this {
+    if (!(raw instanceof SQLRaw)) {
+      throw new SQLError("Invalid where raw clause");
+    }
+    this.whereClauses.push([raw.toString(), bindings]);
+    return this;
+  }
+
   public orWhere(column: string, value: WherePrimitive): this;
 
   public orWhere(

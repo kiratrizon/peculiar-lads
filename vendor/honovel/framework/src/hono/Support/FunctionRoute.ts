@@ -1409,8 +1409,8 @@ export async function handleAction(
           >;
           return oldInput[key] ?? defaultValue;
         },
-        csrf: () => {
-          return `<input type="hidden" name="_token" value="${request.session.get("_token") || ""
+        csrf: (id: string = "_token") => {
+          return `<input type="hidden" id="${id}" name="${id}" value="${request.session.get("_token") || ""
             }">`;
         },
         csrfMeta: () =>

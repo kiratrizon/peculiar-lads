@@ -4,16 +4,16 @@ class BlockListedPlayerController extends Controller {
     // GET /resource
     public index: HttpDispatch = async ({ request }) => {
         // List all resources
-        return response().json({
-            message:"index"
+        return view("blocklisted.index", {
+            title: "Blocklisted Players",
         })
     };
 
     // GET /resource/{blocklistedplayer}
-    public show: HttpDispatch = async ({ request }, {blocklistedplayer}) => {
+    public show: HttpDispatch = async ({ request }, { player }) => {
         // Show a single resource by ID
         return response().json({
-            message:`show ${blocklistedplayer}`
+            message: `show ${player}`
         })
     };
 
@@ -21,7 +21,7 @@ class BlockListedPlayerController extends Controller {
     public create: HttpDispatch = async ({ request }) => {
         // Return form or data for creating resource
         return response().json({
-            message:`create`
+            message: `create`
         })
     };
 
@@ -29,31 +29,31 @@ class BlockListedPlayerController extends Controller {
     public store: HttpDispatch = async ({ request }) => {
         // Create a new resource
         return response().json({
-            message:`store`
+            message: `store`
         })
     };
 
-    // GET /resource/{blocklistedplayer}/edit
-    public edit: HttpDispatch = async ({ request }, {blocklistedplayer}) => {
+    // GET /resource/{player}/edit
+    public edit: HttpDispatch = async ({ request }, { player }) => {
         // Return form or data for editing resource
         return response().json({
-            message:`edit ${blocklistedplayer}`
+            message: `edit ${player}`
         })
     };
 
-    // PUT or PATCH /resource/{blocklistedplayer}
-    public update: HttpDispatch = async ({ request }, {blocklistedplayer}) => {
+    // PUT or PATCH /resource/{player}
+    public update: HttpDispatch = async ({ request }, { player }) => {
         // Update a resource by ID
         return response().json({
-            message:`update ${blocklistedplayer}`
+            message: `update ${player}`
         })
     };
 
-    // DELETE /resource/{blocklistedplayer}
-    public destroy: HttpDispatch = async ({ request }, {blocklistedplayer}) => {
+    // DELETE /resource/{player}
+    public destroy: HttpDispatch = async ({ request }, { player }) => {
         // Delete a resource by ID
         return response().json({
-            message:`delete ${blocklistedplayer}`
+            message: `delete ${player}`
         })
     };
 }

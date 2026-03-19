@@ -3,6 +3,10 @@
     "file": "assets/jquery.module-gzd0YkcT.js",
     "name": "jquery.module"
   },
+  "_sweetalert2.esm.all-BjNi2kua.js": {
+    "file": "assets/sweetalert2.esm.all-BjNi2kua.js",
+    "name": "sweetalert2.esm.all"
+  },
   "resources/ts/admin/members.ts": {
     "file": "assets/members-BkiDHj1g.js",
     "name": "members",
@@ -13,21 +17,32 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-DW_DkqmU.js",
+    "file": "assets/app-BW5a2Cm1.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-BS5PfWa5.css"
+      "assets/app-Di7J8IdC.css"
+    ]
+  },
+  "resources/ts/recruit/view.ts": {
+    "file": "assets/view-CoWrsAMF.js",
+    "name": "view",
+    "src": "resources/ts/recruit/view.ts",
+    "isEntry": true,
+    "imports": [
+      "_jquery.module-gzd0YkcT.js",
+      "_sweetalert2.esm.all-BjNi2kua.js"
     ]
   },
   "resources/ts/welcome.ts": {
-    "file": "assets/welcome-B_uGMpj6.js",
+    "file": "assets/welcome-pEgRRmL4.js",
     "name": "welcome",
     "src": "resources/ts/welcome.ts",
     "isEntry": true,
     "imports": [
-      "_jquery.module-gzd0YkcT.js"
+      "_jquery.module-gzd0YkcT.js",
+      "_sweetalert2.esm.all-BjNi2kua.js"
     ]
   }
 }

@@ -16,11 +16,6 @@ export default Application.withRouting({
   })
 })
   .withExceptions((exceptions) => {
-    exceptions.render<typeof NotFoundHttpException>(NotFoundHttpException, async ({ request }, e) => {
-      if (request.expectsJson() || request.is("api/*") || request.ajax()) {
-        return response().json({ message: "Not Found" }, 404);
-      }
-      return "Not Found";
-    });
+
   })
   .create();
