@@ -633,6 +633,13 @@ export default class Model<
     }).whereRaw(raw, bindings);
   }
 
+  public static async paginate(page: number, perPage: number = 10, urlPath?: URL): Promise<Paginator<Record<string, unknown>>> {
+    return await new Builder({
+      model: this,
+      fields: ["*"],
+    }).paginate(page, perPage, urlPath);
+  }
+
   /**
    * Add a whereIn clause to the query.
    * @param column The column name.
@@ -1022,6 +1029,9 @@ export default class Model<
   }
 }
 
+export type ModelConstructor = new (...args: unknown[]) => Model;
+
 // Import AfterOn and WithBuilder to avoid circular dependency issues
 import AfterOn from "./AfterOn.ts";
 import WithBuilder from "./WithBuilder.ts";
+import Paginator from "../../Pagination/Paginator.ts";

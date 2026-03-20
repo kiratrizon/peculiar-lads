@@ -29,7 +29,7 @@ export default class Exceptions {
         Application.addException(exception, cb);
     }
 
-    public static find(httpCode: ContentfulStatusCode): HttpException {
+    public static find(httpCode: ContentfulStatusCode, message?: string, headers: Record<string, string> = {}): HttpException {
         const allExceptions = {
             400: BadRequestHttpException,
             403: AccessDeniedHttpException,
@@ -48,8 +48,8 @@ export default class Exceptions {
             401: AuthenticationException,
         }
         if (keyExist(allExceptions, httpCode)) {
-            return new allExceptions[httpCode]();
+            return new allExceptions[httpCode](message, headers, httpCode);
         }
-        return new HttpException();
+        return new HttpException(message, headers, httpCode);
     }
 }

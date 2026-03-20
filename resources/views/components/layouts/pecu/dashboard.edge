@@ -16,42 +16,123 @@
 	.float-animation {
 		animation: float 6s ease-in-out infinite;
 	}
+
+	body[data-theme="dark"] {
+		--bg-1: #0b1120;
+		--bg-2: #2e1065;
+		--bg-3: #4c1d95;
+		--text-main: #e0e7ff;
+		--text-soft: #a5b4fc;
+		--panel: rgba(2, 6, 23, 0.62);
+		--panel-2: rgba(15, 23, 42, 0.55);
+		--border: rgba(234, 179, 8, 0.35);
+		--accent: #fcd34d;
+		--hover: rgba(250, 204, 21, 0.12);
+	}
+
+	body[data-theme="light"] {
+		--bg-1: #f8fafc;
+		--bg-2: #eef2ff;
+		--bg-3: #dbeafe;
+		--text-main: #0f172a;
+		--text-soft: #334155;
+		--panel: rgba(255, 255, 255, 0.86);
+		--panel-2: rgba(255, 255, 255, 0.72);
+		--border: rgba(15, 23, 42, 0.14);
+		--accent: #b45309;
+		--hover: rgba(180, 83, 9, 0.08);
+	}
+
+	.dashboard-shell {
+		background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+		color: var(--text-main);
+	}
+
+	.dashboard-sidebar {
+		background: var(--panel);
+		border-color: var(--border);
+	}
+
+	.dashboard-topbar {
+		background: var(--panel-2);
+		border-color: var(--border);
+	}
+
+	.dashboard-brand,
+	.dashboard-title,
+	.theme-button,
+	.sidebar-toggle {
+		color: var(--accent);
+	}
+
+	.nav-link {
+		color: var(--text-main);
+	}
+
+	.nav-link:hover,
+	.nav-link-active {
+		background: var(--hover);
+		color: var(--accent);
+	}
+
+	.theme-button,
+	.sidebar-toggle {
+		border-color: var(--border);
+	}
+
+	.theme-button:hover,
+	.sidebar-toggle:hover {
+		background: var(--hover);
+	}
+
+	.greeting-text {
+		color: var(--text-soft);
+	}
+
+	.sidebar-footer {
+		color: var(--text-soft);
+		border-color: var(--border);
+	}
 </style>
 
 </head>
 
-<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-violet-950 min-h-screen flex text-indigo-100">
+<body class="dashboard-shell min-h-screen flex" data-theme="dark">
+
+@let(routePrefix = $entity === "Admin" ? "admin" : ($entity === "User" ? "user" : ""))
 
 <!-- Sidebar -->
-<aside class="w-64 bg-black/50 backdrop-blur-md border-r border-yellow-500/30 flex flex-col">
+<aside
+	id="dashboardSidebar"
+	class="dashboard-sidebar fixed inset-y-0 left-0 z-40 w-64 -translate-x-full backdrop-blur-md border-r flex flex-col transition-all duration-300 ease-in-out lg:static lg:translate-x-0 lg:z-auto">
 
-	<div class="p-6 border-b border-yellow-500/30 flex items-center gap-2">
-		<span class="text-2xl">🐉</span>
-		<span class="text-lg font-bold text-yellow-300">
+	<div class="p-6 border-b flex items-center gap-2" style="border-color: var(--border);">
+		<span class="text-2xl shrink-0">🐉</span>
+		<span class="dashboard-brand text-lg font-bold sidebar-label">
 			{{ env('GUILD_NAME') }}
 		</span>
 	</div>
 
 	<nav class="flex-1 p-4 space-y-2">
-
-		@let(routePrefix = $entity === "Admin" ? "admin" : ($entity === "User" ? "user" : ""))
-
 		<!-- selected and disabled -->
 		<a href="{{ route(`${routePrefix}.index`) }}"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'home' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			🏠 Home
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'home' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">🏠</span>
+			<span class="sidebar-label">Home</span>
 		</a>
 
 		<a href="{{ route(`${routePrefix}.members`) }}"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'members' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			👥 Guild Members
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'members' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">👥</span>
+			<span class="sidebar-label">Guild Members</span>
 		</a>
 
 		<a href="{{ route(`${routePrefix}.events`) }}"
-		class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'events' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			📅 Events
+		class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'events' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">📅</span>
+			<span class="sidebar-label">Events</span>
 			@if($notif?.events?.length > 0)
-				<span class="ml-1 inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
+				<span class="ml-auto inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
 					{{ $notif?.events?.length }}
 				</span>
 			@end
@@ -59,10 +140,11 @@
 
 		@if($entity === "Admin")
 		<a href="{{ route(`${routePrefix}.recruits`) }}"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'recruits' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			📝 Recruits&nbsp;
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'recruits' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">📝</span>
+			<span class="sidebar-label">Recruits</span>
 			@if($notif?.recruits?.length > 0)
-			<span class="ml-1 inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
+			<span class="ml-auto inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
 				{{ $notif?.recruits?.length }}
 			</span>
 			@end
@@ -70,31 +152,46 @@
 		@end
 
 		<a href="{{ route(`${routePrefix}.settings`) }}"
-		   class="block px-4 py-2 rounded-lg hover:bg-yellow-500/10 hover:text-yellow-300 transition {{ $selected === 'settings' ? 'bg-yellow-500/10 text-yellow-300 cursor-not-allowed' : '' }}">
-			⚙️ Settings
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'settings' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">⚙️</span>
+			<span class="sidebar-label">Settings</span>
 		</a>
 
 	</nav>
 
-	<div class="p-4 border-t border-yellow-500/30 text-xs text-indigo-400 text-center">
+	<div class="sidebar-footer p-4 border-t text-xs text-center sidebar-label">
 		Dragon Nest SEA Guild
 	</div>
 
 </aside>
 
+<div id="sidebarBackdrop" class="fixed inset-0 z-30 bg-black/50 opacity-0 pointer-events-none transition-opacity duration-300 lg:hidden"></div>
+
 <!-- Main area -->
 <div class="flex-1 flex flex-col">
 
 	<!-- Topbar -->
-	<header class="bg-black/40 backdrop-blur-md border-b border-yellow-500/30 px-6 py-4 flex justify-between items-center">
+	<header class="dashboard-topbar backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
 
-		<div class="font-semibold text-yellow-300 text-lg">
-			Guild Dashboard
+		<div class="flex items-center gap-2">
+			<button id="sidebarToggleMobile" type="button" class="sidebar-toggle lg:hidden inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 transition">
+				☰
+			</button>
+			<button id="sidebarToggleDesktop" type="button" class="sidebar-toggle hidden lg:inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 transition">
+				⇔
+			</button>
+			<div class="dashboard-title font-semibold text-lg">
+				Guild Dashboard
+			</div>
 		</div>
 
 		<div class="flex items-center gap-4">
 
-			<div class="text-sm text-indigo-300">
+			<button id="themeToggle" type="button" class="theme-button inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 text-sm transition">
+				🌙 Dark
+			</button>
+
+			<div class="greeting-text text-sm">
 				Hello, {{ request().user()?.name ?? 'Adventurer' }}!
 			</div>
 
@@ -124,6 +221,93 @@
 	</main>
 
 </div>
+
+<script>
+(() => {
+	const sidebar = document.getElementById("dashboardSidebar");
+	const backdrop = document.getElementById("sidebarBackdrop");
+	const mobileToggle = document.getElementById("sidebarToggleMobile");
+	const desktopToggle = document.getElementById("sidebarToggleDesktop");
+	const themeToggle = document.getElementById("themeToggle");
+	const labels = document.querySelectorAll(".sidebar-label");
+	const body = document.body;
+	const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
+
+	const setDesktopCollapse = (collapsed) => {
+		if (!sidebar) return;
+		if (collapsed) {
+			sidebar.classList.remove("w-64");
+			sidebar.classList.add("w-20");
+			labels.forEach((el) => el.classList.add("hidden"));
+		} else {
+			sidebar.classList.remove("w-20");
+			sidebar.classList.add("w-64");
+			labels.forEach((el) => el.classList.remove("hidden"));
+		}
+		localStorage.setItem("pecu:sidebar-collapsed", collapsed ? "1" : "0");
+	};
+
+	const openMobile = () => {
+		if (!sidebar || !backdrop) return;
+		sidebar.classList.remove("-translate-x-full");
+		backdrop.classList.remove("opacity-0", "pointer-events-none");
+		document.body.classList.add("overflow-hidden");
+	};
+
+	const closeMobile = () => {
+		if (!sidebar || !backdrop) return;
+		sidebar.classList.add("-translate-x-full");
+		backdrop.classList.add("opacity-0", "pointer-events-none");
+		document.body.classList.remove("overflow-hidden");
+	};
+
+	mobileToggle?.addEventListener("click", openMobile);
+	backdrop?.addEventListener("click", closeMobile);
+
+	desktopToggle?.addEventListener("click", () => {
+		const collapsed = !sidebar?.classList.contains("w-20");
+		setDesktopCollapse(Boolean(collapsed));
+	});
+
+	const applyTheme = (theme) => {
+		const normalized = theme === "light" ? "light" : "dark";
+		body.setAttribute("data-theme", normalized);
+		if (themeToggle) {
+			themeToggle.textContent = normalized === "light" ? "☀️ Light" : "🌙 Dark";
+		}
+		localStorage.setItem("pecu:theme", normalized);
+	};
+
+	themeToggle?.addEventListener("click", () => {
+		const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+		applyTheme(next);
+	});
+
+	window.addEventListener("resize", () => {
+		if (isDesktop()) {
+			closeMobile();
+			sidebar?.classList.remove("-translate-x-full");
+			const collapsed = localStorage.getItem("pecu:sidebar-collapsed") === "1";
+			setDesktopCollapse(collapsed);
+		} else {
+			setDesktopCollapse(false);
+			sidebar?.classList.add("-translate-x-full");
+		}
+	});
+
+	const storedTheme = localStorage.getItem("pecu:theme");
+	const preferredTheme = storedTheme || "dark";
+	applyTheme(preferredTheme);
+
+	if (isDesktop()) {
+		const collapsed = localStorage.getItem("pecu:sidebar-collapsed") === "1";
+		setDesktopCollapse(collapsed);
+		sidebar?.classList.remove("-translate-x-full");
+	} else {
+		closeMobile();
+	}
+})();
+</script>
 
 </body>
 </html>

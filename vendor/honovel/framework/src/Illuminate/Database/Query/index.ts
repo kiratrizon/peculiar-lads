@@ -1,5 +1,6 @@
 import { Database } from "Database";
 import { DB } from "../../Support/Facades/index.ts";
+import Paginator from "../../Pagination/Paginator.ts";
 
 export class SQLError extends Error {
   constructor(message: string) {
@@ -984,16 +985,17 @@ export class Builder extends WhereInterpolator {
   #built: boolean = false;
   private toSqlWithValues(type: string = "select") {
     if (this.#built) {
-      return;
+      // return;
     }
+
     const field = this.fields;
     const joins = this.joinClauses;
     const where = this.whereClauses;
     const groupBy = this.groupByValue;
     const having = this.havingClauses;
     const orderBy = this.orderByValue;
-    const offset = this.offsetValue;
-    const limit = this.limitValue;
+    const offset = this.offsetValue ?? null;
+    const limit = this.limitValue ?? null;
 
     let sql;
     if (type === "insert") {
@@ -1064,13 +1066,15 @@ export class Builder extends WhereInterpolator {
           })
           .join(", ");
     }
-    if (offset !== null) {
-      sql += ` OFFSET ?`;
-      this.#params.push(offset);
-    }
+
     if (limit !== null) {
       sql += ` LIMIT ?`;
       this.#params.push(limit);
+    }
+
+    if (offset !== null) {
+      sql += ` OFFSET ?`;
+      this.#params.push(offset);
     }
 
     this.#sql = sql;
@@ -1107,11 +1111,13 @@ export class Builder extends WhereInterpolator {
   }
 
   public async count(): Promise<number> {
+    const lastSelect = [...this.fields];
     this.select(DB.raw("COUNT(*) AS count"));
     const { sql, values } = {
       sql: this.toSql(),
       values: this.getBindings(),
     };
+    this.fields = lastSelect;
     const result = await this.database.runQuery<"select">(sql, values);
     return Number(result[0]?.count || 0);
   }
@@ -1366,6 +1372,17 @@ export class Builder extends WhereInterpolator {
     } else {
       this.havingClauses.push([clause, values]);
     }
+  }
+
+  async paginate(page: number, perPage: number = 10, urlPath?: URL): Promise<Paginator<Record<string, unknown>>> {
+    const offset = (page - 1) * perPage;
+    this.limit(perPage);
+    this.offset(offset);
+    const data = await this.get();
+    this.limit(0);
+    this.offset(0);
+    const total = await this.count();
+    return new Paginator(data, total, page, perPage, urlPath);
   }
 }
 type HavingOperator =

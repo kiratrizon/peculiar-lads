@@ -5,9 +5,14 @@
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<title>{{ env('GUILD_NAME') }} | {{ $entity }} Login</title>
 	@vite('resources/ts/app.ts')
+	@vite('resources/css/login.css')
 </head>
 
-<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-violet-950 min-h-screen flex items-center justify-center relative overflow-hidden">
+<body class="login-shell min-h-screen flex items-center justify-center relative overflow-hidden" data-theme="dark">
+
+	<button id="themeToggleGuestLogin" type="button" class="theme-toggle absolute top-4 right-4 z-20 px-3 py-1 rounded text-sm transition">
+		🌙 Dark
+	</button>
 
 	<!-- Background glow -->
 	<div class="fixed inset-0 opacity-20 pointer-events-none">
@@ -17,5 +22,24 @@
 
 	{{{ await $slots.main() }}}
 
+	<script>
+	(() => {
+		const body = document.body;
+		const themeToggle = document.getElementById("themeToggleGuestLogin");
+		const applyTheme = (theme) => {
+			const normalized = theme === "light" ? "light" : "dark";
+			body.setAttribute("data-theme", normalized);
+			if (themeToggle) {
+				themeToggle.textContent = normalized === "light" ? "☀️ Light" : "🌙 Dark";
+			}
+			localStorage.setItem("pecu:theme", normalized);
+		};
+		themeToggle?.addEventListener("click", () => {
+			const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+			applyTheme(next);
+		});
+		applyTheme(localStorage.getItem("pecu:theme") || "dark");
+	})();
+	</script>
 </body>
 </html>

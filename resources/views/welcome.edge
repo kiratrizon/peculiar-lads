@@ -1,6 +1,7 @@
 @layouts.guest.default()
 
 @slot('main')
+
 	<!-- Hero Section -->
 	<header class="relative z-10 py-16 md:py-24 px-4">
 		<div class="container mx-auto flex flex-col items-center text-center">
@@ -10,15 +11,15 @@
 			<h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 tracking-wide drop-shadow-2xl mb-4">
 				{{ env('GUILD_NAME') }}
 			</h1>
-			<p class="text-xl md:text-3xl text-indigo-300 font-semibold mb-3">Dragon Nest SEA Guild</p>
-			<p class="text-lg md:text-xl text-purple-300 mb-8 max-w-2xl">
+			<p class="welcome-text-soft text-xl md:text-3xl font-semibold mb-3">Dragon Nest SEA Guild</p>
+			<p class="welcome-text-main text-lg md:text-xl mb-8 max-w-2xl">
 				🇵🇭 Philippines' Premier Community of Adventurers, Warriors & Friends
 			</p>
 			<div class="flex flex-wrap gap-4 justify-center">
 				<a href="#join" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 pulse-glow">
 					⚔️ Join the Guild
 				</a>
-				<a href="#about" class="bg-white/10 backdrop-blur-sm hover:bg-white/20 text-white font-semibold px-8 py-4 rounded-lg shadow-xl transition-all border border-yellow-500/50">
+				<a href="#about" class="welcome-ghost-btn backdrop-blur-sm font-semibold px-8 py-4 rounded-lg shadow-xl transition-all border">
 					📖 Learn More
 				</a>
 			</div>
@@ -123,67 +124,23 @@
 
 			<!-- Classes Section -->
 			<section id="classes" class="mb-16">
-				<div class="bg-black/40 backdrop-blur-md rounded-2xl p-8 md:p-12 border border-yellow-500/30">
+				<!-- center class if not 5 -->
+				<div class="welcome-glass backdrop-blur-md rounded-2xl p-8 md:p-12 border mx-auto">
 					<h2 class="text-3xl md:text-4xl font-bold text-center text-yellow-300 mb-8">
 						All Classes Welcome! 🎭
 					</h2>
-					<p class="text-center text-indigo-200 mb-8 text-lg">
+					<p class="text-center welcome-text-main mb-8 text-lg">
 						Every class has a home in {{ env('GUILD_NAME') }}!
 					</p>
 
 					<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-						<div class="bg-red-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">⚔️</div>
-							<p class="text-white font-semibold">Warrior</p>
+						@let($randomColor = ["bg-blue-600/80", "bg-green-600/80", "bg-red-600/80", "bg-yellow-600/80", "bg-purple-600/80", "bg-orange-600/80", "bg-pink-600/80", "bg-indigo-600/80", "bg-teal-600/80", "bg-gray-600/80"])
+						@each($firstClass in $firstClasses)
+						<div class="{{ $randomColor[Math.floor(Math.random() * $randomColor.length)] }} p-4 rounded-lg text-center transform hover:scale-105 transition">
+							<div class="text-3xl mb-2">{{ $firstClass.icon }}</div>
+							<p class="text-white font-semibold">{{ $firstClass.name }}</p>
 						</div>
-
-						<div class="bg-purple-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🔮</div>
-							<p class="text-white font-semibold">Sorceress</p>
-						</div>
-
-						<div class="bg-green-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🏹</div>
-							<p class="text-white font-semibold">Archer</p>
-						</div>
-
-						<div class="bg-blue-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">✨</div>
-							<p class="text-white font-semibold">Cleric</p>
-						</div>
-
-						<div class="bg-yellow-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🗡️</div>
-							<p class="text-white font-semibold">Assassin</p>
-						</div>
-
-						<div class="bg-indigo-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🎪</div>
-							<p class="text-white font-semibold">Kali</p>
-						</div>
-
-						<div class="bg-orange-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🔧</div>
-							<p class="text-white font-semibold">Academic</p>
-						</div>
-
-						<div class="bg-pink-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🌸</div>
-							<p class="text-white font-semibold">Lancea</p>
-						</div>
-
-						<!-- NEW CLASSES -->
-
-						<div class="bg-teal-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🛡️</div>
-							<p class="text-white font-semibold">Vandar</p>
-						</div>
-
-						<div class="bg-cyan-600/80 p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">🌀</div>
-							<p class="text-white font-semibold">Arta</p>
-						</div>
-
+						@end
 					</div>
 				</div>
 			</section>
@@ -276,9 +233,9 @@
 
 			<!-- Server Info -->
 			<section class="mb-16">
-				<div class="bg-indigo-900/50 backdrop-blur-sm rounded-xl p-6 border border-yellow-500/30 text-center">
+				<div class="welcome-glass backdrop-blur-sm rounded-xl p-6 border text-center">
 					<h3 class="text-2xl font-bold text-yellow-300 mb-4">Guild Information</h3>
-					<div class="grid md:grid-cols-3 gap-4 text-indigo-100">
+					<div class="grid md:grid-cols-3 gap-4 welcome-text-main">
 						<div>
 							<p class="text-yellow-400 font-semibold mb-1">Server</p>
 							<p class="text-lg">Dragon Nest SEA</p>
@@ -300,6 +257,10 @@
 
 	@if(session().has("message"))
 		<input type="hidden" id="message" value="{{ session().get('message') }}">
+	@end
+
+	@if(errors.has("globalError"))
+		<input type="hidden" id="globalError" value="{{ errors.first('globalError') }}">
 	@end
 
 	@vite('resources/ts/welcome.ts')

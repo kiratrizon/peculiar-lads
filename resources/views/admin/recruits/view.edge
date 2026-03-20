@@ -13,7 +13,7 @@
     <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
             <h1 class="text-3xl font-bold text-yellow-400">
-                Recruit: <span class="text-white">{{ $recruit.ign }}</span>
+                Recruit: <span style="color: var(--text-main);">{{ $recruit.ign }}</span>
             </h1>
             <div id="verify_indicator">
                 @if($recruit.verified === 0)
@@ -38,52 +38,52 @@
             </div>
         </div>
         <p class="text-sm text-yellow-500">
-            Recruit ID: <span class="text-gray-300">{{ $recruit.id || 'N/A' }}</span>
+            Recruit ID: <span style="color: var(--text-soft);">{{ $recruit.id || 'N/A' }}</span>
         </p>
     </div>
 
     <!-- Card -->
-    <div class="bg-gray-900 p-6 rounded-2xl shadow-xl border border-gray-800 flex flex-col gap-6">
+    <div class="p-6 rounded-2xl shadow-xl border flex flex-col gap-6" style="background: var(--panel); border-color: var(--border);">
 
         <!-- Grid Info -->
         <div class="grid grid-cols-2 gap-6">
 
             <div>
                 <p class="text-xs uppercase tracking-wide text-yellow-500">NSTG</p>
-                <p class="text-lg font-semibold text-white">
+                <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}
                 </p>
             </div>
 
             <div>
                 <p class="text-xs uppercase tracking-wide text-yellow-500">Class</p>
-                <p class="text-lg font-semibold text-white">
+                <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myClass.name }}
                 </p>
             </div>
 
             <div>
                 <p class="text-xs uppercase tracking-wide text-yellow-500">Discord</p>
-                <p class="text-lg text-gray-200">
+                <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.discord }}
                 </p>
             </div>
 
             <div>
                 <p class="text-xs uppercase tracking-wide text-yellow-500">Email</p>
-                <p class="text-lg text-gray-200">
+                <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.email }}
                 </p>
             </div>
         </div>
 
         <!-- Divider -->
-        <div class="border-t border-gray-800"></div>
+        <div class="border-t" style="border-color: var(--border);"></div>
 
         <!-- Reason -->
         <div>
             <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">Reason</p>
-            <p class="text-gray-200 leading-relaxed">
+            <p class="leading-relaxed" style="color: var(--text-soft);">
                 {{ $recruit.reason }}
             </p>
         </div>

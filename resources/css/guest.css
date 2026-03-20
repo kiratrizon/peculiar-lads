@@ -1,0 +1,88 @@
+@keyframes float {
+    0%, 100% { transform: translateY(0px); }
+    50% { transform: translateY(-20px); }
+}
+.float-animation {
+    animation: float 6s ease-in-out infinite;
+}
+@keyframes pulse-glow {
+    0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
+    50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.8); }
+}
+.pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite;
+}
+
+body[data-theme="dark"] {
+    --bg-1: #0b1120;
+    --bg-2: #2e1065;
+    --bg-3: #4c1d95;
+    --panel: rgba(2, 6, 23, 0.62);
+    --panel-2: rgba(2, 6, 23, 0.72);
+    --border: rgba(234, 179, 8, 0.35);
+    --text-main: #c7d2fe;
+    --text-soft: #a5b4fc;
+    --text-muted: #818cf8;
+    --accent: #fcd34d;
+    --hover: rgba(250, 204, 21, 0.15);
+}
+
+body[data-theme="light"] {
+    --bg-1: #f8fafc;
+    --bg-2: #eef2ff;
+    --bg-3: #dbeafe;
+    --panel: rgba(255, 255, 255, 0.8);
+    --panel-2: rgba(255, 255, 255, 0.9);
+    --border: rgba(15, 23, 42, 0.12);
+    --text-main: #334155;
+    --text-soft: #334155;
+    --text-muted: #64748b;
+    --accent: #b45309;
+    --hover: rgba(180, 83, 9, 0.1);
+}
+
+.guest-shell {
+    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+}
+
+.guest-nav, .guest-footer {
+    background: var(--panel);
+    border-color: var(--border);
+}
+
+.guest-brand, .guest-title, .theme-toggle {
+    color: var(--accent);
+}
+
+.guest-link, .guest-copy {
+    color: var(--text-main);
+}
+
+.guest-soft { color: var(--text-soft); }
+.guest-muted { color: var(--text-muted); }
+
+.guest-link:hover, .theme-toggle:hover {
+    color: var(--accent);
+    background: var(--hover);
+}
+
+.theme-toggle {
+    border: 1px solid var(--border);
+}
+
+        .welcome-text-main { color: var(--text-main); }
+.welcome-text-soft { color: var(--text-soft); }
+.welcome-text-muted { color: var(--text-muted); }
+.welcome-glass {
+    background: var(--panel);
+    border-color: var(--border);
+}
+.welcome-ghost-btn {
+    background: var(--panel);
+    color: var(--text-main);
+    border-color: var(--border);
+}
+.welcome-ghost-btn:hover {
+    background: var(--hover);
+    color: var(--accent);
+}

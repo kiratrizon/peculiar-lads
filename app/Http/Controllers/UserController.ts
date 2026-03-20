@@ -14,12 +14,12 @@ class UserController extends Controller {
             });
 
             if (await Auth.guard("web").attempt(credentials)) {
-                return redirect().route("home");
+                return redirect().route("user.index");
             } else {
                 return redirect().back().withErrors({
-                    email: "Invalid credentials",
-                    password: "Invalid credentials",
-                });
+                    email: "Invalid email",
+                    password: "Invalid password",
+                }).withInput();
             }
         }
 
@@ -32,7 +32,9 @@ class UserController extends Controller {
         // verify the invite link
         const recruit = await Recruit.where("invitation_link", inviteLink).where("status", 1).first();
         if (!recruit) {
-            return redirect().route("welcome");
+            return redirect().route("welcome").withErrors({
+                "globalError": "Invite link is invalid"
+            });
         }
 
         if (request.method === "POST") {
@@ -50,11 +52,9 @@ class UserController extends Controller {
                 }
             );
 
-            credentials.password = Hash.make(credentials.password);
-
             const userData: UserSchema = {
                 email: credentials.email,
-                password: credentials.password,
+                password: Hash.make(credentials.password),
                 // @ts-ignore //
                 name: recruit.ign as string,
                 // @ts-ignore //
@@ -78,13 +78,10 @@ class UserController extends Controller {
                 }
                 await UserCharacter.create(userCharacter);
 
-                const attempt = await Auth.attempt({
-                    email: request.input("email"),
-                    password: request.input("password"),
-                });
+                const attempt = await Auth.attempt(credentials);
 
                 if (attempt) {
-                    return redirect().route("promptStayLogin");
+                    return redirect().route("user.promptStayLogin");
                 }
                 return redirect().route("login");
             } else {

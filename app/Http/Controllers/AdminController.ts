@@ -59,7 +59,7 @@ class AdminController extends Controller {
 
         const members = await User.count();
         const events = await Event.where("status", "!=", 2).get();
-        const recruits = await Recruit.where("status", "!=", 2).get();
+        const recruits = await Recruit.where("status", 0).get();
         stats.members = members;
         stats.events = events.length;
         stats.recruits = recruits.length;
@@ -121,14 +121,22 @@ class AdminController extends Controller {
     };
 
     public getRecruits: HttpDispatch = async ({ request }) => {
-        const recruits = await Recruit.all();
-        return response().json({
-            recruits
-        });
+
+
+
+
     };
 
     public recruits: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
+
+        // paginate
+        const page = parseInt(request.query("page") as string || "1");
+        const perPage = parseInt(request.query("perPage") as string || "10");
+
+        const urlInstance = new URL(request.url);
+        const recruits = await Recruit.paginate(page, perPage, urlInstance);
+        console.log(recruits.toObject());
         // List all resources
         return view("admin.recruits", {
             selected: "recruits",
@@ -140,6 +148,7 @@ class AdminController extends Controller {
 
     public events: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
+
         // List all resources
         return view("admin.events", {
             selected: "events",

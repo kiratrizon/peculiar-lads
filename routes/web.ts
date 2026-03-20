@@ -6,6 +6,7 @@ import AdminController from "App/Http/Controllers/AdminController.ts";
 import RecruitController from "App/Http/Controllers/RecruitController.ts";
 import BlockListedPlayerController from "App/Http/Controllers/BlockListedPlayerController.ts";
 import UserController from "App/Http/Controllers/UserController.ts";
+import FirstClass from "App/Models/FirstClass.ts";
 
 
 Route.middleware("guest").group(() => {
@@ -13,9 +14,11 @@ Route.middleware("guest").group(() => {
   Route.get("/", async ({ request }) => {
     const allClass = await ThirdClass.all();
     const nstg = await NSTGLevel.all();
+    const firstClasses = await FirstClass.all();
     return view("welcome", {
       allClass,
       nstg,
+      firstClasses,
     });
   }).name("welcome");
 
@@ -26,6 +29,8 @@ Route.middleware("guest").group(() => {
 
   // regex pattern for invite link 1-20260319145735-59cf78fd-02f7-4ab6-a41a-cd9d85319bbc
   Route.match(["get", "post"], "/signup/{inviteLink}", [UserController, "signup"]).name("signup").where("inviteLink", /^\d+-\d{14}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+
+  Route.match(["get", "post"], "/login", [UserController, "login"]).name("login");
 });
 
 Route.middleware("isUser").as("user").group(() => {

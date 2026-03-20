@@ -6,24 +6,9 @@
 	<title>{{ env('GUILD_NAME') }} Guild | Dragon Nest SEA</title>
 	@vite('resources/ts/app.ts')
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
-	<style>
-		@keyframes float {
-			0%, 100% { transform: translateY(0px); }
-			50% { transform: translateY(-20px); }
-		}
-		.float-animation {
-			animation: float 6s ease-in-out infinite;
-		}
-		@keyframes pulse-glow {
-			0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
-			50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.8); }
-		}
-		.pulse-glow {
-			animation: pulse-glow 2s ease-in-out infinite;
-		}
-	</style>
+	@vite('resources/css/guest.css')
 </head>
-<body class="bg-gradient-to-br from-indigo-950 via-purple-950 to-violet-950 min-h-screen flex flex-col relative overflow-x-hidden">
+<body class="guest-shell min-h-screen flex flex-col relative overflow-x-hidden" data-theme="dark">
 	<!-- Animated background elements -->
 	<div class="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
 		<div class="absolute top-20 left-10 w-32 h-32 bg-yellow-400 rounded-full blur-3xl float-animation"></div>
@@ -32,40 +17,64 @@
 	</div>
 
 	<!-- Navigation -->
-	<nav class="relative z-10 bg-black/40 backdrop-blur-md border-b border-yellow-500/30">
+	<nav class="guest-nav relative z-10 backdrop-blur-md border-b">
 		<div class="container mx-auto px-4 py-4 flex justify-between items-center">
 			<div class="flex items-center gap-2">
 				<span class="text-2xl">🐉</span>
-				<span class="text-xl font-bold text-yellow-300">{{ env('GUILD_NAME') }}</span>
+				<span class="guest-brand text-xl font-bold">{{ env('GUILD_NAME') }}</span>
 			</div>
-			<div class="hidden md:flex gap-6 text-indigo-200">
-				<a href="#about" class="hover:text-yellow-300 transition">About</a>
-				<a href="#features" class="hover:text-yellow-300 transition">Features</a>
-				<a href="#classes" class="hover:text-yellow-300 transition">Classes</a>
-				<a href="#join" class="hover:text-yellow-300 transition">Join Us</a>
+			<div class="hidden md:flex gap-3 items-center">
+				<a href="{{ route('welcome') }}#about" class="guest-link px-2 py-1 rounded transition">About</a>
+				<a href="{{ route('welcome') }}#features" class="guest-link px-2 py-1 rounded transition">Features</a>
+				<a href="{{ route('welcome') }}#classes" class="guest-link px-2 py-1 rounded transition">Classes</a>
+				<a href="{{ route('welcome') }}#join" class="guest-link px-2 py-1 rounded transition">Join Us</a>
+				<!-- login button -->
+				@if(!removeLoginButton)
+					<a href="{{ route('login') }}" class="guest-link px-2 py-1 rounded transition">Login</a>
+				@end
+				<button id="themeToggleGuestDefault" type="button" class="theme-toggle px-3 py-1 rounded text-sm transition">🌙 Dark</button>
 			</div>
 		</div>
 	</nav>
 
     {{{ await $slots.main() }}}
 
-	<footer class="relative z-10 py-8 bg-black/60 backdrop-blur-md border-t border-yellow-500/30">
+	<footer class="guest-footer relative z-10 py-8 backdrop-blur-md border-t">
 		<div class="container mx-auto px-4">
 			<div class="text-center mb-6">
-				<h3 class="text-2xl font-bold text-yellow-300 mb-2">{{ env('GUILD_NAME') }}</h3>
-				<p class="text-indigo-300">Where legends are forged and friendships last forever</p>
+				<h3 class="guest-title text-2xl font-bold mb-2">{{ env('GUILD_NAME') }}</h3>
+				<p class="guest-soft">Where legends are forged and friendships last forever</p>
 			</div>
 			<div class="flex justify-center gap-6 mb-6 text-3xl">
-				<a href="#" class="text-indigo-300 hover:text-yellow-300 transition" title="Discord">💬</a>
-				<a href="#" class="text-indigo-300 hover:text-yellow-300 transition" title="Facebook">📘</a>
-				<a href="#" class="text-indigo-300 hover:text-yellow-300 transition" title="YouTube">📺</a>
+				<a href="#" class="guest-link guest-soft transition" title="Discord">💬</a>
+				<a href="#" class="guest-link guest-soft transition" title="Facebook">📘</a>
+				<a href="#" class="guest-link guest-soft transition" title="YouTube">📺</a>
 			</div>
-			<div class="text-center text-indigo-200 space-y-2">
+			<div class="text-center guest-copy space-y-2">
 				<p>&copy; 2026 {{ env('GUILD_NAME') }} Guild — Dragon Nest SEA</p>
-				<p class="text-sm text-indigo-400">Not affiliated with Eyedentity Games or PlayPark. For fans, by fans.</p>
-				<p class="text-xs text-indigo-500">Made with ❤️ for the Dragon Nest SEA Community</p>
+				<p class="text-sm guest-soft">Not affiliated with Eyedentity Games or PlayPark. For fans, by fans.</p>
+				<p class="text-xs guest-muted">Made with ❤️ for the Dragon Nest SEA Community</p>
 			</div>
 		</div>
 	</footer>
+	<script>
+	(() => {
+		const body = document.body;
+		const themeToggle = document.getElementById("themeToggleGuestDefault");
+		const applyTheme = (theme) => {
+			const normalized = theme === "light" ? "light" : "dark";
+			body.setAttribute("data-theme", normalized);
+			if (themeToggle) {
+				themeToggle.textContent = normalized === "light" ? "☀️ Light" : "🌙 Dark";
+			}
+			localStorage.setItem("pecu:theme", normalized);
+		};
+		themeToggle?.addEventListener("click", () => {
+			const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
+			applyTheme(next);
+		});
+		applyTheme(localStorage.getItem("pecu:theme") || "dark");
+	})();
+	</script>
 </body>
 </html>

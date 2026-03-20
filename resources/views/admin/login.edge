@@ -5,7 +5,7 @@
 
     <div class="w-full max-w-md">
     
-        <div class="bg-black/50 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-8 shadow-2xl">
+        <div class="login-card backdrop-blur-xl rounded-2xl p-8 shadow-2xl">
     
             <!-- Title -->
             <div class="text-center mb-8">
@@ -22,7 +22,7 @@
                 <input type="hidden" name="redirect" value="{{ request().query('redirect') }}">
                 <!-- Email -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="email">
+                    <label class="login-label block text-sm mb-1" for="email">
                         Email
                     </label>
                     <input
@@ -30,7 +30,7 @@
                         type="email"
                         name="email"
                         required
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
+                        class="login-input w-full px-4 py-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
                         placeholder="adventurer@email.com" 
                         value="{{ old('email') }}"
                     >
@@ -40,7 +40,7 @@
                 @end
                 <!-- Password -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="password">
+                    <label class="login-label block text-sm mb-1" for="password">
                         Password
                     </label>
                     <input
@@ -48,7 +48,7 @@
                         type="password"
                         name="password"
                         required
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
+                        class="login-input w-full px-4 py-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
                         placeholder="••••••••"
                         value="{{ old('password') }}"
                         autocomplete="current-password"
@@ -60,7 +60,7 @@
     
                 <!-- Remember -->
                 <div class="flex items-center justify-between text-sm">
-                    <label class="flex items-center gap-2 text-indigo-300">
+                    <label class="login-muted flex items-center gap-2">
                         <input type="checkbox" name="remember" id="remember" class="accent-yellow-400">
                         Remember me
                     </label>
@@ -82,13 +82,13 @@
     
             <!-- Divider -->
             <div class="my-6 flex items-center">
-                <div class="flex-1 border-t border-indigo-700"></div>
-                <span class="px-3 text-indigo-400 text-sm">or</span>
-                <div class="flex-1 border-t border-indigo-700"></div>
+                <div class="login-divider flex-1 border-t"></div>
+                <span class="login-subtle px-3 text-sm">or</span>
+                <div class="login-divider flex-1 border-t"></div>
             </div>
     
             <!-- Register -->
-            <p class="text-center text-indigo-300 text-sm">
+            <p class="login-muted text-center text-sm">
                 Not a member yet?
                 <a href="/register" class="text-yellow-300 hover:underline">
                     Join the guild
