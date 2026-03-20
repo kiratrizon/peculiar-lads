@@ -32,6 +32,7 @@ globalFn("abort", (statusCode = 500, message = null) => {
   if (isset(message)) {
     exception.message = message;
   }
+  exception.httpCode = statusCode;
   throw exception;
 });
 

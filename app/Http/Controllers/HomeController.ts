@@ -3,17 +3,19 @@ import Controller from "App/Http/Controllers/Controller.ts";
 class HomeController extends Controller {
     // GET /resource
     public index: HttpDispatch = async ({ request }) => {
-        // List all resources
-        return response().json({
-            message:"index"
-        })
+
+        return view("user.home.index", {
+            selected: "home",
+            entity: "User",
+            title: "Home",
+        });
     };
 
-    // GET /resource/{Home}
-    public show: HttpDispatch = async ({ request }, {Home}) => {
+    // GET /resource/{home}
+    public show: HttpDispatch = async ({ request }, { home }) => {
         // Show a single resource by ID
         return response().json({
-            message:`show ${Home}`
+            message: `show ${home}`
         })
     };
 
@@ -21,7 +23,7 @@ class HomeController extends Controller {
     public create: HttpDispatch = async ({ request }) => {
         // Return form or data for creating resource
         return response().json({
-            message:`create`
+            message: `create`
         })
     };
 
@@ -29,31 +31,31 @@ class HomeController extends Controller {
     public store: HttpDispatch = async ({ request }) => {
         // Create a new resource
         return response().json({
-            message:`store`
+            message: `store`
         })
     };
 
-    // GET /resource/{Home}/edit
-    public edit: HttpDispatch = async ({ request }, {Home}) => {
+    // GET /resource/{home}/edit
+    public edit: HttpDispatch = async ({ request }, { home }) => {
         // Return form or data for editing resource
         return response().json({
-            message:`edit ${Home}`
+            message: `edit ${home}`
         })
     };
 
-    // PUT or PATCH /resource/{Home}
-    public update: HttpDispatch = async ({ request }, {Home}) => {
+    // PUT or PATCH /resource/{home}
+    public update: HttpDispatch = async ({ request }, { home }) => {
         // Update a resource by ID
         return response().json({
-            message:`update ${Home}`
+            message: `update ${home}`
         })
     };
 
-    // DELETE /resource/{Home}
-    public destroy: HttpDispatch = async ({ request }, {Home}) => {
+    // DELETE /resource/{home}
+    public destroy: HttpDispatch = async ({ request }, { home }) => {
         // Delete a resource by ID
         return response().json({
-            message:`delete ${Home}`
+            message: `delete ${home}`
         })
     };
 }

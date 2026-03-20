@@ -317,6 +317,16 @@ declare class HonoRequest {
   /** Validate request data with rules */
   validate<T extends Record<string, string>>(
     validations: T,
+
+    /**
+     * Custom messages for validator errors.
+     * Example:
+     * {
+     *   "email.required": "The email field is required.",
+     *   "email.email": "The email field must be a valid email address.",
+     * }
+     */
+    messages?: Record<string, string>,
   ): Promise<Record<keyof T | string, string>>;
 
   /** Bind route parameters to request */

@@ -21,9 +21,10 @@ import TooManyRequestsHttpException from "../HttpExecptions/TooManyRequestsHttpE
 import UnprocessableEntityHttpException from "../HttpExecptions/UnprocessableEntityHttpException.ts";
 import UnsupportedMediaTypeHttpException from "../HttpExecptions/UnsupportedMediaTypeHttpException.ts";
 import { ContentfulStatusCode } from "hono/utils/http-status";
+import AuthenticationException from "./AuthenticationException.ts";
 export default class Exceptions {
 
-    public static render<T extends ExceptionConstructor = ExceptionConstructor>(exception: ExceptionConstructor, cb: IExceptionCallback<T>) {
+    public static render<T extends ExceptionConstructor = ExceptionConstructor>(exception: T, cb: IExceptionCallback<T>) {
         // @ts-ignore //
         Application.addException(exception, cb);
     }
@@ -44,6 +45,7 @@ export default class Exceptions {
             429: TooManyRequestsHttpException,
             503: ServiceUnavailableHttpException,
             406: NotAcceptableHttpException,
+            401: AuthenticationException,
         }
         if (keyExist(allExceptions, httpCode)) {
             return new allExceptions[httpCode]();

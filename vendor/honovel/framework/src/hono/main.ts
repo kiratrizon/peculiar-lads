@@ -578,6 +578,11 @@ class Server {
                 method: [],
                 allBuilds: [],
               };
+              const generatedopts = URLArranger.generateOptionalParamRoutes(
+                arrangerGroup.string,
+                "group",
+                where,
+              );
 
               groupEntries.forEach(([routeId, methodarr]) => {
                 const routeUsed = methods[routeId];
@@ -657,8 +662,8 @@ class Server {
                 ];
 
                 // make sure splittedUri is not only "/" else splice
-                splittedUri = splittedUri.filter(str => {
-                  if (str === "/" && key !== "web") {
+                splittedUri = splittedUri.filter((str) => {
+                  if (str === "/" && !generatedopts.includes("/")) {
                     hasOnlySlash.found = true;
                   }
                   return true;    // keep this element
@@ -687,11 +692,6 @@ class Server {
                 }
               });
               const newAppGroup = await this.generateNewApp();
-              const generatedopts = URLArranger.generateOptionalParamRoutes(
-                arrangerGroup.string,
-                "group",
-                where,
-              );
 
               if (hasOnlySlash.found) {
                 generatedopts.forEach((grp) => {

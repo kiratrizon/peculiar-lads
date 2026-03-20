@@ -571,12 +571,14 @@ class HonoRequest extends Macroable {
 
   public async validate<T extends Record<string, string>>(
     validations: T,
+    messages?: Record<string, string>,
   ): Promise<Record<keyof T, string>>;
   public async validate<T extends Record<string, string>>(
     validations: T,
+    messages?: Record<string, string>,
   ): Promise<Record<keyof T | string, string>> {
     const data = this.method == "GET" ? this.query() : this.input();
-    const validation = await Validator.make(data, validations);
+    const validation = await Validator.make(data, validations, messages);
 
     if (validation.fails()) {
       const errors = validation.getErrors();

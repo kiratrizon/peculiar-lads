@@ -26,10 +26,16 @@ Route.middleware("guest").group(() => {
 
   // regex pattern for invite link 1-20260319145735-59cf78fd-02f7-4ab6-a41a-cd9d85319bbc
   Route.match(["get", "post"], "/signup/{inviteLink}", [UserController, "signup"]).name("signup").where("inviteLink", /^\d+-\d{14}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
-})
+});
 
-
-Route.get("/home", [HomeController, "index"]).middleware("auth");
+Route.middleware("isUser").as("user").group(() => {
+  Route.get("/prompt-stay-login", [UserController, "promptStayLogin"]).name("promptStayLogin");
+  Route.get("/home", [HomeController, "index"]).name("index");
+  Route.get("/logout", [UserController, "logout"]).name("logout");
+  Route.get("/members", [UserController, "members"]).name("members");
+  Route.get("/events", [UserController, "events"]).name("events");
+  Route.get("/settings", [UserController, "settings"]).name("settings");
+});
 
 const adminPrefix = "/admin";
 

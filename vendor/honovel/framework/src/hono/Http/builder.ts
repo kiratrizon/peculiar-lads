@@ -12,8 +12,8 @@ export async function myError(
   if (!request) {
     return c.json({ message }, code, headers);
   }
-  if (request.expectsJson() || request.ajax()) {
-        return c.json(
+  if (request.expectsJson() || request.ajax() || request.is("api/*")) {
+    return c.json(
       {
         message,
       },
@@ -22,7 +22,6 @@ export async function myError(
     );
   }
 
-  // console.trace("myError");
   // this is for html
   if (!(await pathExist(viewPath(`error/${code}.edge`)))) {
     const content = getFileContents(honovelPath("hono/defaults/abort.stub"));

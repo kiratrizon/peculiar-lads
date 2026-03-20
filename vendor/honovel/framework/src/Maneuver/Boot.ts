@@ -21,14 +21,11 @@ class Boot {
       await Database.init(true);
       Auth.setAuth();
 
-      Exceptions.render<typeof ValidationException>(ValidationException, async ({ request }, e) => {
+      Exceptions.render(ValidationException, async ({ request }, e) => {
         if (request.expectsJson() || request.is("api/*") || request.ajax()) {
           return response().json({ message: e.message, errors: e.errors, input: e.input })
         } else {
-          // save errors to session
-          request.flash();
-          request.session.flash("errors", e.errors);
-          return redirect().back();
+          return redirect().back().withInput().withErrors(e.errors);
         }
       });
     } catch (e) {

@@ -8,7 +8,7 @@ export type RecruitSchema = {
   discord: string;
   reason: string;
   email: string;
-  // 0: pending, 1: approved, 2: rejected
+  // 0: pending, 1: invited, 2: rejected, 3: accepted
   status: 0 | 1 | 2;
   invitation_link?: string;
   // 0: not verified, 1: verified, 2: blocklisted

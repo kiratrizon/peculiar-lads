@@ -51,6 +51,7 @@
                         class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
                         placeholder="••••••••"
                         value="{{ old('password') }}"
+                        autocomplete="current-password"
                     >
                     @if(errors.has('password'))
                         <p class="text-red-500 text-sm">{{ errors.first('password') }}</p>

@@ -4,10 +4,10 @@ import { AuthConfig } from "configs/@types/index.d.ts";
 
 const constant: AuthConfig = {
   default: {
-    guard: "user",
+    guard: "web",
   },
   guards: {
-    user: {
+    web: {
       driver: "session",
       provider: "users",
     },

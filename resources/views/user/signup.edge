@@ -18,24 +18,6 @@
             <!-- Login Form -->
             <form method="POST" class="space-y-5">
                 @csrf()
-
-                <!-- Discord -->
-                <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="discord">
-                        Discord
-                    </label>
-                    <input
-                        id="discord"
-                        type="text"
-                        name="discord"
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
-                        value="{{ $recruit.discord }}"
-                        disabled
-                    >
-                </div>
-                @if(errors.has('discord'))
-                    <p class="text-red-500 text-sm">{{ errors.first('discord') }}</p>
-                @end
                 <!-- Email -->
                 <div>
                     <label class="block text-sm text-indigo-200 mb-1" for="email">
@@ -67,6 +49,7 @@
                         class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
                         placeholder="••••••••"
                         value="{{ old('password') }}"
+                        autocomplete="new-password"
                     >
                     @if(errors.has('password'))
                         <p class="text-red-500 text-sm">{{ errors.first('password') }}</p>
@@ -86,6 +69,7 @@
                         class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
                         placeholder="••••••••"
                         value="{{ old('password_confirmation') }}"
+                        autocomplete="new-password"
                     >
                     @if(errors.has('password_confirmation'))
                         <p class="text-red-500 text-sm">{{ errors.first('password_confirmation') }}</p>
