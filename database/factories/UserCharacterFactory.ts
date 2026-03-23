@@ -1,15 +1,18 @@
 import { Factory } from "Illuminate/Database/Eloquent/Factories/index.ts";
-import UserCharacter from "App/Models/UserCharacter.ts";
+import UserCharacter, { UserCharacterSchema } from "App/Models/UserCharacter.ts";
 
 export default class UserCharacterFactory extends Factory {
 
   protected override _model = UserCharacter;
 
-  public definition() {
+  public definition(): UserCharacterSchema {
     return {
-      email: this.faker.email(),
-      password: this.faker.password(12),
-      name: this.faker.name()
+      user_id: this.faker.numberBetween(1, 100),
+      main: this.faker.boolean(),
+      third_class_id: this.faker.numberBetween(1, 52),
+      nstg_level_id: this.faker.numberBetween(1, 10),
+      ign: this.faker.firstName(),
+      duration: this.faker.numberBetween(0, 5 * 60)
     };
   }
 }

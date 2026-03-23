@@ -242,7 +242,9 @@ export class FakerFactory {
 
   /** @returns A random boolean value */
   public boolean(): boolean {
-    return this.faker.datatype.boolean();
+    return this.faker.datatype.boolean({
+      probability: 0.5,
+    });
   }
 
   /**

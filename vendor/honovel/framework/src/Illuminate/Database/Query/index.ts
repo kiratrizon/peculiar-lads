@@ -1183,7 +1183,16 @@ export class Builder extends WhereInterpolator {
       .join(", ");
 
     const values = rows.flatMap((row) =>
-      columns.map((col) => row[col] || null)
+      columns.map((col) => {
+        const value = row[col];
+        if (!isset(value)) {
+          return null;
+        }
+        if (value instanceof Date) {
+          return value.toISOString();
+        }
+        return value;
+      })
     );
 
     const db = this.database;

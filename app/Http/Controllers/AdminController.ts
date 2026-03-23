@@ -171,12 +171,21 @@ class AdminController extends Controller {
 
     public members: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
+
+        // paginate
+        const page = parseInt(request.query("page") as string || "1");
+        const perPage = parseInt(request.query("perPage") as string || "10");
+
+        const urlInstance = new URL(request.url);
+        const members = await User.with("userCharacters").paginate(page, perPage, urlInstance);
+        // console.log(members);
         // List all resources
         return view("admin.members", {
             selected: "members",
             entity: "Admin",
             title: "Members",
-            notif
+            notif,
+            members
         });
     };
 }

@@ -1,4 +1,5 @@
 import Model from "Illuminate/Database/Eloquent/Model.ts";
+import { HasFactory } from "Illuminate/Database/Eloquent/Factories/index.ts";
 
 export type UserCharacterSchema = {
   id?: number;
@@ -19,6 +20,10 @@ class UserCharacter extends Model<UserCharacterSchema> {
     "ign",
     "duration",
   ];
+
+  protected static override use = {
+    HasFactory,
+  }
 
 
 }

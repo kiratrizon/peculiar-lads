@@ -4,6 +4,7 @@ import {
 } from "Illuminate/Contracts/Auth/index.ts";
 import { HasFactory } from "Illuminate/Database/Eloquent/Factories/index.ts";
 import Character from "./Character.ts";
+import UserCharacter from "./UserCharacter.ts";
 
 export type UserSchema = {
   id?: number;
@@ -38,6 +39,10 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
 
   public getJWTIdentifier(): string | number {
     return this.getAuthIdentifier() || "";
+  }
+
+  public userCharacters() {
+    return this.hasMany(UserCharacter);
   }
 
 

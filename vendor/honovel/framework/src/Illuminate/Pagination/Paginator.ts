@@ -1,3 +1,5 @@
+import Collection from "../Database/Eloquent/Collection.ts";
+
 export type PaginationLink = {
     url: string | null;
     label: string;
@@ -44,13 +46,22 @@ export default class Paginator<T extends Record<string, unknown>> {
         this.prevUrl = this.prevPage ? this.#buildPageUrl(this.prevPage) : null;
     }
 
-    #buildPageUrl(targetPage: number): string | null {
-        if (!this.baseUrl) return null;
-        const clone = new URL(this.baseUrl.toString());
+    #buildPageUrl(targetPage: number): string {
+        // If no URL is provided, default to "/" as the base
+        const clone = this.baseUrl
+            ? new URL(this.baseUrl.toString())
+            : new URL("/", config("app").url || "http://localhost"); // temporary host just to satisfy URL
+
         clone.searchParams.set("page", String(targetPage));
         clone.searchParams.set("perPage", String(this.perPage));
         clone.searchParams.set("total", String(this.total));
         clone.searchParams.set("totalPages", String(this.totalPages));
+
+        // Remove host if we didn't have a baseUrl
+        if (!this.baseUrl) {
+            return clone.pathname + clone.search;
+        }
+
         return clone.toString();
     }
 
@@ -205,12 +216,23 @@ export default class Paginator<T extends Record<string, unknown>> {
 
     toObject(): Record<string, unknown> {
         return {
-            data: this.data.toArray(),
+            data: this.data instanceof Collection ? this.data.toArray() : this.data,
             total: this.total,
             page: this.page,
             perPage: this.perPage,
             totalPages: this.totalPages,
             nextPage: this.nextPage,
+            prevPage: this.prevPage,
+            nextUrl: this.nextUrl,
+            prevUrl: this.prevUrl,
         };
+    }
+
+    static useBootstrap(): void {
+        Paginator.defaultStyle = "bootstrap";
+    }
+
+    static useTailwind(): void {
+        Paginator.defaultStyle = "tailwind";
     }
 }
