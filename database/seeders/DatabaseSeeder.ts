@@ -5,70 +5,11 @@ import SecondClass from "App/Models/SecondClass.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import NSTGLevel from "App/Models/NSTGLevel.ts";
 import Admin from "App/Models/Admin.ts";
+import Character from "App/Models/Character.ts";
 
 // Dragon Nest SEA
 export default class DatabaseSeeder extends Seeder {
   public async run() {
-    // const userFactory = await User.factory();
-    // userFactory.count(10);
-    // await userFactory.create();
-
-    // const classes = {
-    //   Warrior: {
-    //     Swordsmaster: ["Gladiator", "Moonlord"],
-    //     Mercenary: ["Barbarian", "Destroyer"],
-    //     Knight: ["Grandmaster", "Mystic Knight"],
-    //     Avenger: ["Dark Avenger"],
-    //   },
-    //   Archer: {
-    //     Acrobat: ["Tempest", "Windwalker"],
-    //     "Bow Master": ["Sniper", "Artillery"],
-    //     Hunter: ["Silver Hunter"],
-    //   },
-    //   Sorceress: {
-    //     "Elemental Lord": ["Saleana", "Elestra"],
-    //     "Force User": ["Majesty", "Smasher"],
-    //     Mara: ["Black Mara"],
-    //   },
-    //   Cleric: {
-    //     Paladin: ["Guardian", "Crusader"],
-    //     Priest: ["Saint", "Inquisitor"],
-    //     Heretic: ["Arch Heretic"],
-    //   },
-    //   Academic: {
-    //     Engineer: ["Shooting Star", "Gear Master"],
-    //     Alchemist: ["Adept", "Physician"],
-    //     Mechanic: ["Ray Mechanic"],
-    //   },
-    //   Kali: {
-    //     Screamer: ["Soul Eater", "Dark Summoner"],
-    //     Dancer: ["Blade Dancer", "Spirit Dancer"],
-    //     Oracle: ["Oracle Elder"],
-    //   },
-    //   Assassin: {
-    //     Chaser: ["Raven", "Ripper"],
-    //     Bringer: ["Light Fury", "Abyss Walker"],
-    //     Phantom: ["Bleed Phantom"],
-    //   },
-    //   Lancea: {
-    //     Piercier: ["Flurry", "Sting Breezer"],
-    //     Knightess: ["Avalanche", "Randgrid"],
-    //     Plaga: ["Vena Plaga"],
-    //   },
-    //   Machina: {
-    //     Patrona: ["Ruina", "Defensio"],
-    //     Launcher: ["Impactor", "Buster"],
-    //     Beastia: ["Beastia Reina"],
-    //   },
-    //   Vandar: {
-    //     "Treasure Hunter": ["Duelist", "Trickster"],
-    //     Wanderer: ["Revenant", "Maverick"],
-    //   },
-    //   Arta: {
-    //     Artist: ["Ringmaster"],
-    //   },
-    // };
-
     const newClasses = [
       {
         icon: "⚔️",
@@ -180,6 +121,7 @@ export default class DatabaseSeeder extends Seeder {
       },
     ]
 
+    let created3rdClass = 0;
     for (const newClass of newClasses) {
       const characterData = newClass.character_data;
       const icon = newClass.icon;
@@ -200,20 +142,21 @@ export default class DatabaseSeeder extends Seeder {
               second_class_id: secondClassData.getKey(),
               name: thirdClass,
             });
+            created3rdClass++;
           }
         }
       }
     }
     const nstgLevelData = [
       { name: "Ascension", code: "ASC", limit: 6 },
-      { name: "Dimension", code: "DLB", limit: 4 },
+      { name: "Dimension", code: "DM", limit: 14 },
     ];
 
     for (const { name, code, limit } of nstgLevelData) {
       for (let i = 1; i <= limit; i++) {
         await NSTGLevel.create({
           name: `${name} ${i}`,
-          code: `${code}${i}`,
+          code: `${code}-${i}`,
         });
       }
     }
@@ -224,6 +167,19 @@ export default class DatabaseSeeder extends Seeder {
 
     const userFactory = await User.factory();
     userFactory.count(10);
-    await userFactory.create();
+    const createdUser = await userFactory.create();
+
+    // check if createdUser is iterable
+    if (isArray(createdUser)) {
+      const characterFactory = await Character.factory();
+      for (const user of createdUser) {
+        const userId = user.getKey();
+        characterFactory.count(1);
+        await characterFactory.create({
+          user_id: userId,
+          main: true,
+        });
+      }
+    }
   }
 }

@@ -3,10 +3,11 @@ import User from "App/Models/User.ts";
 import Event from "App/Models/Event.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import Recruit from "../../Models/Recruit.ts";
-import { Cache } from "Illuminate/Support/Facades/index.ts";
+import { Cache, DB, Validator } from "Illuminate/Support/Facades/index.ts";
 import HonoRequest from "HonoHttp/HonoRequest.d.ts";
 import EventRead from "../../Models/EventRead.ts";
 import RecruitRead from "../../Models/RecruitRead.ts";
+import Character from "App/Models/Character.ts";
 
 class AdminController extends Controller {
 
@@ -172,11 +173,45 @@ class AdminController extends Controller {
     public members: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
         // List all resources
+        const [page, perPage] = [parseInt(request.query("page") as string || "1"), parseInt(request.query("perPage") as string || "10")];
+        const urlInstance = new URL(request.url);
+        // const members = await User.paginate(page, perPage, urlInstance);
+        const characterQuery = Character.query();
+
+        const fields = [
+            "characters.id",
+            "characters.ign",
+            "nstg_level.code as nstg",
+            "third_classes.name as class",
+            "users.discord",
+            "users.name as nickname",
+            "characters.main",
+            "characters.duration"
+        ];
+
+        characterQuery.select(...fields.map((e)=>DB.raw(e)));
+        characterQuery.join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
+        .join("third_classes", "characters.third_class_id", "=", "third_classes.id")
+        .leftJoin("users", "characters.user_id", "=", "users.id");
+        const search_ign = request.query('search_ign');
+        if (isset(search_ign)){
+            const validator = await Validator.make(request.query(), {
+                search_ign: "required|max:10|alpha_num"
+            });
+            if (!validator.fails()){
+                characterQuery.where("characters.ign", "like", `%${search_ign}%`);
+            }
+        }
+
+        const characters = await characterQuery.paginate(page, perPage, urlInstance)
+        
         return view("admin.members", {
             selected: "members",
             entity: "Admin",
-            title: "Members",
-            notif
+            title: "Members and Characters",
+            notif,
+            characters,
+            search_ign
         });
     };
 }

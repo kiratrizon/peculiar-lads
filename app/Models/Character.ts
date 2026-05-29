@@ -1,5 +1,6 @@
 import Model from "Illuminate/Database/Eloquent/Model.ts";
 import NSTGLevel from "./NSTGLevel.ts";
+import { HasFactory } from "Illuminate/Database/Eloquent/Factories/index.ts";
 
 export type CharacterSchema = {
   id?: number;
@@ -23,6 +24,10 @@ class Character extends Model<CharacterSchema> {
 
   public myNstgLevel() {
     return this.hasOne(NSTGLevel, "nstg_level_id");
+  }
+
+  protected static override use = {
+    HasFactory,
   }
 }
 

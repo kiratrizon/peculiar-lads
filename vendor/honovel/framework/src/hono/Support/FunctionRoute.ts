@@ -1485,22 +1485,44 @@ export async function handleAction(
                 viteServer
               ) {
                 const port = viteConfig?.server?.port || 5173;
+                // instance a file cache to store the file names
+                const filesToSave: string[] = [];
                 args.forEach((file) => {
                   // remove leading slash for file
                   file = file.replace(/^\//, "");
+                  if (!filesToSave.includes(file)) {
+                    filesToSave.push(file);
+                  }
                   if (
                     file.toLowerCase().endsWith(".js") ||
                     file.toLowerCase().endsWith(".ts")
                   ) {
                     buffer.outputRaw(
-                      `<script type="module" src="http://localhost:${port}/${file}"></script>`,
+                      `<script type="module" src="http://127.0.0.1:${port}/${file}"></script>`,
                     );
                   } else if (file.toLowerCase().endsWith(".css")) {
                     buffer.outputRaw(
-                      `<link rel="stylesheet" href="http://localhost:${port}/${file}">`,
+                      `<link rel="stylesheet" href="http://127.0.0.1:${port}/${file}">`,
                     );
                   }
                 });
+                // get file contents from the json file
+                const fileContents = getFileContents(basePath("storage/framework/cache/vite.json"));
+                try {
+                  const fileContentsJson = jsonDecode(fileContents);
+                  // check if it's included in the filesToSave
+                  const files = fileContentsJson.files as string[];
+                  // concatenate but never duplicate
+                  const concatenatedFiles = [...files, ...filesToSave];
+                  // remove duplicates
+                  const uniqueFiles = concatenatedFiles.filter((file, index, self) => self.indexOf(file) === index);
+                  // save to the json file
+                  writeFile(basePath("storage/framework/cache/vite.json"), jsonEncode({
+                    files: uniqueFiles,
+                  }));
+                } catch {
+                  // handle error
+                }
               } else {
                 // find the manifest.json under use deno readfile
 

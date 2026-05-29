@@ -3,7 +3,7 @@ import Recruit from "../../Models/Recruit.ts";
 import { Hash } from "Illuminate/Support/Facades/index.ts";
 import User, { UserSchema } from "App/Models/User.ts";
 import { Str } from "Illuminate/Support/index.ts";
-import UserCharacter, { UserCharacterSchema } from "../../Models/UserCharacter.ts";
+import Character, { CharacterSchema } from "App/Models/Character.ts";
 
 class UserController extends Controller {
     public login: HttpDispatch = async ({ request, Auth }) => {
@@ -59,6 +59,8 @@ class UserController extends Controller {
                 name: recruit.ign as string,
                 // @ts-ignore //
                 api_token: recruit.id + "-" + Str.random(32) as string,
+                // @ts-ignore //
+                discord: recruit.discord
             }
 
             const user = await User.create(userData);
@@ -69,14 +71,14 @@ class UserController extends Controller {
                 })
                 await recruit.save();
                 // create user character
-                const userCharacter: UserCharacterSchema = {
+                const character: CharacterSchema = {
                     user_id: user.id,
                     main: true,
                     third_class_id: recruit.class,
                     nstg_level_id: recruit.nstg,
                     ign: recruit.ign
                 }
-                await UserCharacter.create(userCharacter);
+                await Character.create(character);
 
                 const attempt = await Auth.attempt(credentials);
 
@@ -92,7 +94,8 @@ class UserController extends Controller {
         }
 
         return view("user.signup", {
-            recruit
+            recruit,
+            fromSignUp:1
         });
     }
 

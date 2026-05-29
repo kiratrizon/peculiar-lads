@@ -10,7 +10,7 @@ export default class AdminFactory extends Factory {
     return {
       email: "tgenesistroy@gmail.com",
       password: Hash.make("asterda23"),
-      name: this.faker.name()
+      name: "Throy"
     };
   }
 }

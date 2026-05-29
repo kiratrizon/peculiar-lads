@@ -57,24 +57,5 @@
 			</div>
 		</div>
 	</footer>
-	<script>
-	(() => {
-		const body = document.body;
-		const themeToggle = document.getElementById("themeToggleGuestDefault");
-		const applyTheme = (theme) => {
-			const normalized = theme === "light" ? "light" : "dark";
-			body.setAttribute("data-theme", normalized);
-			if (themeToggle) {
-				themeToggle.textContent = normalized === "light" ? "☀️ Light" : "🌙 Dark";
-			}
-			localStorage.setItem("pecu:theme", normalized);
-		};
-		themeToggle?.addEventListener("click", () => {
-			const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-			applyTheme(next);
-		});
-		applyTheme(localStorage.getItem("pecu:theme") || "dark");
-	})();
-	</script>
 </body>
 </html>

@@ -1,3 +1,5 @@
+import Collection from "../Database/Eloquent/Collection.ts";
+
 export type PaginationLink = {
     url: string | null;
     label: string;
@@ -205,7 +207,7 @@ export default class Paginator<T extends Record<string, unknown>> {
 
     toObject(): Record<string, unknown> {
         return {
-            data: this.data.toArray(),
+            data: this.data instanceof Collection ? this.data.toArray() : this.data,
             total: this.total,
             page: this.page,
             perPage: this.perPage,

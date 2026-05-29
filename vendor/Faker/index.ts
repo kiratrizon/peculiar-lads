@@ -45,7 +45,7 @@ export class FakerFactory {
 
   /** @returns A random username */
   public username(): string {
-    return this.faker.internet.userName();
+    return this.faker.internet.username();
   }
 
   /** @returns A random email address */

@@ -109,7 +109,7 @@ declare global {
     key: T,
     defaultValue?: ConfigItems[T],
   ): ConfigItems[T];
-  function config(key: string, defaultValue?: unknown): unknown;
+  function config<T extends unknown>(key: string, defaultValue?: T): T;
   /**
    * Initializes the configuration store by reading all configuration files in the config directory.
    */
@@ -481,7 +481,7 @@ declare global {
   function versionCompare(
     version1: string,
     version2: string,
-    operator: IVersionOperator | IVersionSymbol,
+    operator?: IVersionOperator | IVersionSymbol,
   ): boolean | number;
 
   function moveUploadedFile(

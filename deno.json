@@ -10,7 +10,6 @@
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.2.0",
     "autoprefixer": "npm:autoprefixer@^10.4.24",
     "fast-xml-parser": "npm:fast-xml-parser@^5.3.7",
-    "graphql": "npm:graphql@^16.12.0",
     "gridjs": "npm:gridjs@^6.2.0",
     "hono-sessions": "jsr:@jcs224/hono-sessions@^0.7.3",
     "hono": "jsr:@hono/hono@4.12.1",
@@ -29,7 +28,6 @@
     "hmac": "jsr:@noble/hashes@1.8.0/hmac",
     "jquery": "npm:jquery@^4.0.0",
     "mkcert": "npm:mkcert@^3.2.0",
-    "ruru": "npm:ruru@^2.0.0-rc.6",
     "sha2": "jsr:@noble/hashes@1.8.0/sha2",
     "dotenv": "https://deno.land/std@0.224.0/dotenv/mod.ts",
     "node:path": "jsr:@std/path@0.224.0",
@@ -55,14 +53,15 @@
     "tailwindcss": "npm:tailwindcss@^4.2.0",
     "uuid": "npm:uuid@^11.1.0",
     "prettier": "npm:prettier@^3.8.1",
-    "vite": "npm:vite@^7.3.1",
-    "Honovel": "./vendor/honovel/framework/Server.ts"
+    "Honovel": "./vendor/honovel/framework/Server.ts",
+    "vite": "npm:vite@^7.3.1"
   },
   "tasks": {
     "smelt": "deno run -A vendor/bin/smelt",
     "smelt:reload": "deno run -A --reload vendor/bin/smelt",
-    "dev": "deno run -A vite",
-    "build": "deno run -A vite build",
+    "vite:check": "deno run -A vendor/vite/vite-file-checker.ts",
+    "vite:dev": "deno run -A vite",
+    "vite:build": "deno run -A vite build",
     "watch:config": "deno run --allow-read --allow-write --allow-run watch-config.ts"
   },
   "lint": {
@@ -87,7 +86,7 @@
       "./vendor/honovel/@types/Built-in-env.d.ts"
     ]
   },
-  "nodeModulesDir": "auto",
+  "nodeModulesDir": "manual",
   "version": "1.1.4",
   "description": "Welcome to **Honovel Deno** — a Laravel-inspired web framework powered by [Hono](https://hono.dev) and [Deno](https://deno.com).",
   "repository": {

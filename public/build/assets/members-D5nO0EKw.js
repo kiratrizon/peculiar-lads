@@ -1,0 +1,1 @@
+import{j as n}from"./jquery.module-gzd0YkcT.js";n(document).ready(async function(){n("#search-button").click(function(){const c=window.location.pathname;window.location.href=`${c}?search_ign=${n("#search_ign").val()}`})});

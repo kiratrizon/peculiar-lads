@@ -8,10 +8,11 @@ export default new (class extends Migration {
       "users",
       (table: Blueprint) => {
         table.id();
-        table.string("name").nullable();
-        table.string("email").unique().nullable();
+        table.string("name", 50).nullable();
+        table.string("email", 50).unique().nullable();
         table.string("password").nullable();
         table.string("api_token").unique().notNullable();
+        table.string("discord", 20);
         table.timestamps();
       },
       this.connection,

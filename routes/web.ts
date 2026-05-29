@@ -7,14 +7,17 @@ import RecruitController from "App/Http/Controllers/RecruitController.ts";
 import BlockListedPlayerController from "App/Http/Controllers/BlockListedPlayerController.ts";
 import UserController from "App/Http/Controllers/UserController.ts";
 import FirstClass from "App/Models/FirstClass.ts";
+import PecuRecordsController from "App/Http/Controllers/PecuRecordsController.ts";
 
 
 Route.middleware("guest").group(() => {
 
   Route.get("/", async ({ request }) => {
-    const allClass = await ThirdClass.all();
-    const nstg = await NSTGLevel.all();
-    const firstClasses = await FirstClass.all();
+    const [allClass, nstg, firstClasses] = await Promise.all([
+      ThirdClass.all(),
+      NSTGLevel.all(),
+      FirstClass.all(),
+    ]);
     return view("welcome", {
       allClass,
       nstg,
@@ -81,3 +84,7 @@ Route.prefix("/blocklisted").group(() => {
     });
   });
 });
+
+Route.prefix('/pecu-records').group(()=>{
+  Route.get("/", [PecuRecordsController, "index"]);
+})

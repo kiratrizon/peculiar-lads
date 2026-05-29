@@ -534,7 +534,7 @@ export default class Model<
   // Never use this in production code, it's for development CLI only.
   public static async factory(connection?: string): Promise<Factory> {
     if (!isset(this.use)) {
-      throw new Error("This model does not support factories.");
+      throw new Error(this.name + " does not support factories.");
     }
     if (!isset(this.use["HasFactory"])) {
       throw new Error("This model does not support factories.");
@@ -844,9 +844,7 @@ export default class Model<
    * Get all records from the database.
    * @returns An array of model instances.
    */
-  public static async all<T extends typeof Model = typeof Model>(): Promise<
-    InstanceType<T>[]
-  > {
+  public static async all<T extends typeof Model = typeof Model>(): Promise<Collection<InstanceType<T>>> {
     return await new Builder({
       model: this,
       fields: ["*"],

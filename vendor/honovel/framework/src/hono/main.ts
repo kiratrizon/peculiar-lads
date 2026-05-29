@@ -76,24 +76,42 @@ function serveDiskStatic(urlPrefix: string, diskRoot: string) {
 import inlineConfig from "../../../../vite/vite-manipulate.ts";
 const vitePort = inlineConfig?.server?.port || 5173;
 
-// Check if a Vite server is actually responding
+/** Max wait when the dev server is down (Windows TCP + fetch can hang for many seconds). */
+const VITE_PROBE_MS = 250;
+
+// Check if something is listening on the Vite port (TCP probe — faster than HTTP; capped timeout)
 const isViteRunning = async (port: number): Promise<boolean> => {
   try {
-    const resp = await fetch(`http://127.0.0.1:${port}`, { method: "GET" });
-    return resp.status < 500; // true if server responds
-  } catch (_e) {
-    return false; // connection refused or server not up
+    const conn = await Deno.connect({
+      hostname: "127.0.0.1",
+      port,
+      signal: AbortSignal.timeout(VITE_PROBE_MS),
+    });
+    conn.close();
+    return true;
+  } catch {
+    return false;
   }
 };
 
 if (config("app").env === "local") {
-  const viteServer = await isViteRunning(vitePort);
-  define("viteServer", viteServer, false);
-
-  if (viteServer) {
-    console.info("✅ Vite server is running");
+  let viteServer: boolean = false;
+  // vite local versioning
+  // this will be the last version of the framework that will support vite local development for deno 2.7.5 and below
+  if (versionCompare(frameworkVersion().honovelVersion, "2.0.1", ">") && (versionCompare(frameworkVersion().denoVersion, "2.7.5", ">") && versionCompare(frameworkVersion().denoVersion, "2.7.11", "<"))) {
+    console.warn("⚡ Vite server is not supported for this version of the framework", frameworkVersion());
   } else {
-    // console.info("⚡ Vite server is not running");
+    viteServer = await isViteRunning(vitePort);
+    define("viteServer", viteServer, false);
+    if (viteServer) {
+      // check a json file if exist
+      if (!(await pathExist(basePath("storage/framework/cache/vite.json")))) {
+        makeDir(path.dirname(basePath("storage/framework/cache/vite.json")));
+        writeFile(basePath("storage/framework/cache/vite.json"), jsonEncode({
+          files: [],
+        }));
+      }
+    }
   }
 }
 

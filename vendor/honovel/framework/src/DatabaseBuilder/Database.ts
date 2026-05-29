@@ -59,6 +59,12 @@ export class Database {
       throw new Error(`Unsupported database driver: ${this.dbUsed}`);
     }
   }
+
+  /** Resolved driver for the connection (not the connection name). */
+  public getDriver(): SupportedDrivers {
+    return this.dbUsed;
+  }
+
   private static readQueries: string[] = [
     "select",
     "pragma", // SQLite

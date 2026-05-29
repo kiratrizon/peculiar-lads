@@ -8,9 +8,93 @@
 <div class="flex flex-col gap-6">
     <h1>Members</h1>
 </div>
-<section class="flex flex-col items-center justify-center flex-1 px-4 py-20">
-    <table id="table" class="w-full">
-    </table>
+
+<!-- search bar here + button to search -->
+<div class="flex justify-center gap-2">
+    <input type="text" id="search_ign" placeholder="Search members..." class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $search_ign ?? '' }}">
+    <button id="search-button" class="px-4 py-2 rounded-lg bg-indigo-500 text-white">Search</button>
+</div>
+
+<section class="flex flex-col items-center justify-center flex-1 px-4 py-10">
+    <div class="w-full max-w-7xl bg-white shadow-xl rounded-2xl overflow-hidden border border-gray-200">
+
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-2xl font-bold text-gray-800">
+                Guild Members
+            </h2>
+            <p class="text-sm text-gray-500">
+                List of registered guild members
+            </p>
+        </div>
+
+        <!-- Table -->
+        <div class="overflow-x-auto">
+            <table id="table" class="w-full text-sm text-left text-gray-700">
+                <thead class="bg-gray-100 text-gray-700 uppercase text-xs tracking-wider">
+                    <tr>
+                        <th class="px-6 py-4 font-semibold">ID</th>
+                        <th class="px-6 py-4 font-semibold">Owner</th>
+                        <th class="px-6 py-4 font-semibold">Discord</th>
+                        <th class="px-6 py-4 font-semibold">IGN</th>
+                        <th class="px-6 py-4 font-semibold">NSTG Level</th>
+                        <th class="px-6 py-4 font-semibold">Class</th>
+                        <th class="px-6 py-4 font-semibold">Main</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-200">
+                    <!-- sample data
+                     0 => {
+                    "ign" => "Lyle",
+                    "nstg" => "DM9",
+                    "class" => "Guardian",
+                    "discord" => "Scot59",
+                    "nickname" => "Garry Schaden",
+                    }, -->
+                    <!-- edge.js -->
+                    @each($character in $characters.getData())
+                    <tr class="hover:bg-gray-50 transition duration-200">
+                        <td class="px-6 py-4 font-medium text-gray-900">
+                            {{ $character.id }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            {{ $character.nickname }}
+                        </td>
+
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ $character.discord }}
+                        </td>
+
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ $character.ign }}
+                        </td>
+                        
+                        <td class="px-6 py-4 text-gray-600">
+                            <span style="font-weight: bold; color:red">{{ $character.nstg }}</span> <span style="font-weight: bold; color:green">{{ $character.duration ? `- 0${Math.floor($character.duration/60)}:${($character.duration%60) < 10 ? `0${$character.duration%60}`:$character.duration%60}` : '' }}</span>
+                        </td>
+                        
+                        <td class="px-6 py-4 text-gray-600">
+                            {{ $character.class }}
+                        </td>
+
+                        <td class="px-6 py-4">
+                            <span class="inline-flex items-center px-3 py-1 text-xs font-medium rounded-full bg-{{ $character.main ? 'indigo':'red' }}-100">
+                                &nbsp;&nbsp;&nbsp;&nbsp;
+                            </span>
+                        </td>
+                    </tr>
+                    @end
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200 flex justify-center">
+            {{{ $characters.html() }}}
+        </div>
+    </div>
 </section>
 
 @vite('resources/ts/admin/members.ts')

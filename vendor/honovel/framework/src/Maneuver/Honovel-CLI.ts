@@ -12,7 +12,7 @@ import { IMyArtisan } from "../../../@types/IMyArtisan.d.ts";
 import * as path from "node:path";
 import PreventRequestDuringMaintenance from "Illuminate/Foundation/Http/Middleware/PreventRequestDuringMaintenance.ts";
 import { Encrypter, EnvUpdater } from "Illuminate/Encryption/index.ts";
-import { DatabaseHelper } from "Database";
+import { Database, DatabaseHelper } from "Database";
 import Seeder from "Illuminate/Database/Seeder.ts";
 import Boot from "./Boot.ts";
 import { createCA, createCert } from "mkcert";
@@ -20,7 +20,7 @@ import { dirname, basename } from "https://deno.land/std/path/mod.ts";
 
 const envs = [".env"];
 
-await Boot.init();
+await Boot.init(true);
 class MyArtisan {
   constructor() { }
   private async createConfig(options: { force?: boolean }, name: string) {
@@ -525,58 +525,123 @@ class MyArtisan {
   }
 
   private async dropAllTables(connection: string): Promise<void> {
+    const db = DB.connection(connection);
+    const dbType = db.getDriverName();
+  
     let tables: string[] = [];
-    const dbType = DB.connection(connection).getDriverName();
+  
     switch (dbType) {
       case "mysql": {
-        const result = await DB.connection(connection).select(
-          `SELECT table_name FROM information_schema.tables WHERE table_schema = ? AND table_type = 'BASE TABLE'`,
-          [config(`database.connections.${connection}.database`)],
+        const result = await db.select(
+          `SELECT table_name
+           FROM information_schema.tables
+           WHERE table_schema = ?
+           AND table_type = 'BASE TABLE'`,
+          [config(`database.connections.${connection}.database`)]
         );
+  
         tables = result.map((row) => `\`${row.TABLE_NAME}\``);
         break;
       }
-
+  
       case "pgsql": {
-        const result = await DB.connection(connection).select(
-          `SELECT tablename FROM pg_tables WHERE schemaname = 'public' AND tableowner = current_user`,
+        const result = await db.select(
+          `SELECT tablename
+           FROM pg_tables
+           WHERE schemaname = 'public'`
         );
+  
         tables = result.map((row) => `"${row.tablename}"`);
         break;
       }
-
+  
       case "sqlite": {
-        const result = await DB.connection(connection).select(
-          `SELECT name FROM sqlite_master WHERE type = 'table' AND name NOT LIKE 'sqlite_%'`,
+        const result = await db.select(
+          `SELECT name
+           FROM sqlite_master
+           WHERE type = 'table'
+           AND name NOT LIKE 'sqlite_%'`
         );
+  
         tables = result.map((row) => `"${row.name}"`);
         break;
       }
-
+  
       case "sqlsrv": {
-        const result = await DB.connection(connection).select(
-          `SELECT name FROM sys.tables`,
+        const result = await db.select(
+          `SELECT name FROM sys.tables`
         );
+  
         tables = result.map((row) => `[${row.name}]`);
         break;
       }
-
+  
       default:
-        throw new Error(`Unsupported DB type: \`${dbType}\``);
+        throw new Error(`Unsupported DB type: ${dbType}`);
     }
-
+  
     if (tables.length === 0) {
       console.info("⚠️ No tables found to drop.");
       return;
     }
-
-    if (dbType === "sqlite") {
-      for (const table of tables) {
-        await DB.connection(connection).statement(`DROP TABLE ${table};`);
+  
+    try {
+      switch (dbType) {
+        case "sqlite": {
+          await db.statement(`PRAGMA foreign_keys = OFF`);
+  
+          for (const table of tables) {
+            await db.statement(`DROP TABLE ${table}`);
+          }
+  
+          break;
+        }
+  
+        case "mysql": {
+          await db.statement(`SET FOREIGN_KEY_CHECKS = 0`);
+  
+          const dropSQL = `DROP TABLE ${tables.join(", ")}`;
+          await db.statement(dropSQL);
+  
+          break;
+        }
+  
+        case "pgsql": {
+          const dropSQL = `DROP TABLE ${tables.join(", ")} CASCADE`;
+          await db.statement(dropSQL);
+  
+          break;
+        }
+  
+        case "sqlsrv": {
+          await db.statement(`
+            EXEC sp_msforeachtable
+            'ALTER TABLE ? NOCHECK CONSTRAINT all'
+          `);
+  
+          const dropSQL = `DROP TABLE ${tables.join(", ")}`;
+          await db.statement(dropSQL);
+  
+          break;
+        }
       }
-    } else {
-      const dropSQL = `DROP TABLE ${tables.join(", ")};`;
-      await DB.connection(connection).statement(dropSQL);
+    } finally {
+      switch (dbType) {
+        case "sqlite":
+          await db.statement(`PRAGMA foreign_keys = ON`);
+          break;
+  
+        case "mysql":
+          await db.statement(`SET FOREIGN_KEY_CHECKS = 1`);
+          break;
+  
+        case "sqlsrv":
+          await db.statement(`
+            EXEC sp_msforeachtable
+            'ALTER TABLE ? WITH CHECK CHECK CONSTRAINT all'
+          `);
+          break;
+      }
     }
   }
 
@@ -696,6 +761,7 @@ class MyArtisan {
         "./deno.json",
         "-A",
         `--watch${watchFlag}`,
+        `--watch-exclude=vite.ts`,
         serverPath,
       ],
       stdout: "inherit",
@@ -1029,6 +1095,28 @@ class MyArtisan {
   }
 
   public async command(args: string[]): Promise<void> {
+    const commandName = args.find((arg) => !arg.startsWith("-")) || "";
+    const dbCommands = new Set([
+      "db:seed",
+      "migrate",
+      "migrate:fresh",
+      "migrate:refresh",
+      "migrate:rollback",
+      "migrate:reset",
+      "migrate:status",
+      "cache:clear",
+      "config:cache",
+      "config:clear",
+      "optimize",
+      "optimize:clear",
+      "down",
+      "up",
+    ]);
+
+    if (dbCommands.has(commandName)) {
+      await Database.init(true);
+    }
+
     await myCommand
       .name("deno task")
       .description("Honovel CLI")

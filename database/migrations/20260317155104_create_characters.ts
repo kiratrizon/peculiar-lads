@@ -6,9 +6,12 @@ export default new (class extends Migration {
   public async up() {
     await Schema.create("characters", (table: Blueprint) => {
         table.id();
-        table.string("name").nullable();
-        table.string("email").unique().nullable();
-        table.string("password").nullable();
+        table.integer("user_id").unsigned();
+        table.boolean("main").default(false);
+        table.integer("third_class_id").unsigned();
+        table.integer("nstg_level_id").unsigned();
+        table.string("ign", 10);
+        table.integer("duration").nullable();
         table.timestamps();
       }
     );

@@ -693,7 +693,6 @@ globalFn(
 
 import { Carbon } from "helpers";
 import { DB } from "Illuminate/Support/Facades/index.ts";
-import { error } from "node:console";
 
 globalFn("arrayFirst", function (array: unknown[]) {
   return isArray(array) && array.length > 0 ? array[0] : null;
