@@ -10,7 +10,7 @@
             <!-- Title -->
             <div class="text-center mb-8">
                 <div class="text-4xl mb-2">🐉</div>
-                <h1 class="text-2xl font-bold text-yellow-300">
+                <h1 class="text-2xl font-bold" style="color: var(--text-main);">
                     {{ $entity }} Login
                 </h1>
             </div>
@@ -30,7 +30,7 @@
                         type="email"
                         name="email"
                         required
-                        class="login-input w-full px-4 py-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
+                        class="login-input w-full px-4 py-2 rounded-lg focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none"
                         placeholder="adventurer@email.com" 
                         value="{{ old('email') }}"
                     >
@@ -48,7 +48,7 @@
                         type="password"
                         name="password"
                         required
-                        class="login-input w-full px-4 py-2 rounded-lg focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none"
+                        class="login-input w-full px-4 py-2 rounded-lg focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none"
                         placeholder="••••••••"
                         value="{{ old('password') }}"
                         autocomplete="current-password"
@@ -61,11 +61,11 @@
                 <!-- Remember -->
                 <div class="flex items-center justify-between text-sm">
                     <label class="login-muted flex items-center gap-2">
-                        <input type="checkbox" name="remember" id="remember" class="accent-yellow-400">
+                        <input type="checkbox" name="remember" id="remember" class="accent-gray-400">
                         Remember me
                     </label>
     
-                    <a href="/admin/forgot-password" class="text-yellow-300 hover:underline">
+                    <a href="/admin/forgot-password" class="text-gray-400 hover:underline">
                         Forgot password?
                     </a>
                 </div>
@@ -73,7 +73,7 @@
                 <!-- Submit -->
                 <button
                     type="submit"
-                    class="w-full bg-yellow-400 text-black font-semibold py-2 rounded-lg hover:bg-yellow-300 transition pulse-glow"
+                    class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);"
                 >
                     Enter Guild Hall
                 </button>
@@ -90,7 +90,7 @@
             <!-- Register -->
             <p class="login-muted text-center text-sm">
                 Not a member yet?
-                <a href="/register" class="text-yellow-300 hover:underline">
+                <a href="/register" class="text-gray-400 hover:underline">
                     Join the guild
                 </a>
             </p>

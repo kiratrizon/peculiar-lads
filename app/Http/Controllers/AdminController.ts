@@ -2,8 +2,9 @@ import Controller from "App/Http/Controllers/Controller.ts";
 import User from "App/Models/User.ts";
 import Event from "App/Models/Event.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
+import Admin from "App/Models/Admin.ts";
 import Recruit from "../../Models/Recruit.ts";
-import { Cache, DB, Validator } from "Illuminate/Support/Facades/index.ts";
+import { Cache, DB, Hash, Validator } from "Illuminate/Support/Facades/index.ts";
 import HonoRequest from "HonoHttp/HonoRequest.d.ts";
 import EventRead from "../../Models/EventRead.ts";
 import RecruitRead from "../../Models/RecruitRead.ts";
@@ -35,7 +36,7 @@ class AdminController extends Controller {
                 remember: "nullable|boolean",
             });
 
-            if (await Auth.guard("admin").attempt(credentials)) {
+            if (await Auth.guard("admin").attempt(credentials, credentials.remember)) {
                 const redirectUrl = credentials.redirect || route("admin.index");
                 return redirect().to(redirectUrl);
             } else {
@@ -131,19 +132,52 @@ class AdminController extends Controller {
     public recruits: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
 
-        // paginate
         const page = parseInt(request.query("page") as string || "1");
         const perPage = parseInt(request.query("perPage") as string || "10");
-
         const urlInstance = new URL(request.url);
-        const recruits = await Recruit.paginate(page, perPage, urlInstance);
-        console.log(recruits.toObject());
-        // List all resources
+
+        const statusParam = request.query("status") as string | undefined;
+        let statusFilter = "all";
+        if (statusParam && statusParam !== "all") {
+            const parsed = parseInt(statusParam);
+            if ([0, 1, 2].includes(parsed)) {
+                statusFilter = String(parsed);
+            }
+        }
+
+        const recruitQuery = Recruit.query();
+        recruitQuery.where("recruits.status", "!=", 3);
+
+        if (statusFilter !== "all" && ["0", "1", "2"].includes(statusFilter)) {
+            recruitQuery.where("recruits.status", parseInt(statusFilter));
+        }
+
+        const fields = [
+            "recruits.id",
+            "recruits.ign",
+            "recruits.discord",
+            "recruits.email",
+            "recruits.status",
+            "recruits.verified",
+            "nstg_level.code as nstg",
+            "third_classes.name as class",
+        ];
+
+        recruitQuery.select(...fields.map((e) => DB.raw(e)));
+        recruitQuery
+            .join("nstg_level", "recruits.nstg", "=", "nstg_level.id")
+            .join("third_classes", "recruits.class", "=", "third_classes.id");
+        recruitQuery.orderBy("recruits.created_at", "desc");
+
+        const recruits = await recruitQuery.paginate(page, perPage, urlInstance);
+
         return view("admin.recruits", {
             selected: "recruits",
             entity: "Admin",
             title: "Recruits",
-            notif
+            notif,
+            recruits,
+            statusFilter,
         });
     };
 
@@ -161,12 +195,63 @@ class AdminController extends Controller {
 
     public settings: HttpDispatch = async ({ request }) => {
         const notif = await this.getUnreads({ request });
-        // List all resources
+        // @ts-ignore //
+        const admin = request.user() as Admin;
+
+        if (request.method === "POST") {
+            const rules: Record<string, string> = {
+                name: "required|min:2|max:50",
+                email: "required|email|max:100",
+            };
+
+            const password = request.input("password") as string | undefined;
+            if (password) {
+                rules.current_password = "required";
+                rules.password =
+                    "required|min:8|confirmed|regex:^(?=.*[a-z])(?=.*[A-Z])(?=.*\\d)(?=.*[@$!%*?&]).{8,}$";
+            }
+
+            const credentials = await request.validate(rules, {
+                "password.regex":
+                    "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
+            });
+
+            const duplicate = await Admin
+                .where("email", credentials.email)
+                // @ts-ignore //
+                .where("id", "!=", admin.id)
+                .first();
+
+            if (duplicate) {
+                return redirect().back().withErrors({
+                    email: "Email is already in use.",
+                }).withInput(request.except(["password", "password_confirmation", "current_password"]));
+            }
+
+            if (password) {
+                if (!Hash.check(credentials.current_password, admin.getAuthPassword())) {
+                    return redirect().back().withErrors({
+                        current_password: "Current password is incorrect.",
+                    }).withInput(request.except(["password", "password_confirmation", "current_password"]));
+                }
+            }
+
+            admin.fill({
+                name: credentials.name,
+                email: credentials.email,
+                ...(password ? { password: Hash.make(credentials.password) } : {}),
+            });
+            await admin.save();
+
+            return redirect().route("admin.settings").with("message", "Profile updated successfully.");
+        }
+
         return view("admin.settings", {
             selected: "settings",
             entity: "Admin",
             title: "Settings",
-            notif
+            notif,
+            admin,
         });
     };
 
@@ -202,6 +287,9 @@ class AdminController extends Controller {
                 characterQuery.where("characters.ign", "like", `%${search_ign}%`);
             }
         }
+
+        characterQuery.orderBy("characters.nstg_level_id", "desc");
+        characterQuery.orderBy("characters.duration", "desc");
 
         const characters = await characterQuery.paginate(page, perPage, urlInstance)
         

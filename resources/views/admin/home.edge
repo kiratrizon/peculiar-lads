@@ -5,7 +5,7 @@
 
   <!-- Welcome Card -->
   <div class="w-full max-w-3xl backdrop-blur-xl border rounded-2xl p-8 shadow-2xl text-center" style="background: var(--panel); border-color: var(--border);">
-    <h1 class="text-3xl font-bold text-yellow-300 mb-2">
+    <h1 class="text-3xl font-bold mb-2" style="color: var(--text-main);">
       Welcome to {{ env('GUILD_NAME') }}!
     </h1>
     <p class="mb-4" style="color: var(--text-main);">
@@ -25,7 +25,7 @@
   <div class="grid grid-cols-1 sm:grid-cols-3 gap-6 w-full max-w-4xl">
     
     <div class="backdrop-blur-md border rounded-2xl p-6 text-center shadow-lg" style="background: var(--panel); border-color: var(--border);">
-      <h2 class="text-xl font-bold text-yellow-300">Members</h2>
+      <h2 class="text-xl font-bold" style="color: var(--accent);">Members</h2>
       <p class="text-3xl mt-2" style="color: var(--text-main);">{{ $stats?.members ?? 0 }}</p>
     </div>
 

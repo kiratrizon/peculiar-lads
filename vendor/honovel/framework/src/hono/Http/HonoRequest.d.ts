@@ -315,7 +315,7 @@ declare class HonoRequest {
   dispose(): Promise<void>;
 
   /** Validate request data with rules */
-  validate<T extends Record<string, string>>(
+  validate<T extends Record<string, any>>(
     validations: T,
 
     /**
@@ -327,7 +327,7 @@ declare class HonoRequest {
      * }
      */
     messages?: Record<string, string>,
-  ): Promise<Record<keyof T | string, string>>;
+  ): Promise<Record<keyof T | string, any>>;
 
   /** Bind route parameters to request */
   public bindRoute(params: Record<string, ModelConstructor>): void;

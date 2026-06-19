@@ -270,6 +270,23 @@ class RecruitController extends Controller {
       verified: verifyValue
     })
   }
+
+  public decline: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+    // @ts-ignore //
+    recruit.fill({
+      status: 2,
+    });
+    try {
+      const _ = await recruit.save();
+      return response().json({
+        message: "Recruit rejected successfully",
+      })
+    } catch (_error) {
+      return response().json({
+        message: "Something went wrong",
+      }, 500)
+    }
+  }
 }
 
 export default RecruitController;

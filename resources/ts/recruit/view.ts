@@ -46,6 +46,45 @@ $(document).ready(async function () {
         button.attr("disabled", false);
     });
 
+    const declineButton = $(`button[id^="decline_"]`);
+    declineButton.click(async function () {
+        const id = $(this).attr("id")?.split("_")[1];
+        const csrfToken = $("#csrf_token").val();
+        const response = await fetch(`/admin/recruits/${id}/decline`, {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+                "X-CSRF-TOKEN": csrfToken,
+                "Accept": "application/json",
+            },
+            body: JSON.stringify({
+                _token: csrfToken,
+            }),
+        });
+        const data = await response.json();
+        if (response.ok) {
+            Swal.fire({
+                title: "Success",
+                text: data.message,
+                icon: "success",
+                showConfirmButton: true,
+                confirmButtonText: "OK",
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    globalThis.location.reload();
+                }
+            });
+        } else {
+            await Swal.fire({
+                title: "Error",
+                text: data.message,
+                icon: "error",
+                timer: 1500,
+            });
+        }
+        declineButton.attr("disabled", false);
+    });
+
     const copyButton = $("#copy_invitation_link");
 
     copyButton.click(async function () {

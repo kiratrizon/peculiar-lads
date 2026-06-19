@@ -13,6 +13,7 @@ class Admin extends Authenticatable<AdminSchema> {
     "email",
     "password",
     "name",
+    "remember_token",
   ];
 
   protected static override use = {

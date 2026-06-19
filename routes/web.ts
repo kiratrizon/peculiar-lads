@@ -53,7 +53,7 @@ Route.prefix(adminPrefix).as("admin").group(() => {
     Route.get("/members", [AdminController, "members"]).name("members");
     Route.get("/recruits", [AdminController, "recruits"]).name("recruits");
     Route.get("/events", [AdminController, "events"]).name("events");
-    Route.get("/settings", [AdminController, "settings"]).name("settings");
+    Route.match(["get", "post"], "/settings", [AdminController, "settings"]).name("settings");
 
     Route.get("/get-members", [AdminController, "getMembers"]).name("get-members").middleware("ensure_accepts_json");
     Route.get("/get-recruits", [AdminController, "getRecruits"]).name("get-recruits").middleware("ensure_accepts_json");
@@ -66,6 +66,7 @@ Route.prefix(adminPrefix).as("admin").group(() => {
       // POST /admin/recruits/{id}/invite
       Route.post("/recruits/{recruit}/invite", [RecruitController, "inviteRecruit"]).name("invite-recruit").middleware("ensure_accepts_json");
       Route.post("/recruits/{recruit}/verify", [RecruitController, "verify"]).name("verify-recruit").middleware("ensure_accepts_json");
+      Route.post("/recruits/{recruit}/decline", [RecruitController, "decline"]).name("decline-recruit").middleware("ensure_accepts_json");
     });
 
 

@@ -5,10 +5,10 @@
 	<!-- Hero Section -->
 	<header class="relative z-10 py-16 md:py-24 px-4">
 		<div class="container mx-auto flex flex-col items-center text-center">
-			<div class="mb-6 pulse-glow rounded-full p-2 bg-gradient-to-r from-yellow-400 to-orange-500">
+			<div class="mb-6 pulse-glow rounded-full p-2 bg-gradient-to-r from-gray-600 to-gray-400">
 				<span class="text-6xl md:text-8xl">🐲</span>
 			</div>
-			<h1 class="text-5xl md:text-7xl font-extrabold text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-yellow-400 to-orange-400 tracking-wide drop-shadow-2xl mb-4">
+			<h1 class="text-5xl md:text-7xl font-extrabold tracking-wide drop-shadow-2xl mb-4" style="color: var(--text-main);">
 				{{ env('GUILD_NAME') }}
 			</h1>
 			<p class="welcome-text-soft text-xl md:text-3xl font-semibold mb-3">Dragon Nest SEA Guild</p>
@@ -16,7 +16,7 @@
 				🇵🇭 Philippines' Premier Community of Adventurers, Warriors & Friends
 			</p>
 			<div class="flex flex-wrap gap-4 justify-center">
-				<a href="#join" class="bg-gradient-to-r from-yellow-500 to-orange-500 hover:from-yellow-400 hover:to-orange-400 text-black font-bold px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 pulse-glow">
+				<a href="#join" class="bg-gray-900 hover:bg-gray-700 text-white font-bold px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 border border-gray-700">
 					⚔️ Join the Guild
 				</a>
 				<a href="#about" class="welcome-ghost-btn backdrop-blur-sm font-semibold px-8 py-4 rounded-lg shadow-xl transition-all border">
@@ -31,37 +31,37 @@
 			
 			<!-- About Section -->
 			<section id="about" class="mb-16">
-				<div class="bg-gradient-to-br from-white/90 to-indigo-50/90 backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 border border-yellow-400/30">
-					<h2 class="text-3xl md:text-4xl font-bold text-indigo-900 mb-6 text-center">
+				<div class="backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 border" style="background: var(--panel); border-color: var(--border);">
+					<h2 class="text-3xl md:text-4xl font-bold mb-6 text-center" style="color: var(--text-main);">
 						Welcome to the Adventure! 🎮
 					</h2>
 					<div class="grid md:grid-cols-2 gap-8 items-center">
 						<div>
-							<p class="text-lg text-indigo-800 mb-4 leading-relaxed">
-								<span class="text-2xl font-bold text-yellow-600">{{ env('GUILD_NAME') }}</span> is more than just a guild—we're a <strong>family of Dragon Nest SEA players</strong> based in the <strong class="text-red-600">Philippines</strong> who believe in the power of teamwork, friendship, and adventure.
+							<p class="text-lg mb-4 leading-relaxed" style="color: var(--text-main);">
+								<span class="text-2xl font-black" style="color: var(--text-main);">{{ env('GUILD_NAME') }}</span> is more than just a guild—we're a <strong>family of Dragon Nest SEA players</strong> based in the <strong class="text-red-500">Philippines</strong> who believe in the power of teamwork, friendship, and adventure.
 							</p>
-							<p class="text-indigo-700 mb-4 leading-relaxed">
+							<p class="mb-4 leading-relaxed" style="color: var(--text-soft);">
 								Whether you're conquering the toughest nests, dominating in PvP arenas, or simply enjoying the journey with friends, you'll find your place among us. We welcome adventurers of all skill levels who share our passion for Dragon Nest!
 							</p>
 							<div class="flex gap-3 flex-wrap">
-								<span class="bg-yellow-400 text-indigo-900 px-4 py-2 rounded-full font-semibold text-sm">🌟 Active Community</span>
-								<span class="bg-purple-400 text-white px-4 py-2 rounded-full font-semibold text-sm">🎯 PvE & PvP</span>
-								<span class="bg-orange-400 text-white px-4 py-2 rounded-full font-semibold text-sm">🇵🇭 Filipino Guild</span>
+								<span class="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">🌟 Active Community</span>
+								<span class="bg-gray-600 text-white px-4 py-2 rounded-full font-semibold text-sm">🎯 PvE & PvP</span>
+								<span class="bg-gray-400 text-gray-900 px-4 py-2 rounded-full font-semibold text-sm">🇵🇭 Filipino Guild</span>
 							</div>
 						</div>
 						<div class="space-y-4">
-							<div class="bg-gradient-to-r from-yellow-500 to-orange-500 p-6 rounded-xl shadow-lg">
+							<div class="bg-gray-900 p-6 rounded-xl shadow-lg">
 								<div class="text-white text-center">
 									<p class="text-4xl font-bold mb-2">50+</p>
 									<p class="text-sm uppercase tracking-wide">Active Members</p>
 								</div>
 							</div>
 							<div class="grid grid-cols-2 gap-4">
-								<div class="bg-indigo-600 p-4 rounded-lg text-white text-center">
+								<div class="bg-gray-700 p-4 rounded-lg text-white text-center">
 									<p class="text-2xl font-bold">100+</p>
 									<p class="text-xs">Nests Cleared</p>
 								</div>
-								<div class="bg-purple-600 p-4 rounded-lg text-white text-center">
+								<div class="bg-gray-600 p-4 rounded-lg text-white text-center">
 									<p class="text-2xl font-bold">24/7</p>
 									<p class="text-xs">Online Support</p>
 								</div>
@@ -73,74 +73,51 @@
 
 			<!-- Features Section -->
 			<section id="features" class="mb-16">
-				<h2 class="text-3xl md:text-4xl font-bold text-center text-yellow-300 mb-12 drop-shadow-lg">
+				<h2 class="text-3xl md:text-4xl font-bold text-center mb-12 drop-shadow-lg" style="color: var(--text-main);">
 					Why Join {{ env('GUILD_NAME') }}? ⭐
 				</h2>
 				<div class="grid md:grid-cols-3 gap-6">
-					<div class="bg-gradient-to-br from-indigo-600 to-purple-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🐉</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">Epic Raids & Nests</h3>
-						<p class="text-indigo-100">
+						<h3 class="text-xl font-bold text-gray-100 mb-3">Epic Raids & Nests</h3>
+						<p class="text-gray-400">
 							Tackle the hardest dungeons and nests together.
 						</p>
 					</div>
-					<div class="bg-gradient-to-br from-purple-600 to-pink-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">⚔️</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">PvP Dominance</h3>
-						<p class="text-purple-100">
+						<h3 class="text-xl font-bold text-gray-100 mb-3">PvP Dominance</h3>
+						<p class="text-gray-400">
 							Test your skills in guild battles, PvP tournaments, and ladder climbing. Glory awaits the brave!
 						</p>
 					</div>
-					<div class="bg-gradient-to-br from-pink-600 to-red-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🎉</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">Fun Events</h3>
-						<p class="text-pink-100">
+						<h3 class="text-xl font-bold text-white mb-3">Fun Events</h3>
+						<p class="text-gray-200">
 							Weekly guild events, costume contests, treasure hunts, and more. There's always something exciting happening!
 						</p>
 					</div>
-					<div class="bg-gradient-to-br from-yellow-600 to-orange-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🤝</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">Community First</h3>
-						<p class="text-yellow-100">
+						<h3 class="text-xl font-bold text-white mb-3">Community First</h3>
+						<p class="text-gray-200">
 							Join our Discord, make friends, share tips, and enjoy a welcoming environment where everyone matters.
 						</p>
 					</div>
-					<div class="bg-gradient-to-br from-green-600 to-teal-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">📚</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">Guides & Support</h3>
-						<p class="text-green-100">
+						<h3 class="text-xl font-bold text-gray-100 mb-3">Guides & Support</h3>
+						<p class="text-gray-400">
 							New to Dragon Nest? Our veterans are here to help with builds, rotations, gearing, and progression.
 						</p>
 					</div>
-					<div class="bg-gradient-to-br from-blue-600 to-indigo-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
+					<div class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🏆</div>
-						<h3 class="text-xl font-bold text-yellow-300 mb-3">Achievements</h3>
-						<p class="text-blue-100">
+						<h3 class="text-xl font-bold text-gray-100 mb-3">Achievements</h3>
+						<p class="text-gray-400">
 							Celebrate milestones together—guild level ups, rare drops, and personal victories. Your success is our success!
 						</p>
-					</div>
-				</div>
-			</section>
-
-			<!-- Classes Section -->
-			<section id="classes" class="mb-16">
-				<!-- center class if not 5 -->
-				<div class="welcome-glass backdrop-blur-md rounded-2xl p-8 md:p-12 border mx-auto">
-					<h2 class="text-3xl md:text-4xl font-bold text-center text-yellow-300 mb-8">
-						All Classes Welcome! 🎭
-					</h2>
-					<p class="text-center welcome-text-main mb-8 text-lg">
-						Every class has a home in {{ env('GUILD_NAME') }}!
-					</p>
-
-					<div class="grid grid-cols-2 md:grid-cols-5 gap-4">
-						@let($randomColor = ["bg-blue-600/80", "bg-green-600/80", "bg-red-600/80", "bg-yellow-600/80", "bg-purple-600/80", "bg-orange-600/80", "bg-pink-600/80", "bg-indigo-600/80", "bg-teal-600/80", "bg-gray-600/80"])
-						@each($firstClass in $firstClasses)
-						<div class="{{ $randomColor[Math.floor(Math.random() * $randomColor.length)] }} p-4 rounded-lg text-center transform hover:scale-105 transition">
-							<div class="text-3xl mb-2">{{ $firstClass.icon }}</div>
-							<p class="text-white font-semibold">{{ $firstClass.name }}</p>
-						</div>
-						@end
 					</div>
 				</div>
 			</section>
@@ -148,16 +125,16 @@
 			<!-- Join Section -->
 			<section id="join" class="mb-16">
 				<div class="max-w-2xl mx-auto">
-					<div class="bg-gradient-to-br from-yellow-400 via-yellow-500 to-orange-500 p-1 rounded-2xl shadow-2xl">
-						<form class="bg-gradient-to-br from-white to-indigo-50 rounded-2xl p-8 flex flex-col gap-5" action="{{ route('apply') }}" method="post">
+					<div class="p-px rounded-2xl shadow-2xl" style="background: var(--border);">
+						<form class="rounded-2xl p-8 flex flex-col gap-5" style="background: var(--panel);" action="{{ route('apply') }}" method="post">
 							@csrf()
 							<div class="text-center mb-4">
-								<h3 class="text-3xl font-bold text-indigo-900 mb-2">Join {{ env('GUILD_NAME') }}! 🚀</h3>
-								<p class="text-indigo-700">Fill out the form below to start your adventure with us</p>
+								<h3 class="text-3xl font-bold mb-2" style="color: var(--text-main);">Join {{ env('GUILD_NAME') }}! 🚀</h3>
+								<p style="color: var(--text-soft);">Fill out the form below to start your adventure with us</p>
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">Character Name *</label>
-								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('ign') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">Character Name *</label>
+								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('ign') }}">
 								<!-- for errors -->
 								@if(errors.has('ign'))
 									<div class="text-red-500 text-sm">
@@ -166,8 +143,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">Class *</label>
-								<select class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required name="class">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">Class *</label>
+								<select class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required name="class">
 									<option value="" disabled selected>Select your class</option>
 									@each($class in $allClass)
 										<option value="{{ $class.id }}" {{ old('class') == $class.id ? 'selected' : '' }}>{{ $class.name }}</option>
@@ -180,8 +157,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">NSTG</label>
-								<select name="nstg" id="nstg" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('nstg') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">NSTG</label>
+								<select name="nstg" id="nstg" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('nstg') }}">
 									<option value="" disabled selected>Select your NSTG level</option>
 									@each($level in $nstg)
 										<option value="{{ $level.id }}" {{ old('nstg') == $level.id ? 'selected' : '' }}>{{ $level.name }}</option>
@@ -194,8 +171,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">Discord Username *</label>
-								<input type="text" placeholder="Enter your Discord username" name="discord" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('discord') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">Discord Username *</label>
+								<input type="text" placeholder="Enter your Discord username" name="discord" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('discord') }}">
 								@if(errors.has('discord'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('discord') }}
@@ -203,8 +180,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">Email *</label>
-								<input type="email" placeholder="Enter your email" name="email" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" required value="{{ old('email') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">Email *</label>
+								<input type="email" placeholder="Enter your email" name="email" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('email') }}">
 								@if(errors.has('email'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('email') }}
@@ -212,18 +189,18 @@
 								@end
 							</div>
 							<div>
-								<label class="block text-indigo-900 font-semibold mb-2">Why do you want to join? *</label>
-								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 border-yellow-300 focus:ring-2 focus:ring-yellow-500 focus:border-yellow-500 outline-none transition" rows="4" required>{{ old('reason') }}</textarea>
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">Why do you want to join? *</label>
+								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" rows="4" required>{{ old('reason') }}</textarea>
 								@if(errors.has('reason'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('reason') }}
 									</div>
 								@end
 							</div>
-							<button type="submit" class="bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg hover:cursor-pointer">
+							<button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg hover:cursor-pointer">
 								🎯 Submit Application
 							</button>
-							<p class="text-center text-sm text-indigo-600">
+							<p class="text-center text-sm" style="color: var(--text-muted);">
 								Applications are reviewed within 24 hours. We'll contact you via your provided contact info!
 							</p>
 						</form>
@@ -234,18 +211,18 @@
 			<!-- Server Info -->
 			<section class="mb-16">
 				<div class="welcome-glass backdrop-blur-sm rounded-xl p-6 border text-center">
-					<h3 class="text-2xl font-bold text-yellow-300 mb-4">Guild Information</h3>
+					<h3 class="text-2xl font-bold text-gray-200 mb-4">Guild Information</h3>
 					<div class="grid md:grid-cols-3 gap-4 welcome-text-main">
 						<div>
-							<p class="text-yellow-400 font-semibold mb-1">Server</p>
+							<p class="text-gray-400 font-semibold mb-1">Server</p>
 							<p class="text-lg">Dragon Nest SEA</p>
 						</div>
 						<div>
-							<p class="text-yellow-400 font-semibold mb-1">Region</p>
+							<p class="text-gray-400 font-semibold mb-1">Region</p>
 							<p class="text-lg">Philippines 🇵🇭</p>
 						</div>
 						<div>
-							<p class="text-yellow-400 font-semibold mb-1">Language</p>
+							<p class="text-gray-400 font-semibold mb-1">Language</p>
 							<p class="text-lg">English / Tagalog</p>
 						</div>
 					</div>

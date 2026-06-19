@@ -4,8 +4,14 @@
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<!-- seo -->
+	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
+	<meta name="keywords" content="Dragon Nest SEA, Guild, Community, Philippines">
+	<meta name="author" content="Kiratrizon">
+	@icon('assets/pecu-logo.png')
 	<title>{{ env('GUILD_NAME') }} | {{ $title }}</title>
 	@vite('resources/ts/app.ts')
+	@vite('resources/css/dark.css')
 	{{{ $slots.styles ? await $slots.styles() : '' }}}
 
 <style>
@@ -17,34 +23,8 @@
 		animation: float 6s ease-in-out infinite;
 	}
 
-	body[data-theme="dark"] {
-		--bg-1: #0b1120;
-		--bg-2: #2e1065;
-		--bg-3: #4c1d95;
-		--text-main: #e0e7ff;
-		--text-soft: #a5b4fc;
-		--panel: rgba(2, 6, 23, 0.62);
-		--panel-2: rgba(15, 23, 42, 0.55);
-		--border: rgba(234, 179, 8, 0.35);
-		--accent: #fcd34d;
-		--hover: rgba(250, 204, 21, 0.12);
-	}
-
-	body[data-theme="light"] {
-		--bg-1: #f8fafc;
-		--bg-2: #eef2ff;
-		--bg-3: #dbeafe;
-		--text-main: #0f172a;
-		--text-soft: #334155;
-		--panel: rgba(255, 255, 255, 0.86);
-		--panel-2: rgba(255, 255, 255, 0.72);
-		--border: rgba(15, 23, 42, 0.14);
-		--accent: #b45309;
-		--hover: rgba(180, 83, 9, 0.08);
-	}
-
 	.dashboard-shell {
-		background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+		background: var(--bg-1);
 		color: var(--text-main);
 	}
 
@@ -211,8 +191,8 @@
 
 		<!-- Optional animated background -->
 		<div class="fixed inset-0 pointer-events-none opacity-10">
-			<div class="absolute top-20 left-20 w-40 h-40 bg-yellow-400 rounded-full blur-3xl float-animation"></div>
-			<div class="absolute bottom-20 right-20 w-40 h-40 bg-purple-500 rounded-full blur-3xl float-animation"
+			<div class="absolute top-20 left-20 w-40 h-40 bg-gray-400 rounded-full blur-3xl float-animation"></div>
+			<div class="absolute bottom-20 right-20 w-40 h-40 bg-gray-600 rounded-full blur-3xl float-animation"
 				 style="animation-delay: 2s;"></div>
 		</div>
 

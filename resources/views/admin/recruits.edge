@@ -1,55 +1,152 @@
 @layouts.pecu.dashboard()
 
+@slot('styles')
+<style>
+  .recruits-filter {
+    color: var(--text-soft);
+    border-color: transparent;
+  }
+  .recruits-filter:hover {
+    background: var(--hover);
+    color: var(--accent);
+  }
+  .recruits-filter-active {
+    background: var(--hover);
+    color: var(--accent);
+    border-color: var(--border);
+  }
+
+  .recruit-badge-pending {
+    background: rgba(156, 163, 175, 0.2);
+    color: #9ca3af;
+  }
+  body[data-theme="light"] .recruit-badge-pending {
+    background: rgba(107, 114, 128, 0.14);
+    color: #374151;
+  }
+
+  .recruit-badge-invited {
+    background: rgba(59, 130, 246, 0.18);
+    color: #60a5fa;
+  }
+  body[data-theme="light"] .recruit-badge-invited {
+    background: rgba(37, 99, 235, 0.12);
+    color: #1d4ed8;
+  }
+
+  .recruit-badge-rejected {
+    background: rgba(239, 68, 68, 0.18);
+    color: #f87171;
+  }
+  body[data-theme="light"] .recruit-badge-rejected {
+    background: rgba(220, 38, 38, 0.12);
+    color: #b91c1c;
+  }
+
+  .recruit-link-view {
+    color: #9ca3af;
+  }
+  body[data-theme="light"] .recruit-link-view {
+    color: #374151;
+  }
+  .recruit-link-view:hover {
+    opacity: 0.85;
+  }
+</style>
+@end
+
 @slot('main')
 <div class="flex flex-col gap-6">
 
   <!-- Header -->
   <div class="flex flex-col gap-2">
-    <h1 class="text-2xl font-bold text-yellow-300">Recruits</h1>
-    <p class="text-sm" style="color: var(--text-main);">Manage all new guild recruits here.</p>
+    <h1 class="text-2xl font-bold" style="color: var(--accent);">Recruits</h1>
+    <p class="text-sm" style="color: var(--text-soft);">Manage new guild recruit applications.</p>
   </div>
 
-  <!-- Segregation Buttons -->
-  <div class="flex flex-wrap gap-3">
-    <button class="px-4 py-2 rounded-lg transition" style="background: var(--hover); color: var(--accent);">
+  <!-- Status filters -->
+  <div class="flex flex-wrap gap-2">
+    <a href="{{ route('admin.recruits') }}?status=all"
+       class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === 'all' ? 'recruits-filter-active' : '' }}">
       All
-    </button>
-    <button class="px-4 py-2 rounded-lg transition" style="background: var(--hover); color: var(--accent);">
+    </a>
+    <a href="{{ route('admin.recruits') }}?status=0"
+       class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '0' ? 'recruits-filter-active' : '' }}">
       Pending
-    </button>
-    <button class="px-4 py-2 rounded-lg transition" style="background: var(--hover); color: var(--accent);">
-      Approved
-    </button>
-    <button class="px-4 py-2 rounded-lg transition" style="background: var(--hover); color: var(--accent);">
+    </a>
+    <a href="{{ route('admin.recruits') }}?status=1"
+       class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '1' ? 'recruits-filter-active' : '' }}">
+      Invited
+    </a>
+    <a href="{{ route('admin.recruits') }}?status=2"
+       class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '2' ? 'recruits-filter-active' : '' }}">
       Rejected
-    </button>
+    </a>
   </div>
 
   <!-- Table -->
   <div class="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
     <table class="w-full text-sm" style="color: var(--text-main);">
-      <thead class="text-yellow-300">
+      <thead class="border-b" style="color: var(--accent); border-color: var(--border);">
         <tr>
           <th class="px-4 py-2 text-left">ID</th>
           <th class="px-4 py-2 text-left">IGN</th>
           <th class="px-4 py-2 text-left">Class</th>
           <th class="px-4 py-2 text-left">NSTG</th>
           <th class="px-4 py-2 text-left">Discord</th>
-          <th class="px-4 py-2 text-left">Reason</th>
           <th class="px-4 py-2 text-left">Email</th>
           <th class="px-4 py-2 text-left">Status</th>
-          <th class="px-4 py-2 text-left" colspan="3">Actions</th>
+          <th class="px-4 py-2 text-left">Actions</th>
         </tr>
       </thead>
-      <tbody id="recruits-table-body" class="divide-y divide-yellow-500/20">
-        <!-- JS will populate rows here -->
+
+      <tbody class="divide-y divide-gray-500/20">
+        @if($recruits.getData().length === 0)
+        <tr>
+          <td colspan="10" class="px-4 py-8 text-center" style="color: var(--text-soft);">
+            No recruits found for this filter.
+          </td>
+        </tr>
+        @endif
+        @each($recruit in $recruits.getData())
+        <tr class="hover:bg-gray-500/10 transition duration-200">
+          <td class="px-4 py-2 font-medium">{{ $recruit.id }}</td>
+          <td class="px-4 py-2">{{ $recruit.ign }}</td>
+          <td class="px-4 py-2">{{ $recruit.class }}</td>
+          <td class="px-4 py-2">
+            <span style="font-weight: bold; color: #15803d;">{{ $recruit.nstg }}</span>
+          </td>
+          <td class="px-4 py-2">{{ $recruit.discord }}</td>
+          <td class="px-4 py-2">{{ $recruit.email }}</td>
+          <td class="px-4 py-2">
+            @if($recruit.status == 0)
+              <span class="recruit-badge-pending px-2 py-0.5 text-xs rounded-full font-semibold">Pending</span>
+            @elseif($recruit.status == 1)
+              <span class="recruit-badge-invited px-2 py-0.5 text-xs rounded-full font-semibold">Invited</span>
+            @elseif($recruit.status == 2)
+              <span class="recruit-badge-rejected px-2 py-0.5 text-xs rounded-full font-semibold">Rejected</span>
+            @endif
+          </td>
+          <td class="px-4 py-2">
+            <a href="{{ route('admin.recruits.show', { recruit: $recruit.id }) }}"
+               class="recruit-link-view font-medium transition">
+              View
+            </a>
+          </td>
+        </tr>
+        @end
       </tbody>
     </table>
   </div>
 
-</div>
+  <!-- Pagination -->
+  @if($recruits.getMeta().total > 0)
+  <div class="flex justify-center">
+    {{{ $recruits.html('tailwind') }}}
+  </div>
+  @endif
 
-@vite('resources/ts/admin/recruits.ts')
+</div>
 @end
 
 @endlayouts.pecu.dashboard

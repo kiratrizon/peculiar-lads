@@ -5,12 +5,12 @@
 
     <div class="w-full max-w-md">
     
-        <div class="bg-black/50 backdrop-blur-xl border border-yellow-500/30 rounded-2xl p-8 shadow-2xl">
+        <div class="bg-black/70 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 shadow-2xl">
     
             <!-- Title -->
             <div class="text-center mb-8">
                 <div class="text-4xl mb-2">🐉</div>
-                <h1 class="text-2xl font-bold text-yellow-300">
+                <h1 class="text-2xl font-bold text-gray-100">
                     {{ $recruit.ign }} Signup
                 </h1>
             </div>
@@ -20,7 +20,7 @@
                 @csrf()
                 <!-- Email -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="email">
+                    <label class="block text-sm text-gray-400 mb-1" for="email">
                         Email
                     </label>
                     <input
@@ -28,7 +28,7 @@
                         type="email"
                         name="email"
                         required
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
+                        class="w-full px-4 py-2 rounded-lg bg-black/60 border border-gray-700 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none text-gray-100"
                         placeholder="adventurer@email.com" 
                         value="{{ $recruit.email }}"
                     >
@@ -38,7 +38,7 @@
                 @end
                 <!-- Password -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="password">
+                    <label class="block text-sm text-gray-400 mb-1" for="password">
                         Password
                     </label>
                     <input
@@ -46,7 +46,7 @@
                         type="password"
                         name="password"
                         required
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
+                        class="w-full px-4 py-2 rounded-lg bg-black/60 border border-gray-700 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none text-gray-100"
                         placeholder="••••••••"
                         value="{{ old('password') }}"
                         autocomplete="new-password"
@@ -58,7 +58,7 @@
 
                 <!-- Password Confirmation -->
                 <div>
-                    <label class="block text-sm text-indigo-200 mb-1" for="password_confirmation">
+                    <label class="block text-sm text-gray-400 mb-1" for="password_confirmation">
                         Password Confirmation
                     </label>
                     <input
@@ -66,7 +66,7 @@
                         type="password"
                         name="password_confirmation"
                         required
-                        class="w-full px-4 py-2 rounded-lg bg-indigo-950/60 border border-indigo-700 focus:border-yellow-400 focus:ring-2 focus:ring-yellow-400 outline-none text-indigo-100"
+                        class="w-full px-4 py-2 rounded-lg bg-black/60 border border-gray-700 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none text-gray-100"
                         placeholder="••••••••"
                         value="{{ old('password_confirmation') }}"
                         autocomplete="new-password"
@@ -79,7 +79,7 @@
                 <!-- Submit -->
                 <button
                     type="submit"
-                    class="w-full bg-yellow-400 text-black font-semibold py-2 rounded-lg hover:bg-yellow-300 transition pulse-glow"
+                    class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);"
                 >
                     Join the Guild
                 </button>

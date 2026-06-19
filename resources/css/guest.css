@@ -6,43 +6,16 @@
     animation: float 6s ease-in-out infinite;
 }
 @keyframes pulse-glow {
-    0%, 100% { box-shadow: 0 0 20px rgba(250, 204, 21, 0.5); }
-    50% { box-shadow: 0 0 40px rgba(250, 204, 21, 0.8); }
+    0%, 100% { box-shadow: 0 0 20px rgba(200, 200, 200, 0.35); }
+    50% { box-shadow: 0 0 40px rgba(200, 200, 200, 0.6); }
 }
 .pulse-glow {
     animation: pulse-glow 2s ease-in-out infinite;
 }
 
-body[data-theme="dark"] {
-    --bg-1: #0b1120;
-    --bg-2: #2e1065;
-    --bg-3: #4c1d95;
-    --panel: rgba(2, 6, 23, 0.62);
-    --panel-2: rgba(2, 6, 23, 0.72);
-    --border: rgba(234, 179, 8, 0.35);
-    --text-main: #c7d2fe;
-    --text-soft: #a5b4fc;
-    --text-muted: #818cf8;
-    --accent: #fcd34d;
-    --hover: rgba(250, 204, 21, 0.15);
-}
-
-body[data-theme="light"] {
-    --bg-1: #f8fafc;
-    --bg-2: #eef2ff;
-    --bg-3: #dbeafe;
-    --panel: rgba(255, 255, 255, 0.8);
-    --panel-2: rgba(255, 255, 255, 0.9);
-    --border: rgba(15, 23, 42, 0.12);
-    --text-main: #334155;
-    --text-soft: #334155;
-    --text-muted: #64748b;
-    --accent: #b45309;
-    --hover: rgba(180, 83, 9, 0.1);
-}
 
 .guest-shell {
-    background: linear-gradient(135deg, var(--bg-1), var(--bg-2), var(--bg-3));
+    background: var(--bg-1);
 }
 
 .guest-nav, .guest-footer {

@@ -1562,6 +1562,33 @@ export async function handleAction(
             }
           },
         },
+        {
+          tagName: "icon",
+          block: false,
+          seekable: true,
+          compile(parser, buffer, token) {
+            const raw = token.properties.jsArg; // this is a string
+            // args should be single string
+            // seo icon
+            // args should not be array
+            let args: string[] = [];
+            try {
+              // Remove single quotes if necessary and parse
+              const cleaned = raw.replace(/'/g, '"'); // ' -> "
+              const parsed = JSON.parse(cleaned);
+              args = [parsed];
+            } catch {
+              // handle error
+            }
+            if (args.length && isArray(args)) {
+              const iconName = args[0];
+              // should be in public/
+              buffer.outputRaw(
+                `<link rel="icon" type="image/png" href="/${iconName}" />`,
+              );
+            }
+          }
+        }
       ];
       // @ts-ignore //
       data.addTags(tags);

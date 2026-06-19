@@ -7,6 +7,10 @@ const constant: CacheConfig = {
       driver: "file",
       path: storagePath("framework/cache/data"),
     },
+    sessionFile: {
+      driver: "file",
+      path: storagePath("framework/sessions"),
+    },
     memory: {
       driver: "memory",
     },

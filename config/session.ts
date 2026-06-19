@@ -1,17 +1,17 @@
 import { Str } from "Illuminate/Support/index.ts";
 import { SessionConfig } from "configs/@types/index.d.ts";
 const constant: SessionConfig = {
-  driver: env("SESSION_DRIVER", "memory"),
+  driver: env("SESSION_DRIVER", "database"),
 
   lifetime: env("SESSION_LIFETIME", 120),
 
   expireOnClose: env("SESSION_EXPIRE_ON_CLOSE", false),
 
-  encrypt: env("SESSION_ENCRYPT", false),
+  encrypt: env("SESSION_ENCRYPT", true),
 
   files: storagePath("framework/sessions"),
 
-  connection: env("SESSION_CONNECTION", "mysql"),
+  connection: env("SESSION_CONNECTION"),
 
   table: env("SESSION_TABLE", "sessions"),
 

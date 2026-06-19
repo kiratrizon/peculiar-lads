@@ -12,7 +12,7 @@
     <!-- Header -->
     <div class="flex flex-col gap-1">
         <div class="flex items-center gap-2">
-            <h1 class="text-3xl font-bold text-yellow-400">
+            <h1 class="text-3xl font-bold" style="color: var(--text-main);">
                 Recruit: <span style="color: var(--text-main);">{{ $recruit.ign }}</span>
             </h1>
             <div id="verify_indicator">
@@ -37,7 +37,7 @@
                 @endif
             </div>
         </div>
-        <p class="text-sm text-yellow-500">
+        <p class="text-sm" style="color: var(--text-soft);">
             Recruit ID: <span style="color: var(--text-soft);">{{ $recruit.id || 'N/A' }}</span>
         </p>
     </div>
@@ -49,28 +49,28 @@
         <div class="grid grid-cols-2 gap-6">
 
             <div>
-                <p class="text-xs uppercase tracking-wide text-yellow-500">NSTG</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">NSTG</p>
                 <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide text-yellow-500">Class</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Class</p>
                 <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myClass.name }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide text-yellow-500">Discord</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Discord</p>
                 <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.discord }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide text-yellow-500">Email</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Email</p>
                 <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.email }}
                 </p>
@@ -93,7 +93,7 @@
             <p class="text-xs uppercase tracking-wide text-yellow-500 mb-2">Status</p>
 
             @if($recruit.status === 0)
-                <span class="px-3 py-1 text-sm rounded-full bg-yellow-400/20 text-yellow-300 font-semibold">
+                <span class="px-3 py-1 text-sm rounded-full font-semibold" style="background: rgba(156,163,175,0.15); color: #9ca3af;">
                     Pending
                 </span>
             @elseif($recruit.status === 1)
@@ -119,7 +119,7 @@
                 </p>
                 <div class="flex items-center gap-2">
                     <a href="{{ $recruit.invitation_link }}" 
-                    class="text-blue-400 hover:underline break-all">
+                    class="text-gray-400 hover:underline break-all">
                         {{ $recruit.invitation_link }}
                     </a>
                     <!-- clipboard  -->
@@ -129,13 +129,22 @@
                     </button>
                 </div>
             </div>
-        @elseif($recruit.status != 1)
+        @elseif(![1, 2].includes($recruit.status))
 
             <div class="pt-2">
                 <button 
                     class="px-5 py-2 rounded-lg bg-blue-500 hover:bg-blue-500/80 transition text-white font-semibold"
                     id="invite_{{ $recruit.id }}">
                     Send Invitation Link
+                </button>
+            </div>
+
+            <!-- decline button -->
+            <div class="pt-2">
+                <button 
+                    class="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-500/80 transition text-white font-semibold"
+                    id="decline_{{ $recruit.id }}">
+                    Reject
                 </button>
             </div>
 

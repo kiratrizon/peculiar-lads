@@ -3,9 +3,13 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <!-- seo -->
+    <meta name="description" content="Stay Login is a system that allows you to stay logged in to the guild.">
+    <meta name="keywords" content="Stay Login, System, Guild, Players">
+    <meta name="author" content="Kiratrizon">
+    <title>Stay Login | {{ env('GUILD_NAME') }}</title>
+    @vite('resources/ts/stay-login.ts')
 </head>
 <body>
-    @vite('resources/ts/stay-login.ts')
 </body>
 </html>

@@ -159,6 +159,10 @@ export default class SessionModifier {
     });
 
     this.#value = await this.loadSession(this.#sessionId);
+
+    // garbage collection
+    await this.gc();
+
     // @ts-ignore //
     this.#c.get("session").updateValues(this.#value);
     // @ts-ignore //
@@ -196,7 +200,7 @@ export default class SessionModifier {
     const key = `${type === "file"
         ? sid.replace(SessionModifier.sesConfig.prefix || "sess:", "")
         : sid
-      }${isEncrypt ? "" : "_plain"}`;
+      }${isEncrypt ? "_encrypted" : "_plain"}`;
     await SessionModifier.store.forget(key);
   }
 
@@ -214,7 +218,7 @@ export default class SessionModifier {
     const key = `${type === "file"
         ? sid.replace(SessionModifier.sesConfig.prefix || "sess:", "")
         : sid
-      }${isEncrypt ? "" : "_plain"}`;
+      }${isEncrypt ? "_encrypted" : "_plain"}`;
     await SessionModifier.store.put(
       key,
       data,
@@ -227,7 +231,7 @@ export default class SessionModifier {
     const key = `${SessionModifier.sesConfig.driver === "file"
         ? sid.replace(SessionModifier.sesConfig.prefix || "sess:", "")
         : sid
-      }${isEncrypt ? "" : "_plain"}`;
+      }${isEncrypt ? "_encrypted" : "_plain"}`;
 
     const data = await SessionModifier.store.get(key);
     if (!isset(data)) {
@@ -323,5 +327,10 @@ export default class SessionModifier {
     }
 
     return null;
+  }
+
+  // garbage collection
+  private async gc(): Promise<void> {
+
   }
 }

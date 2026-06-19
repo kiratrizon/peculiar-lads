@@ -116,4 +116,22 @@ export default class FileStore extends AbstractStore {
   getPrefix(): string {
     return this.prefix;
   }
+
+  async deleteExpired(): Promise<void> {
+    await this.init();
+    const now = time();
+    const files = Deno.readDirSync(this.path);
+    for (const file of files) {
+      if (file.isFile && file.name.endsWith(".cache.json") && file.name.startsWith(this.prefix)) {
+        try {
+          const fileValue = jsonDecode(getFileContents(path.join(path.normalize(this.path), path.normalize(file.name))));
+          if (fileValue?.expiresAt && now > fileValue.expiresAt) {
+            Deno.removeSync(path.join(path.normalize(this.path), path.normalize(file.name)));
+          }
+        } catch (error) {
+          console.error(`Error deleting file "${file.name}":`, error);
+        }
+      }
+    }
+  }
 }

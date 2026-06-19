@@ -2,3 +2,12 @@
 should be categorized
 but using paginate and use tailwind
 
+/admin/recruits
+should also be categorized
+with filter according to status
+use paginate and use tailwind
+
+/admin/settings
+should be a user's details like editing or updating info
+
+/
