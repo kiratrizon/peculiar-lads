@@ -4,7 +4,6 @@ import {
 } from "Illuminate/Contracts/Auth/index.ts";
 import { HasFactory } from "Illuminate/Database/Eloquent/Factories/index.ts";
 import Character from "./Character.ts";
-import UserCharacter from "./UserCharacter.ts";
 
 export type UserSchema = {
   id?: number;
@@ -12,7 +11,7 @@ export type UserSchema = {
   password: string;
   name: string;
   api_token?: string;
-  discord: string
+  discord: string;
 };
 
 class User extends Authenticatable<UserSchema> implements JWTSubject {
@@ -22,7 +21,7 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     "password",
     "name",
     "api_token",
-    "discord"
+    "discord",
   ];
   protected static override _guarded: string[] = [];
 
@@ -47,9 +46,8 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     return this.hasMany(UserCharacter);
   }
 
-
   public characters() {
-    return this.hasMany(Character)
+    return this.hasMany(Character);
   }
 }
 

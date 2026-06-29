@@ -55,10 +55,22 @@ export interface AppConfig {
   fallback_locale: string;
 
   /**
+   * Supported Locales
+   * Example: ["en", "ja"]
+   */
+  supported_locales: string[];
+
+  /**
    * Faker Locale
    * Example: "en_US"
    */
   faker_locale: string;
+
+  /**
+   * Enable Locale
+   * Example: true
+   */
+  enable_locale: boolean;
 
   /**
    * Encryption Cipher

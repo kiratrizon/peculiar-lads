@@ -67,8 +67,8 @@ class HonoRequest extends Macroable {
             // multiparser supports both single and multiple files
             const fileToObj = Array.isArray(file)
               ? file.map((e) => {
-                return new HonoFile(e);
-              })
+                  return new HonoFile(e);
+                })
               : [new HonoFile(file)];
             files[key] = fileToObj;
           }
@@ -612,6 +612,66 @@ class HonoRequest extends Macroable {
       string,
       typeof Model<ModelAttributes>
     >;
+  }
+
+  /**
+   * Set the language isolation.
+   */
+  public setLanguage(lang?: string): void {
+    if (isset(lang) && isString(lang) && lang.length > 0) {
+      this.#c.set("language", lang);
+    }
+  }
+
+  /**
+   * Get the language isolation.
+   */
+  public getLanguage(): string {
+    return this.#c.get("language") || config("app.locale", "en") || "en";
+  }
+
+  /**
+   * Get the fallback language isolation.
+   */
+  public getFallbackLanguage(): string {
+    return (
+      this.#c.get("fallbackLanguage") ||
+      config("app.fallback_locale", "en") ||
+      "en"
+    );
+  }
+
+  public __(key: string, replace: Record<string, string> = {}): string {
+    const parts = key.split(".");
+    const file = parts.length === 1 ? "default" : parts[0];
+    const nestedKeys = parts.length === 1 ? parts : parts.slice(1);
+
+    const resolve = (locale: string): string | null => {
+      const path = basePath(`lang/${locale}/${file}.json`);
+      const contents = getFileContents(path);
+      if (!contents) return null;
+
+      let data: Record<string, unknown>;
+      try {
+        data = JSON.parse(contents);
+      } catch {
+        return null;
+      }
+
+      let current: unknown = data;
+      for (const k of nestedKeys) {
+        if (current === null || typeof current !== "object") return null;
+        current = (current as Record<string, unknown>)[k];
+      }
+
+      if (typeof current !== "string") return null;
+
+      return current.replace(/:(\w+)/g, (_, k) => replace[k] ?? `:${k}`);
+    };
+
+    return (
+      resolve(this.getLanguage()) ?? resolve(this.getFallbackLanguage()) ?? key
+    );
   }
 }
 

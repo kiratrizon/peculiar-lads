@@ -27,10 +27,13 @@ globalFn("dd", (...args: unknown[]) => {
   throw new DDError(returnValue ?? null);
 });
 
-globalFn("abort", (statusCode = 500, message = null, headers: Record<string, string> = {}) => {
-  const exception = Exceptions.find(statusCode, message, headers);
-  throw exception;
-});
+globalFn(
+  "abort",
+  (statusCode = 500, message = null, headers: Record<string, string> = {}) => {
+    const exception = Exceptions.find(statusCode, message, headers);
+    throw exception;
+  },
+);
 
 globalFn("redirect", (url = null) => {
   return new HonoRedirect(url);

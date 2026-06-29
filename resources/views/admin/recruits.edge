@@ -60,27 +60,27 @@
 
   <!-- Header -->
   <div class="flex flex-col gap-2">
-    <h1 class="text-2xl font-bold" style="color: var(--accent);">Recruits</h1>
-    <p class="text-sm" style="color: var(--text-soft);">Manage new guild recruit applications.</p>
+    <h1 class="text-2xl font-bold" style="color: var(--accent);">{{ request().__('recruits') }}</h1>
+    <p class="text-sm" style="color: var(--text-soft);">{{ request().__('manage_recruits_desc') }}</p>
   </div>
 
   <!-- Status filters -->
   <div class="flex flex-wrap gap-2">
     <a href="{{ route('admin.recruits') }}?status=all"
        class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === 'all' ? 'recruits-filter-active' : '' }}">
-      All
+      {{ request().__('all') }}
     </a>
     <a href="{{ route('admin.recruits') }}?status=0"
        class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '0' ? 'recruits-filter-active' : '' }}">
-      Pending
+      {{ request().__('pending') }}
     </a>
     <a href="{{ route('admin.recruits') }}?status=1"
        class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '1' ? 'recruits-filter-active' : '' }}">
-      Invited
+      {{ request().__('invited') }}
     </a>
     <a href="{{ route('admin.recruits') }}?status=2"
        class="recruits-filter px-4 py-2 rounded-lg text-sm font-medium transition border {{ $statusFilter === '2' ? 'recruits-filter-active' : '' }}">
-      Rejected
+      {{ request().__('rejected') }}
     </a>
   </div>
 
@@ -89,14 +89,14 @@
     <table class="w-full text-sm" style="color: var(--text-main);">
       <thead class="border-b" style="color: var(--accent); border-color: var(--border);">
         <tr>
-          <th class="px-4 py-2 text-left">ID</th>
-          <th class="px-4 py-2 text-left">IGN</th>
-          <th class="px-4 py-2 text-left">Class</th>
-          <th class="px-4 py-2 text-left">NSTG</th>
-          <th class="px-4 py-2 text-left">Discord</th>
-          <th class="px-4 py-2 text-left">Email</th>
-          <th class="px-4 py-2 text-left">Status</th>
-          <th class="px-4 py-2 text-left">Actions</th>
+          <th class="px-4 py-2 text-left">{{ request().__('id') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('ign') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('class') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('nstg') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('discord') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('email_label') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('status') }}</th>
+          <th class="px-4 py-2 text-left">{{ request().__('actions') }}</th>
         </tr>
       </thead>
 
@@ -104,7 +104,7 @@
         @if($recruits.getData().length === 0)
         <tr>
           <td colspan="10" class="px-4 py-8 text-center" style="color: var(--text-soft);">
-            No recruits found for this filter.
+            {{ request().__('no_recruits_found') }}
           </td>
         </tr>
         @endif
@@ -120,17 +120,17 @@
           <td class="px-4 py-2">{{ $recruit.email }}</td>
           <td class="px-4 py-2">
             @if($recruit.status == 0)
-              <span class="recruit-badge-pending px-2 py-0.5 text-xs rounded-full font-semibold">Pending</span>
+              <span class="recruit-badge-pending px-2 py-0.5 text-xs rounded-full font-semibold">{{ request().__('pending') }}</span>
             @elseif($recruit.status == 1)
-              <span class="recruit-badge-invited px-2 py-0.5 text-xs rounded-full font-semibold">Invited</span>
+              <span class="recruit-badge-invited px-2 py-0.5 text-xs rounded-full font-semibold">{{ request().__('invited') }}</span>
             @elseif($recruit.status == 2)
-              <span class="recruit-badge-rejected px-2 py-0.5 text-xs rounded-full font-semibold">Rejected</span>
+              <span class="recruit-badge-rejected px-2 py-0.5 text-xs rounded-full font-semibold">{{ request().__('rejected') }}</span>
             @endif
           </td>
           <td class="px-4 py-2">
             <a href="{{ route('admin.recruits.show', { recruit: $recruit.id }) }}"
                class="recruit-link-view font-medium transition">
-              View
+              {{ request().__('view') }}
             </a>
           </td>
         </tr>

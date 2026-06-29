@@ -11,16 +11,16 @@
 			<h1 class="text-5xl md:text-7xl font-extrabold tracking-wide drop-shadow-2xl mb-4" style="color: var(--text-main);">
 				{{ env('GUILD_NAME') }}
 			</h1>
-			<p class="welcome-text-soft text-xl md:text-3xl font-semibold mb-3">Dragon Nest SEA Guild</p>
+			<p class="welcome-text-soft text-xl md:text-3xl font-semibold mb-3">{{ request().__('dragon_nest_sea_guild') }}</p>
 			<p class="welcome-text-main text-lg md:text-xl mb-8 max-w-2xl">
-				🇵🇭 Philippines' Premier Community of Adventurers, Warriors & Friends
+				{{ request().__('philippines_premier') }}
 			</p>
 			<div class="flex flex-wrap gap-4 justify-center">
 				<a href="#join" class="bg-gray-900 hover:bg-gray-700 text-white font-bold px-8 py-4 rounded-lg shadow-2xl transition-all transform hover:scale-105 border border-gray-700">
-					⚔️ Join the Guild
+					{{ request().__('join_the_guild_cta') }}
 				</a>
 				<a href="#about" class="welcome-ghost-btn backdrop-blur-sm font-semibold px-8 py-4 rounded-lg shadow-xl transition-all border">
-					📖 Learn More
+					{{ request().__('learn_more') }}
 				</a>
 			</div>
 		</div>
@@ -28,12 +28,12 @@
 
 	<main class="relative z-10 flex-1 px-4 pb-16">
 		<div class="container mx-auto max-w-6xl">
-			
+
 			<!-- About Section -->
 			<section id="about" class="mb-16">
 				<div class="backdrop-blur-sm rounded-2xl shadow-2xl p-8 md:p-12 border" style="background: var(--panel); border-color: var(--border);">
 					<h2 class="text-3xl md:text-4xl font-bold mb-6 text-center" style="color: var(--text-main);">
-						Welcome to the Adventure! 🎮
+						{{ request().__('welcome_adventure') }}
 					</h2>
 					<div class="grid md:grid-cols-2 gap-8 items-center">
 						<div>
@@ -44,26 +44,26 @@
 								Whether you're conquering the toughest nests, dominating in PvP arenas, or simply enjoying the journey with friends, you'll find your place among us. We welcome adventurers of all skill levels who share our passion for Dragon Nest!
 							</p>
 							<div class="flex gap-3 flex-wrap">
-								<span class="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">🌟 Active Community</span>
-								<span class="bg-gray-600 text-white px-4 py-2 rounded-full font-semibold text-sm">🎯 PvE & PvP</span>
-								<span class="bg-gray-400 text-gray-900 px-4 py-2 rounded-full font-semibold text-sm">🇵🇭 Filipino Guild</span>
+								<span class="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">{{ request().__('active_community') }}</span>
+								<span class="bg-gray-600 text-white px-4 py-2 rounded-full font-semibold text-sm">{{ request().__('pve_pvp') }}</span>
+								<span class="bg-gray-400 text-gray-900 px-4 py-2 rounded-full font-semibold text-sm">{{ request().__('filipino_guild') }}</span>
 							</div>
 						</div>
 						<div class="space-y-4">
 							<div class="bg-gray-900 p-6 rounded-xl shadow-lg">
 								<div class="text-white text-center">
 									<p class="text-4xl font-bold mb-2">50+</p>
-									<p class="text-sm uppercase tracking-wide">Active Members</p>
+									<p class="text-sm uppercase tracking-wide">{{ request().__('active_members_label') }}</p>
 								</div>
 							</div>
 							<div class="grid grid-cols-2 gap-4">
 								<div class="bg-gray-700 p-4 rounded-lg text-white text-center">
 									<p class="text-2xl font-bold">100+</p>
-									<p class="text-xs">Nests Cleared</p>
+									<p class="text-xs">{{ request().__('nests_cleared') }}</p>
 								</div>
 								<div class="bg-gray-600 p-4 rounded-lg text-white text-center">
 									<p class="text-2xl font-bold">24/7</p>
-									<p class="text-xs">Online Support</p>
+									<p class="text-xs">{{ request().__('online_support') }}</p>
 								</div>
 							</div>
 						</div>
@@ -79,44 +79,44 @@
 				<div class="grid md:grid-cols-3 gap-6">
 					<div class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🐉</div>
-						<h3 class="text-xl font-bold text-gray-100 mb-3">Epic Raids & Nests</h3>
+						<h3 class="text-xl font-bold text-gray-100 mb-3">{{ request().__('epic_raids_title') }}</h3>
 						<p class="text-gray-400">
-							Tackle the hardest dungeons and nests together.
+							{{ request().__('epic_raids_desc') }}
 						</p>
 					</div>
 					<div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">⚔️</div>
-						<h3 class="text-xl font-bold text-gray-100 mb-3">PvP Dominance</h3>
+						<h3 class="text-xl font-bold text-gray-100 mb-3">{{ request().__('pvp_title') }}</h3>
 						<p class="text-gray-400">
-							Test your skills in guild battles, PvP tournaments, and ladder climbing. Glory awaits the brave!
+							{{ request().__('pvp_desc') }}
 						</p>
 					</div>
 					<div class="bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🎉</div>
-						<h3 class="text-xl font-bold text-white mb-3">Fun Events</h3>
+						<h3 class="text-xl font-bold text-white mb-3">{{ request().__('fun_events_title') }}</h3>
 						<p class="text-gray-200">
-							Weekly guild events, costume contests, treasure hunts, and more. There's always something exciting happening!
+							{{ request().__('fun_events_desc') }}
 						</p>
 					</div>
 					<div class="bg-gray-700 border border-gray-600 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🤝</div>
-						<h3 class="text-xl font-bold text-white mb-3">Community First</h3>
+						<h3 class="text-xl font-bold text-white mb-3">{{ request().__('community_title') }}</h3>
 						<p class="text-gray-200">
-							Join our Discord, make friends, share tips, and enjoy a welcoming environment where everyone matters.
+							{{ request().__('community_desc') }}
 						</p>
 					</div>
 					<div class="bg-gray-800 border border-gray-700 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">📚</div>
-						<h3 class="text-xl font-bold text-gray-100 mb-3">Guides & Support</h3>
+						<h3 class="text-xl font-bold text-gray-100 mb-3">{{ request().__('guides_title') }}</h3>
 						<p class="text-gray-400">
-							New to Dragon Nest? Our veterans are here to help with builds, rotations, gearing, and progression.
+							{{ request().__('guides_desc') }}
 						</p>
 					</div>
 					<div class="bg-black border border-gray-800 rounded-xl p-6 shadow-xl hover:shadow-2xl transition-all transform hover:-translate-y-2">
 						<div class="text-5xl mb-4">🏆</div>
-						<h3 class="text-xl font-bold text-gray-100 mb-3">Achievements</h3>
+						<h3 class="text-xl font-bold text-gray-100 mb-3">{{ request().__('achievements_title') }}</h3>
 						<p class="text-gray-400">
-							Celebrate milestones together—guild level ups, rare drops, and personal victories. Your success is our success!
+							{{ request().__('achievements_desc') }}
 						</p>
 					</div>
 				</div>
@@ -130,11 +130,11 @@
 							@csrf()
 							<div class="text-center mb-4">
 								<h3 class="text-3xl font-bold mb-2" style="color: var(--text-main);">Join {{ env('GUILD_NAME') }}! 🚀</h3>
-								<p style="color: var(--text-soft);">Fill out the form below to start your adventure with us</p>
+								<p style="color: var(--text-soft);">{{ request().__('fill_form_desc') }}</p>
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">Character Name *</label>
-								<input type="text" placeholder="Enter your Dragon Nest character name" name="ign" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('ign') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('character_name') }}</label>
+								<input type="text" placeholder="{{ request().__('enter_ign_placeholder') }}" name="ign" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('ign') }}">
 								<!-- for errors -->
 								@if(errors.has('ign'))
 									<div class="text-red-500 text-sm">
@@ -143,9 +143,9 @@
 								@end
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">Class *</label>
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('class_label') }}</label>
 								<select class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required name="class">
-									<option value="" disabled selected>Select your class</option>
+									<option value="" disabled selected>{{ request().__('select_class_placeholder') }}</option>
 									@each($class in $allClass)
 										<option value="{{ $class.id }}" {{ old('class') == $class.id ? 'selected' : '' }}>{{ $class.name }}</option>
 									@end
@@ -157,9 +157,9 @@
 								@end
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">NSTG</label>
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('nstg_label') }}</label>
 								<select name="nstg" id="nstg" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('nstg') }}">
-									<option value="" disabled selected>Select your NSTG level</option>
+									<option value="" disabled selected>{{ request().__('select_nstg_placeholder') }}</option>
 									@each($level in $nstg)
 										<option value="{{ $level.id }}" {{ old('nstg') == $level.id ? 'selected' : '' }}>{{ $level.name }}</option>
 									@end
@@ -171,8 +171,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">Discord Username *</label>
-								<input type="text" placeholder="Enter your Discord username" name="discord" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('discord') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('discord_username') }}</label>
+								<input type="text" placeholder="{{ request().__('enter_discord_placeholder') }}" name="discord" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('discord') }}">
 								@if(errors.has('discord'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('discord') }}
@@ -180,8 +180,8 @@
 								@end
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">Email *</label>
-								<input type="email" placeholder="Enter your email" name="email" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('email') }}">
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('email_required') }}</label>
+								<input type="email" placeholder="{{ request().__('enter_email_placeholder') }}" name="email" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('email') }}">
 								@if(errors.has('email'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('email') }}
@@ -189,7 +189,7 @@
 								@end
 							</div>
 							<div>
-								<label class="block font-semibold mb-2" style="color: var(--text-main);">Why do you want to join? *</label>
+								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('why_join') }}</label>
 								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" rows="4" required>{{ old('reason') }}</textarea>
 								@if(errors.has('reason'))
 									<div class="text-red-500 text-sm">
@@ -198,10 +198,10 @@
 								@end
 							</div>
 							<button type="submit" class="bg-gray-900 hover:bg-gray-700 text-white font-bold py-4 rounded-lg transition-all transform hover:scale-105 shadow-xl text-lg hover:cursor-pointer">
-								🎯 Submit Application
+								{{ request().__('submit_application') }}
 							</button>
 							<p class="text-center text-sm" style="color: var(--text-muted);">
-								Applications are reviewed within 24 hours. We'll contact you via your provided contact info!
+								{{ request().__('application_reviewed') }}
 							</p>
 						</form>
 					</div>
@@ -211,19 +211,19 @@
 			<!-- Server Info -->
 			<section class="mb-16">
 				<div class="welcome-glass backdrop-blur-sm rounded-xl p-6 border text-center">
-					<h3 class="text-2xl font-bold text-gray-200 mb-4">Guild Information</h3>
+					<h3 class="text-2xl font-bold text-gray-200 mb-4">{{ request().__('guild_information') }}</h3>
 					<div class="grid md:grid-cols-3 gap-4 welcome-text-main">
 						<div>
-							<p class="text-gray-400 font-semibold mb-1">Server</p>
-							<p class="text-lg">Dragon Nest SEA</p>
+							<p class="text-gray-400 font-semibold mb-1">{{ request().__('server') }}</p>
+							<p class="text-lg">{{ request().__('dragon_nest_sea') }}</p>
 						</div>
 						<div>
-							<p class="text-gray-400 font-semibold mb-1">Region</p>
-							<p class="text-lg">Philippines 🇵🇭</p>
+							<p class="text-gray-400 font-semibold mb-1">{{ request().__('region') }}</p>
+							<p class="text-lg">{{ request().__('philippines') }}</p>
 						</div>
 						<div>
-							<p class="text-gray-400 font-semibold mb-1">Language</p>
-							<p class="text-lg">English / Tagalog</p>
+							<p class="text-gray-400 font-semibold mb-1">{{ request().__('language') }}</p>
+							<p class="text-lg">{{ request().__('english_tagalog') }}</p>
 						</div>
 					</div>
 				</div>

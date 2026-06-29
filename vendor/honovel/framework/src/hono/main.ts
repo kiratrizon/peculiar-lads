@@ -4,7 +4,7 @@ import { logger } from "hono/logger";
 import { serveStatic } from "hono/deno";
 import * as path from "node:path";
 
-import { Hono, MiddlewareHandler, Next } from "hono";
+import { Hono, MiddlewareHandler } from "hono";
 import Boot from "../Maneuver/Boot.ts";
 
 import { HonoType } from "../../../@types/declaration/imain.d.ts";
@@ -19,9 +19,6 @@ import {
   URLArranger,
   toFallback,
   returnResponse,
-  toNotfound,
-  saveSessionIfRedirect,
-  convertToResponse,
   exceptionToResponse,
 } from "./Support/FunctionRoute.ts";
 import { IMyConfig } from "./Support/MethodRoute.ts";
@@ -98,18 +95,28 @@ if (config("app").env === "local") {
   let viteServer: boolean = false;
   // vite local versioning
   // this will be the last version of the framework that will support vite local development for deno 2.7.5 and below
-  if (versionCompare(frameworkVersion().honovelVersion, "2.0.1", ">") && (versionCompare(frameworkVersion().denoVersion, "2.7.5", ">") && versionCompare(frameworkVersion().denoVersion, "2.7.11", "<"))) {
-    console.warn("⚡ Vite server is not supported for this version of the framework", frameworkVersion());
+  if (
+    versionCompare(frameworkVersion().honovelVersion, "2.0.1", ">") &&
+    versionCompare(frameworkVersion().denoVersion, "2.7.5", ">") &&
+    versionCompare(frameworkVersion().denoVersion, "2.7.11", "<")
+  ) {
+    console.warn(
+      "⚡ Vite server is not supported for this version of the framework",
+      frameworkVersion(),
+    );
   } else {
     viteServer = await isViteRunning(vitePort);
     define("viteServer", viteServer, false);
     if (viteServer) {
       // check a json file if exist
-      if (!(await pathExist(basePath("storage/framework/cache/vite.json")))) {
+      if (!pathExists(basePath("storage/framework/cache/vite.json"))) {
         makeDir(path.dirname(basePath("storage/framework/cache/vite.json")));
-        writeFile(basePath("storage/framework/cache/vite.json"), jsonEncode({
-          files: [],
-        }));
+        writeFile(
+          basePath("storage/framework/cache/vite.json"),
+          jsonEncode({
+            files: [],
+          }),
+        );
       }
     }
   }
@@ -198,6 +205,27 @@ function buildIncomingUrl(requestUrl: URL): string {
   return `${protocol}://${incomingHost}/${uri || ""}`;
 }
 
+import { languageDetector, DetectorOptions } from "hono/language";
+
+const i18n = {
+  order: ["path", "querystring", "cookie", "header"],
+  lookupQueryString: "lang",
+  lookupCookie: "language",
+  lookupFromHeaderKey: "accept-language",
+  lookupFromPathIndex: 0,
+  caches: ["cookie"],
+  ignoreCase: true,
+  fallbackLanguage: "en",
+  supportedLanguages: config("app.supported_locales", ["en"]),
+  cookieOptions: {
+    sameSite: "Strict",
+    secure: true,
+    maxAge: 365 * 24 * 60 * 60,
+    httpOnly: true,
+  },
+  debug: false,
+};
+
 class Server {
   private static Hono = Hono;
   public static app: HonoType;
@@ -212,19 +240,26 @@ class Server {
     }
   > = {};
   public static async init() {
-
     try {
-      define("application", (await import("../../../../../bootstrap/app.ts"))?.default, false);
+      define(
+        "application",
+        (await import("../../../../../bootstrap/app.ts"))?.default,
+        false,
+      );
       const appRouter = application?.getRouter();
       const appRouterMiddleware = appRouter?.middleware;
-      const [globalInstance, globalFallbackInstance] = [...toMiddleware(appRouterMiddleware.global)];
+      const [globalInstance, globalFallbackInstance] = [
+        ...toMiddleware(appRouterMiddleware.global),
+      ];
       // push
       globalMiddleware.push(...globalInstance);
       globalMiddlewareFallback.push(...globalFallbackInstance);
-
     } catch (_e) {
       console.error("Application not found", _e);
-      if (!isset(env("DENO_DEPLOYMENT_ID")) || empty(env("DENO_DEPLOYMENT_ID"))) {
+      if (
+        !isset(env("DENO_DEPLOYMENT_ID")) ||
+        empty(env("DENO_DEPLOYMENT_ID"))
+      ) {
         Deno.exit(1);
       }
     }
@@ -233,12 +268,12 @@ class Server {
     const conditionalLogger = async (c: any, next: () => Promise<void>) => {
       const url = c.req.url;
       // skip if path ends with __warmup
-      const skipPaths = ['/.well-known', '/robots.txt', '/favicon.ico'];
-      if (skipPaths.some(path => new URL(url).pathname.startsWith(path))) {
+      const skipPaths = ["/.well-known", "/robots.txt", "/favicon.ico"];
+      if (skipPaths.some((path) => new URL(url).pathname.startsWith(path))) {
         return await next(); // skip logging
       }
       if (!url.endsWith("__warmup")) {
-        await logger()(c, next); // call logger middleware
+        return await logger()(c, next); // call logger middleware
       } else {
         return await next(); // skip logger
       }
@@ -247,7 +282,7 @@ class Server {
     this.app.use(conditionalLogger);
 
     if (!env("DENO_DEPLOYMENT_ID", null)) {
-      const disks = config("filesystems").disks || {};
+      const disks = config("filesystems")?.disks || {};
 
       for (const [, diskConfig] of Object.entries(disks)) {
         const disk = diskConfig as PublicDiskConfig;
@@ -324,6 +359,7 @@ class Server {
   private static async generateNewApp(
     conf?: Record<string, unknown>,
     withDefaults: boolean = false,
+    key?: string,
   ): Promise<HonoType> {
     let app: HonoType;
     if (isset(conf) && !empty(conf)) {
@@ -332,13 +368,20 @@ class Server {
       app = new this.Hono();
     }
 
+    const asterisk = "*";
+
     if (withDefaults) {
       app.use(...myStaticDefaults);
-      app.use("*", async (c: MyContext, next: () => Promise<void>) => {
+      app.use(asterisk, async (c: MyContext, next: () => Promise<void>) => {
         c.set("subdomain", {});
         return await next();
       });
     }
+
+    if (key === "web") {
+      app.use(languageDetector(i18n));
+    }
+
     return app;
   }
 
@@ -358,22 +401,24 @@ class Server {
       }
     }
 
+    const asterisk = "*";
     const [routeGroupMiddleware, routeGroupMiddlewareFallback]: [
       MiddlewareHandler[],
       TFallbackMiddleware[],
     ] = [...toMiddleware(mainMiddleware)];
-
-    // @ts-ignore //
     app.use(
-      "*",
+      asterisk,
       honoSession(),
       buildRequestInit(),
-      // build the globalMiddlewareHere
       ...globalMiddleware,
       ...routeGroupMiddleware,
     );
     // return the prefix if exists
-    return [groupRoutes[key]?.prefix || "/", routeGroupMiddlewareFallback];
+    const result: [string, TFallbackMiddleware[]] = [
+      groupRoutes[key]?.prefix || "/",
+      routeGroupMiddlewareFallback,
+    ];
+    return result;
   }
 
   private static async loadAndValidateRoutes() {
@@ -389,9 +434,9 @@ class Server {
     const routers = application.getRouter().routers;
     const ordered = {
       ...Object.fromEntries(
-        Object.entries(routers).filter(([key]) => key !== "web")
+        Object.entries(routers).filter(([key]) => key !== "web"),
       ),
-      ...(routers.web !== undefined && { web: routers.web })
+      ...(routers.web !== undefined && { web: routers.web }),
     };
 
     for (const [key, val] of Object.entries(ordered)) {
@@ -402,7 +447,7 @@ class Server {
       }
       if (isset(Route)) {
         Server.domainPattern[key] = {};
-        const byEndpointsRouter = await this.generateNewApp();
+        const byEndpointsRouter = await this.generateNewApp({}, false, key);
         const [routePrefix, routeGroupMiddlewareFallback] =
           this.applyMainMiddleware(key, byEndpointsRouter);
         const instancedRoute = new Route();
@@ -454,7 +499,7 @@ class Server {
                     fixUri,
                     arrangerDispatch.requiredParams,
                     arrangerDispatch.optionalParams,
-                    methodarr
+                    methodarr,
                   );
                 }
               }
@@ -641,7 +686,7 @@ class Server {
                   const finalName = !empty(as) ? `${as}.${flagName}` : flagName;
                   const finalUrl = buildRouteUrl(
                     routePrefix,
-                    `${arrangerGroup.string}${myConfig.uri}`,
+                    `${newName}${myConfig.uri}`,
                   );
 
                   if (validateRouteName(this.routes, finalName)) {
@@ -651,7 +696,7 @@ class Server {
                       finalUrl,
                       arrangerDispatch.requiredParams,
                       arrangerDispatch.optionalParams,
-                      methodarr
+                      methodarr,
                     );
                   }
                 }
@@ -684,7 +729,7 @@ class Server {
                   if (str === "/" && !generatedopts.includes("/")) {
                     hasOnlySlash.found = true;
                   }
-                  return true;    // keep this element
+                  return true; // keep this element
                 });
 
                 if (hasOnlySlash.found) {
@@ -713,13 +758,23 @@ class Server {
 
               if (hasOnlySlash.found) {
                 generatedopts.forEach((grp) => {
-                  if (hasOnlySlash.method.length === 1 && hasOnlySlash.method[0] === "head") {
+                  if (
+                    hasOnlySlash.method.length === 1 &&
+                    hasOnlySlash.method[0] === "head"
+                  ) {
                     hasOnlySlash.allBuilds.splice(1, 0, headFunction);
-                    // @ts-ignore //
-                    newAppGroup.get(grp == "/" ? grp : `${grp}/`, ...hasOnlySlash.allBuilds);
+                    newAppGroup.get(
+                      // @ts-ignore //
+                      grp == "/" ? grp : `${grp}/`,
+                      ...hasOnlySlash.allBuilds,
+                    );
                   } else {
-                    // @ts-ignore //
-                    newAppGroup.on(hasOnlySlash.method, grp == "/" ? grp : `${grp}/`, ...hasOnlySlash.allBuilds);
+                    newAppGroup.on(
+                      hasOnlySlash.method,
+                      // @ts-ignore //
+                      grp == "/" ? grp : `${grp}/`,
+                      ...hasOnlySlash.allBuilds,
+                    );
                   }
                 });
               }
@@ -788,13 +843,16 @@ class Server {
 
     // save routes in a file cache
     if (!isset(env("DENO_DEPLOYMENT_ID")) || empty(env("DENO_DEPLOYMENT_ID"))) {
-      if (!(await pathExist(storagePath("framework/route")))) {
+      if (!pathExists(storagePath("framework/route"))) {
         makeDir(storagePath("framework/route"));
       }
 
       // arrange json file with pretty format
       const prettyRoutes = JSON.stringify(this.routes, null, 2);
-      writeFile(path.join(storagePath("framework/route"), "routes.json"), prettyRoutes);
+      writeFile(
+        path.join(storagePath("framework/route"), "routes.json"),
+        prettyRoutes,
+      );
     }
   }
 }

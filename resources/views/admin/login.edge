@@ -4,17 +4,17 @@
 <section class="flex items-center justify-center flex-1 px-4 py-20">
 
     <div class="w-full max-w-md">
-    
+
         <div class="login-card backdrop-blur-xl rounded-2xl p-8 shadow-2xl">
-    
+
             <!-- Title -->
             <div class="text-center mb-8">
                 <div class="text-4xl mb-2">🐉</div>
                 <h1 class="text-2xl font-bold" style="color: var(--text-main);">
-                    {{ $entity }} Login
+                    {{ $entity }} {{ request().__('login') }}
                 </h1>
             </div>
-    
+
             <!-- Login Form -->
             <form method="POST" action="{{ route('admin.login') }}" class="space-y-5">
                 @csrf()
@@ -23,7 +23,7 @@
                 <!-- Email -->
                 <div>
                     <label class="login-label block text-sm mb-1" for="email">
-                        Email
+                        {{ request().__('email_label') }}
                     </label>
                     <input
                         id="email"
@@ -31,7 +31,7 @@
                         name="email"
                         required
                         class="login-input w-full px-4 py-2 rounded-lg focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none"
-                        placeholder="adventurer@email.com" 
+                        placeholder="adventurer@email.com"
                         value="{{ old('email') }}"
                     >
                 </div>
@@ -41,7 +41,7 @@
                 <!-- Password -->
                 <div>
                     <label class="login-label block text-sm mb-1" for="password">
-                        Password
+                        {{ request().__('password_label') }}
                     </label>
                     <input
                         id="password"
@@ -57,48 +57,48 @@
                         <p class="text-red-500 text-sm">{{ errors.first('password') }}</p>
                     @end
                 </div>
-    
+
                 <!-- Remember -->
                 <div class="flex items-center justify-between text-sm">
                     <label class="login-muted flex items-center gap-2">
                         <input type="checkbox" name="remember" id="remember" class="accent-gray-400">
-                        Remember me
+                        {{ request().__('remember_me') }}
                     </label>
-    
+
                     <a href="/admin/forgot-password" class="text-gray-400 hover:underline">
-                        Forgot password?
+                        {{ request().__('forgot_password') }}
                     </a>
                 </div>
-    
+
                 <!-- Submit -->
                 <button
                     type="submit"
                     class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);"
                 >
-                    Enter Guild Hall
+                    {{ request().__('enter_guild_hall') }}
                 </button>
-    
+
             </form>
-    
+
             <!-- Divider -->
             <div class="my-6 flex items-center">
                 <div class="login-divider flex-1 border-t"></div>
-                <span class="login-subtle px-3 text-sm">or</span>
+                <span class="login-subtle px-3 text-sm">{{ request().__('or') }}</span>
                 <div class="login-divider flex-1 border-t"></div>
             </div>
-    
+
             <!-- Register -->
             <p class="login-muted text-center text-sm">
-                Not a member yet?
+                {{ request().__('not_member_yet') }}
                 <a href="/register" class="text-gray-400 hover:underline">
-                    Join the guild
+                    {{ request().__('join_the_guild_link') }}
                 </a>
             </p>
-    
+
         </div>
-    
+
     </div>
-    
+
 </section>
 @end
 

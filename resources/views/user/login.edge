@@ -26,28 +26,28 @@
         <div class="u-login-card backdrop-blur-xl border rounded-2xl p-8 shadow-2xl">
             <div class="text-center mb-8">
                 <div class="text-4xl mb-2">🐉</div>
-                <h1 class="text-2xl font-bold" style="color: var(--text-main);">Login</h1>
+                <h1 class="text-2xl font-bold" style="color: var(--text-main);">{{ request().__('login') }}</h1>
             </div>
             <form method="POST" class="space-y-5">
                 @csrf()
                 <div>
-                    <label class="u-login-label block text-sm mb-1" for="email">Email</label>
+                    <label class="u-login-label block text-sm mb-1" for="email">{{ request().__('email_label') }}</label>
                     <input type="email" name="email" id="email" class="u-login-input w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-gray-400 outline-none" required value="{{ old('email') }}">
                 </div>
                 @if(errors.has('email'))
                     <p class="text-red-500 text-sm">{{ errors.first('email') }}</p>
                 @end
                 <div>
-                    <label class="u-login-label block text-sm mb-1" for="password">Password</label>
+                    <label class="u-login-label block text-sm mb-1" for="password">{{ request().__('password_label') }}</label>
 
                     <input type="password" name="password" id="password" class="u-login-input w-full px-4 py-2 rounded-lg border focus:ring-2 focus:ring-gray-400 outline-none" required value="{{ old('password') }}">
                 </div>
                 @if(errors.has('password'))
                     <p class="text-red-500 text-sm">{{ errors.first('password') }}</p>
                 @end
-                <button type="submit" class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);">Login</button>
+                <button type="submit" class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);">{{ request().__('login') }}</button>
             </form>
-            <p class="u-login-copy text-sm mt-4">Don't have an account? <a href="{{ route('welcome') }}#join" class="text-gray-400 hover:text-gray-200 transition">Join the guild</a></p>
+            <p class="u-login-copy text-sm mt-4">{{ request().__('dont_have_account') }} <a href="{{ route('welcome') }}#join" class="text-gray-400 hover:text-gray-200 transition">{{ request().__('join_the_guild_link') }}</a></p>
         </div>
     </div>
 </section>

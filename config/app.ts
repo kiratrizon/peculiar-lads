@@ -46,8 +46,9 @@ const constant: AppConfig = {
   */
   locale: env("APP_LOCALE", "en"),
   fallback_locale: env("APP_FALLBACK_LOCALE", "en"),
+  supported_locales: env("APP_SUPPORTED_LOCALES", "en,ja").split(","),
   faker_locale: env("APP_FAKER_LOCALE", "en_US"),
-
+  enable_locale: env("APP_LOCALE_ENABLED", true),
   /*
   |--------------------------------------------------------------------------
   | Encryption Key

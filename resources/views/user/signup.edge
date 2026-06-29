@@ -4,9 +4,9 @@
 <section class="flex items-center justify-center flex-1 px-4 py-20">
 
     <div class="w-full max-w-md">
-    
+
         <div class="bg-black/70 backdrop-blur-xl border border-gray-700 rounded-2xl p-8 shadow-2xl">
-    
+
             <!-- Title -->
             <div class="text-center mb-8">
                 <div class="text-4xl mb-2">🐉</div>
@@ -14,14 +14,14 @@
                     {{ $recruit.ign }} Signup
                 </h1>
             </div>
-    
+
             <!-- Login Form -->
             <form method="POST" class="space-y-5">
                 @csrf()
                 <!-- Email -->
                 <div>
                     <label class="block text-sm text-gray-400 mb-1" for="email">
-                        Email
+                        {{ request().__('email_label') }}
                     </label>
                     <input
                         id="email"
@@ -29,7 +29,7 @@
                         name="email"
                         required
                         class="w-full px-4 py-2 rounded-lg bg-black/60 border border-gray-700 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none text-gray-100"
-                        placeholder="adventurer@email.com" 
+                        placeholder="adventurer@email.com"
                         value="{{ $recruit.email }}"
                     >
                 </div>
@@ -39,7 +39,7 @@
                 <!-- Password -->
                 <div>
                     <label class="block text-sm text-gray-400 mb-1" for="password">
-                        Password
+                        {{ request().__('password_label') }}
                     </label>
                     <input
                         id="password"
@@ -59,7 +59,7 @@
                 <!-- Password Confirmation -->
                 <div>
                     <label class="block text-sm text-gray-400 mb-1" for="password_confirmation">
-                        Password Confirmation
+                        {{ request().__('password_confirmation') }}
                     </label>
                     <input
                         id="password_confirmation"
@@ -75,17 +75,17 @@
                         <p class="text-red-500 text-sm">{{ errors.first('password_confirmation') }}</p>
                     @end
                 </div>
-    
+
                 <!-- Submit -->
                 <button
                     type="submit"
                     class="w-full font-semibold py-2 rounded-lg transition" style="background: var(--accent); color: var(--bg-1);"
                 >
-                    Join the Guild
+                    {{ request().__('join_the_guild') }}
                 </button>
-    
+
             </form>
-    
+
             <!-- Divider -->
             <!-- <div class="my-6 flex items-center">
                 <div class="flex-1 border-t border-indigo-700"></div>
@@ -94,7 +94,7 @@
             </div> -->
         </div>
     </div>
-    
+
 </section>
 @end
 

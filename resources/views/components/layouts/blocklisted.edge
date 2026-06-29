@@ -21,18 +21,18 @@
 <header class="bg-black/60 backdrop-blur-md border-b border-gray-800 px-6 py-4 flex justify-between items-center">
 
     <div class="font-semibold text-gray-200 text-lg flex items-center gap-2">
-        🚫 Blocklisted Panel
+        {{ request().__('blocklisted_panel') }}
     </div>
 
     <nav class="flex items-center gap-4 text-sm">
         <a href="/admin"
            class="px-3 py-1 rounded hover:bg-gray-800 hover:text-gray-100 transition text-gray-400">
-            Dashboard
+            {{ request().__('dashboard') }}
         </a>
 
         <a href="/blocklisted/players"
            class="px-3 py-1 rounded hover:bg-gray-800 hover:text-gray-100 transition text-gray-400">
-            Players
+            {{ request().__('players') }}
         </a>
     </nav>
 
@@ -53,7 +53,7 @@
             {{ $title }}
         </h1>
         <p class="text-sm text-gray-500">
-            Manage and review all blocked players in the system.
+            {{ request().__('manage_review_blocked') }}
         </p>
     </div>
 

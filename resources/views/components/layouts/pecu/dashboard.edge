@@ -98,19 +98,19 @@
 		<a href="{{ route(`${routePrefix}.index`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'home' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">🏠</span>
-			<span class="sidebar-label">Home</span>
+			<span class="sidebar-label">{{ request().__('home') }}</span>
 		</a>
 
 		<a href="{{ route(`${routePrefix}.members`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'members' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">👥</span>
-			<span class="sidebar-label">Guild Members</span>
+			<span class="sidebar-label">{{ request().__('guild_members') }}</span>
 		</a>
 
 		<a href="{{ route(`${routePrefix}.events`) }}"
 		class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'events' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📅</span>
-			<span class="sidebar-label">Events</span>
+			<span class="sidebar-label">{{ request().__('events') }}</span>
 			@if($notif?.events?.length > 0)
 				<span class="ml-auto inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
 					{{ $notif?.events?.length }}
@@ -122,7 +122,7 @@
 		<a href="{{ route(`${routePrefix}.recruits`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'recruits' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📝</span>
-			<span class="sidebar-label">Recruits</span>
+			<span class="sidebar-label">{{ request().__('recruits') }}</span>
 			@if($notif?.recruits?.length > 0)
 			<span class="ml-auto inline-flex items-center justify-center w-4 h-4 bg-red-500 text-white text-xs font-semibold rounded-full">
 				{{ $notif?.recruits?.length }}
@@ -134,13 +134,13 @@
 		<a href="{{ route(`${routePrefix}.settings`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'settings' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">⚙️</span>
-			<span class="sidebar-label">Settings</span>
+			<span class="sidebar-label">{{ request().__('settings') }}</span>
 		</a>
 
 	</nav>
 
 	<div class="sidebar-footer p-4 border-t text-xs text-center sidebar-label">
-		Dragon Nest SEA Guild
+		{{ request().__('dragon_nest_sea_guild') }}
 	</div>
 
 </aside>
@@ -161,14 +161,14 @@
 				⇔
 			</button>
 			<div class="dashboard-title font-semibold text-lg">
-				Guild Dashboard
+				{{ request().__('guild_dashboard') }}
 			</div>
 		</div>
 
 		<div class="flex items-center gap-4">
 
 			<button id="themeToggle" type="button" class="theme-button inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 text-sm transition">
-				🌙 Dark
+				{{ request().__('dark_theme') }}
 			</button>
 
 			<div class="greeting-text text-sm">
@@ -178,7 +178,7 @@
 			<form method="get" action="{{ route(`${routePrefix}.logout`) }}">
 				<button
 					class="px-3 py-1 rounded bg-red-600/80 hover:bg-red-500 text-white text-sm transition hover:cursor-pointer">
-					Logout
+					{{ request().__('logout') }}
 				</button>
 			</form>
 

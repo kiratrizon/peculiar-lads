@@ -346,6 +346,38 @@ declare class HonoRequest {
    * @param key
    */
   public get(key: string): unknown;
+
+  /**
+   * Set the language for the request
+   * @param lang
+   */
+  public setLanguage(lang?: string): void;
+
+  /**
+   * Set the fallback language for the request
+   * @param lang
+   */
+  public setFallbackLanguage(lang?: string): void;
+
+  /**
+   * Get the language for the request
+   * @param lang
+   */
+  public getLanguage(): string;
+
+  /**
+   * Get the fallback language for the request
+   * @param lang
+   */
+  public getFallbackLanguage(): string;
+
+  /**
+   * Internationalization (i18n) translation function
+   * @param key The translation key
+   * @param replacements Optional replacements for placeholders in the translation string
+   * @returns The translated string
+   */
+  public __(key: string, replacements?: Record<string, string>): string;
 }
 
 export default HonoRequest;

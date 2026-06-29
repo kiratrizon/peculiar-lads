@@ -20,19 +20,19 @@
                 <!-- force red color -->
                 <button class="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-500/80 transition text-white font-semibold flex items-center gap-2" id="verify_{{ $recruit.id }}">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    Verify
+                    {{ request().__('verify') }}
                 </button>
                 @elseif($recruit.verified === 1)
                 <!-- green color not button -->
                 <span class="px-5 py-2 rounded-lg bg-green-500 text-white font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-circle-check"></i>
-                    Verified
+                    {{ request().__('verified') }}
                 </span>
                 @elseif($recruit.verified === 2)
                 <!-- green color not button -->
                 <span class="px-5 py-2 rounded-lg bg-red-500 text-white font-semibold flex items-center gap-2">
                     <i class="fa-solid fa-circle-exclamation"></i>
-                    Blocklisted
+                    {{ request().__('blocklisted_status') }}
                 </span>
                 @endif
             </div>
@@ -49,28 +49,28 @@
         <div class="grid grid-cols-2 gap-6">
 
             <div>
-                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">NSTG</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">{{ request().__('nstg') }}</p>
                 <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myNstg.code }} - {{ $recruit.myNstg.name }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Class</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">{{ request().__('class') }}</p>
                 <p class="text-lg font-semibold" style="color: var(--text-main);">
                     {{ $recruit.myClass.name }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Discord</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">{{ request().__('discord') }}</p>
                 <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.discord }}
                 </p>
             </div>
 
             <div>
-                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">Email</p>
+                <p class="text-xs uppercase tracking-wide" style="color: var(--text-soft);">{{ request().__('email_label') }}</p>
                 <p class="text-lg" style="color: var(--text-soft);">
                     {{ $recruit.email }}
                 </p>
@@ -82,7 +82,7 @@
 
         <!-- Reason -->
         <div>
-            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">Reason</p>
+            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">{{ request().__('reason') }}</p>
             <p class="leading-relaxed" style="color: var(--text-soft);">
                 {{ $recruit.reason }}
             </p>
@@ -90,23 +90,23 @@
 
         <!-- Status -->
         <div>
-            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-2">Status</p>
+            <p class="text-xs uppercase tracking-wide text-yellow-500 mb-2">{{ request().__('status') }}</p>
 
             @if($recruit.status === 0)
                 <span class="px-3 py-1 text-sm rounded-full font-semibold" style="background: rgba(156,163,175,0.15); color: #9ca3af;">
-                    Pending
+                    {{ request().__('pending') }}
                 </span>
             @elseif($recruit.status === 1)
                 <span class="px-3 py-1 text-sm rounded-full bg-blue-400/20 text-blue-300 font-semibold">
-                    Invited
+                    {{ request().__('invited') }}
                 </span>
             @elseif($recruit.status === 2)
                 <span class="px-3 py-1 text-sm rounded-full bg-red-400/20 text-red-300 font-semibold">
-                    Rejected
+                    {{ request().__('rejected') }}
                 </span>
             @elseif($recruit.status === 3)
                 <span class="px-3 py-1 text-sm rounded-full bg-green-400/20 text-green-300 font-semibold">
-                    Member
+                    {{ request().__('member') }}
                 </span>
             @endif
         </div>
@@ -115,15 +115,15 @@
         @if (isset($recruit.invitation_link))
             <div>
                 <p class="text-xs uppercase tracking-wide text-yellow-500 mb-1">
-                    Invitation Link
+                    {{ request().__('invitation_link') }}
                 </p>
                 <div class="flex items-center gap-2">
-                    <a href="{{ $recruit.invitation_link }}" 
+                    <a href="{{ $recruit.invitation_link }}"
                     class="text-gray-400 hover:underline break-all">
                         {{ $recruit.invitation_link }}
                     </a>
                     <!-- clipboard  -->
-                    <button 
+                    <button
                         class="px-5 py-2 rounded-lg bg-gray-500 hover:bg-gray-500/80 transition text-white font-semibold flex items-center gap-2" id="copy_invitation_link" value="{{ $recruit.invitation_link }}">
                         <i class="fa-solid fa-copy"></i>
                     </button>
@@ -132,19 +132,19 @@
         @elseif(![1, 2].includes($recruit.status))
 
             <div class="pt-2">
-                <button 
+                <button
                     class="px-5 py-2 rounded-lg bg-blue-500 hover:bg-blue-500/80 transition text-white font-semibold"
                     id="invite_{{ $recruit.id }}">
-                    Send Invitation Link
+                    {{ request().__('send_invitation_link') }}
                 </button>
             </div>
 
             <!-- decline button -->
             <div class="pt-2">
-                <button 
+                <button
                     class="px-5 py-2 rounded-lg bg-red-500 hover:bg-red-500/80 transition text-white font-semibold"
                     id="decline_{{ $recruit.id }}">
-                    Reject
+                    {{ request().__('reject') }}
                 </button>
             </div>
 

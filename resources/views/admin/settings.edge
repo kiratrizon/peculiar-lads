@@ -37,8 +37,8 @@
 <div class="flex flex-col gap-6 max-w-2xl">
 
   <div class="flex flex-col gap-2">
-    <h1 class="text-2xl font-bold" style="color: var(--accent);">Account Settings</h1>
-    <p class="text-sm settings-hint">Update your admin profile and password.</p>
+    <h1 class="text-2xl font-bold" style="color: var(--accent);">{{ request().__('account_settings') }}</h1>
+    <p class="text-sm settings-hint">{{ request().__('update_profile_password') }}</p>
   </div>
 
   @if(session().has("message"))
@@ -53,10 +53,10 @@
     @csrf()
 
     <div class="flex flex-col gap-4">
-      <h2 class="text-lg font-semibold" style="color: var(--accent);">Profile</h2>
+      <h2 class="text-lg font-semibold" style="color: var(--accent);">{{ request().__('profile') }}</h2>
 
       <div>
-        <label class="settings-label block text-sm mb-1" for="name">Display name</label>
+        <label class="settings-label block text-sm mb-1" for="name">{{ request().__('display_name') }}</label>
         <input id="name" type="text" name="name" required maxlength="50"
                class="settings-input w-full px-4 py-2 rounded-lg border"
                value="{{ old('name', $admin.name) }}">
@@ -66,7 +66,7 @@
       </div>
 
       <div>
-        <label class="settings-label block text-sm mb-1" for="email">Email</label>
+        <label class="settings-label block text-sm mb-1" for="email">{{ request().__('email_label') }}</label>
         <input id="email" type="email" name="email" required maxlength="100"
                class="settings-input w-full px-4 py-2 rounded-lg border"
                value="{{ old('email', $admin.email) }}">
@@ -78,12 +78,12 @@
 
     <div class="border-t pt-6 flex flex-col gap-4" style="border-color: var(--border);">
       <div>
-        <h2 class="text-lg font-semibold" style="color: var(--accent);">Change password</h2>
-        <p class="settings-hint text-sm mt-1">Leave blank to keep your current password.</p>
+        <h2 class="text-lg font-semibold" style="color: var(--accent);">{{ request().__('change_password') }}</h2>
+        <p class="settings-hint text-sm mt-1">{{ request().__('leave_blank_password') }}</p>
       </div>
 
       <div>
-        <label class="settings-label block text-sm mb-1" for="current_password">Current password</label>
+        <label class="settings-label block text-sm mb-1" for="current_password">{{ request().__('current_password') }}</label>
         <input id="current_password" type="password" name="current_password"
                class="settings-input w-full px-4 py-2 rounded-lg border"
                autocomplete="current-password">
@@ -93,7 +93,7 @@
       </div>
 
       <div>
-        <label class="settings-label block text-sm mb-1" for="password">New password</label>
+        <label class="settings-label block text-sm mb-1" for="password">{{ request().__('new_password') }}</label>
         <input id="password" type="password" name="password"
                class="settings-input w-full px-4 py-2 rounded-lg border"
                autocomplete="new-password">
@@ -103,7 +103,7 @@
       </div>
 
       <div>
-        <label class="settings-label block text-sm mb-1" for="password_confirmation">Confirm new password</label>
+        <label class="settings-label block text-sm mb-1" for="password_confirmation">{{ request().__('confirm_new_password') }}</label>
         <input id="password_confirmation" type="password" name="password_confirmation"
                class="settings-input w-full px-4 py-2 rounded-lg border"
                autocomplete="new-password">
@@ -113,7 +113,7 @@
     <div class="pt-2">
       <button type="submit"
               class="px-6 py-2 rounded-lg font-semibold transition" style="background: var(--accent); color: var(--bg-1);">
-        Save changes
+        {{ request().__('save_changes') }}
       </button>
     </div>
   </form>

@@ -42,17 +42,23 @@ export default class Application {
   public getRouter() {
     const data = {
       middleware: new Application.middleware(),
-      routers: Application.routers
-    }
+      routers: Application.routers,
+    };
     return data;
   }
 
-  private static exceptions: Record<string, { exception: ExceptionConstructor, cb: IExceptionCallback }> = {};
-  protected static addException(exception: ExceptionConstructor, cb: IExceptionCallback) {
+  private static exceptions: Record<
+    string,
+    { exception: ExceptionConstructor; cb: IExceptionCallback }
+  > = {};
+  protected static addException(
+    exception: ExceptionConstructor,
+    cb: IExceptionCallback,
+  ) {
     if (!Application.exceptions[exception.name]) {
       Application.exceptions[exception.name] = {
         exception,
-        cb
+        cb,
       };
     }
   }

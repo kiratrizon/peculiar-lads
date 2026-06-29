@@ -1,7 +1,7 @@
 import { ConfigItems } from "configs/@types/index.d.ts";
 import { Carbon } from "helpers";
 
-export { };
+export {};
 
 type IGetType =
   | "string"
@@ -249,7 +249,7 @@ declare global {
    * Checks whether a file exists relative to a predefined base path.
    *
    * Usage:
-   *   const exists = fileExist('path/to/file.txt');
+   *   const exists = pathExists('path/to/file.txt');
    *
    * - If no path is provided, returns `false`.
    * - Resolves the file path relative to `'../../../'` from the current `__dirname`.
@@ -258,7 +258,21 @@ declare global {
    * @param fileString - Relative file path from the base path.
    * @returns `true` if the file exists, otherwise `false`.
    */
-  function pathExist(fileString?: string): Promise<boolean>;
+  function pathExists(fileString: string): boolean;
+
+  /**
+   * Checks if the given path is a directory.
+   * @param dirString - The relative path to check.
+   * @returns `true` if the path is a directory, otherwise `false`.
+   */
+  function isDir(dirString: string): boolean;
+
+  /**
+   * Checks if the given path is a file.
+   * @param fileString - The relative path to check.
+   * @returns `true` if the path is a file, otherwise `false`.
+   */
+  function isFile(fileString: string): boolean;
 
   /**
    * Writes the provided content to a file relative to the base path.

@@ -5,19 +5,19 @@
     <div class="container mx-auto px-4">
         <!-- Header -->
         <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
-            <h1 class="text-3xl font-bold">Records</h1>
+            <h1 class="text-3xl font-bold">{{ request().__('records') }}</h1>
 
             <!-- Filters -->
             <div class="flex flex-col sm:flex-row gap-3">
                 <!-- Search Input -->
-                <input 
-                    type="text" 
-                    id="searchInput" 
-                    placeholder="Search records..."
+                <input
+                    type="text"
+                    id="searchInput"
+                    placeholder="{{ request().__('search_records_placeholder') }}"
                     class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-gray-500"
                 />
 
-                
+
             </div>
         </div>
 

@@ -34,7 +34,7 @@ export default class FileStore extends AbstractStore {
       path.normalize(this.path),
       path.normalize(`${newKey}.cache.json`),
     );
-    if (!(await pathExist(filePath))) {
+    if (!pathExists(filePath)) {
       return null; // Key does not exist
     }
 
@@ -68,7 +68,7 @@ export default class FileStore extends AbstractStore {
       path.normalize(`${newKey}.cache.json`),
     );
     // ask always if the path exist then write the file
-    if (!(await pathExist(filePath))) {
+    if (!pathExists(filePath)) {
       makeDir(path.dirname(filePath));
     }
     writeFile(filePath, jsonEncode(cacheItem));
@@ -82,7 +82,7 @@ export default class FileStore extends AbstractStore {
       path.normalize(this.path),
       path.normalize(`${newKey}.cache.json`),
     );
-    if (await pathExist(filePath)) {
+    if (pathExists(filePath)) {
       Deno.removeSync(filePath);
     }
   }
@@ -107,7 +107,7 @@ export default class FileStore extends AbstractStore {
   #initialized = false;
   private async init() {
     if (this.#initialized) return;
-    if (!(await pathExist(this.path))) {
+    if (!pathExists(this.path)) {
       makeDir(this.path);
     }
     this.#initialized = true;
@@ -122,11 +122,21 @@ export default class FileStore extends AbstractStore {
     const now = time();
     const files = Deno.readDirSync(this.path);
     for (const file of files) {
-      if (file.isFile && file.name.endsWith(".cache.json") && file.name.startsWith(this.prefix)) {
+      if (
+        file.isFile &&
+        file.name.endsWith(".cache.json") &&
+        file.name.startsWith(this.prefix)
+      ) {
         try {
-          const fileValue = jsonDecode(getFileContents(path.join(path.normalize(this.path), path.normalize(file.name))));
+          const fileValue = jsonDecode(
+            getFileContents(
+              path.join(path.normalize(this.path), path.normalize(file.name)),
+            ),
+          );
           if (fileValue?.expiresAt && now > fileValue.expiresAt) {
-            Deno.removeSync(path.join(path.normalize(this.path), path.normalize(file.name)));
+            Deno.removeSync(
+              path.join(path.normalize(this.path), path.normalize(file.name)),
+            );
           }
         } catch (error) {
           console.error(`Error deleting file "${file.name}":`, error);

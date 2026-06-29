@@ -30,15 +30,15 @@
 				<span class="guest-brand text-xl font-bold">{{ env('GUILD_NAME') }}</span>
 			</div>
 			<div class="hidden md:flex gap-3 items-center">
-				<a href="{{ route('welcome') }}#about" class="guest-link px-2 py-1 rounded transition">About</a>
-				<a href="{{ route('welcome') }}#features" class="guest-link px-2 py-1 rounded transition">Features</a>
-				<a href="{{ route('welcome') }}#classes" class="guest-link px-2 py-1 rounded transition">Classes</a>
-				<a href="{{ route('welcome') }}#join" class="guest-link px-2 py-1 rounded transition">Join Us</a>
+				<a href="{{ route('welcome') }}#about" class="guest-link px-2 py-1 rounded transition">{{ request().__('about') }}</a>
+				<a href="{{ route('welcome') }}#features" class="guest-link px-2 py-1 rounded transition">{{ request().__('features') }}</a>
+				<a href="{{ route('welcome') }}#classes" class="guest-link px-2 py-1 rounded transition">{{ request().__('classes') }}</a>
+				<a href="{{ route('welcome') }}#join" class="guest-link px-2 py-1 rounded transition">{{ request().__('join_us') }}</a>
 				<!-- login button -->
 				@if(!removeLoginButton)
-					<a href="{{ route('login') }}" class="guest-link px-2 py-1 rounded transition">Login</a>
+					<a href="{{ route('login') }}" class="guest-link px-2 py-1 rounded transition">{{ request().__('login') }}</a>
 				@end
-				<button id="themeToggleGuestDefault" type="button" class="theme-toggle px-3 py-1 rounded text-sm transition">🌙 Dark</button>
+				<button id="themeToggleGuestDefault" type="button" class="theme-toggle px-3 py-1 rounded text-sm transition">{{ request().__('dark_theme') }}</button>
 			</div>
 		</div>
 	</nav>
@@ -49,7 +49,7 @@
 		<div class="container mx-auto px-4">
 			<div class="text-center mb-6">
 				<h3 class="guest-title text-2xl font-bold mb-2">{{ env('GUILD_NAME') }}</h3>
-				<p class="guest-soft">Where legends are forged and friendships last forever</p>
+				<p class="guest-soft">{{ request().__('where_legends') }}</p>
 			</div>
 			<div class="flex justify-center gap-6 mb-6 text-3xl">
 				<a href="#" class="guest-link guest-soft transition" title="Discord">💬</a>
@@ -58,8 +58,8 @@
 			</div>
 			<div class="text-center guest-copy space-y-2">
 				<p>&copy; 2026 {{ env('GUILD_NAME') }} Guild — Dragon Nest SEA</p>
-				<p class="text-sm guest-soft">Not affiliated with Eyedentity Games or PlayPark. For fans, by fans.</p>
-				<p class="text-xs guest-muted">Made with ❤️ for the Dragon Nest SEA Community</p>
+				<p class="text-sm guest-soft">{{ request().__('not_affiliated') }}</p>
+				<p class="text-xs guest-muted">{{ request().__('made_with_love') }}</p>
 			</div>
 		</div>
 	</footer>

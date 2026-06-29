@@ -5,7 +5,7 @@ export async function myError(
   c: MyContext,
   code: ContentfulStatusCode = 404,
   message: string = "Not Found",
-  headers: Record<string, string> = {}
+  headers: Record<string, string> = {},
 ) {
   const extractMyHono = c.get("myHono");
   const request = extractMyHono?.request;
@@ -18,12 +18,12 @@ export async function myError(
         message,
       },
       code,
-      headers
+      headers,
     );
   }
 
   // this is for html
-  if (!(await pathExist(viewPath(`error/${code}.edge`)))) {
+  if (!pathExists(viewPath(`error/${code}.edge`))) {
     const content = getFileContents(honovelPath("hono/defaults/abort.stub"));
     const finalContent = content
       .replace(/{{ code }}/g, code.toString())
