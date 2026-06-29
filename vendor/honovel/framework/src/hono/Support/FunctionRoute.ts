@@ -1635,17 +1635,51 @@ export async function handleAction(
       return c.html(rendered, 200);
     } else if (data instanceof HonoRedirect) {
       saveSessionIfRedirect(request, data);
+      let redirectUrl: string = "";
       switch (data.type) {
         case "back":
-          // @ts-ignore //
-          return c.redirect(request.session.get("_previous.url") || "/", 302);
+          redirectUrl = (request.session.get("_previous.url") || "/") as string;
+          break;
         case "redirect":
         case "to":
         case "route":
-          return c.redirect(data.getTargetUrl(), 302);
+          redirectUrl = data.getTargetUrl();
+          break;
         default:
           throw new Error("Invalid use of redirect()");
       }
+      if (config("app.enable_locale")) {
+        const lang = request.getLanguage();
+        if (lang) {
+          const langPrefix = `/${lang}`;
+          if (
+            redirectUrl.startsWith("http://") ||
+            redirectUrl.startsWith("https://")
+          ) {
+            try {
+              const parsed = new URL(redirectUrl);
+              if (
+                !parsed.pathname.startsWith(`${langPrefix}/`) &&
+                parsed.pathname !== langPrefix
+              ) {
+                parsed.pathname = `${langPrefix}${parsed.pathname}`;
+                redirectUrl = parsed.toString();
+              }
+            } catch {
+              /* leave as-is */
+            }
+          } else {
+            if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
+            if (
+              !redirectUrl.startsWith(`${langPrefix}/`) &&
+              redirectUrl !== langPrefix
+            ) {
+              redirectUrl = `${langPrefix}${redirectUrl}`;
+            }
+          }
+        }
+      }
+      return c.redirect(redirectUrl, 302);
     } else if (data instanceof HonoResponse) {
       // @ts-ignore //
       const cookies = data.getCookies();
@@ -1731,20 +1765,52 @@ export async function exceptionToResponse(
     }
     if (firstResp instanceof HonoRedirect) {
       saveSessionIfRedirect(myHono.request, firstResp);
+      let redirectUrl: string = "";
       switch (firstResp.type) {
         case "back":
-          // @ts-ignore //
-          return c.redirect(
-            myHono.request.session.get("_previous.url") || "/",
-            302,
-          );
+          redirectUrl = (myHono.request.session.get("_previous.url") ||
+            "/") as string;
+          break;
         case "redirect":
         case "to":
         case "route":
-          return c.redirect(firstResp.getTargetUrl(), 302);
+          redirectUrl = firstResp.getTargetUrl();
+          break;
         default:
           throw new Error("Invalid use of redirect()");
       }
+      if (config("app.enable_locale")) {
+        const lang = myHono.request.getLanguage();
+        if (lang) {
+          const langPrefix = `/${lang}`;
+          if (
+            redirectUrl.startsWith("http://") ||
+            redirectUrl.startsWith("https://")
+          ) {
+            try {
+              const parsed = new URL(redirectUrl);
+              if (
+                !parsed.pathname.startsWith(`${langPrefix}/`) &&
+                parsed.pathname !== langPrefix
+              ) {
+                parsed.pathname = `${langPrefix}${parsed.pathname}`;
+                redirectUrl = parsed.toString();
+              }
+            } catch {
+              /* leave as-is */
+            }
+          } else {
+            if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
+            if (
+              !redirectUrl.startsWith(`${langPrefix}/`) &&
+              redirectUrl !== langPrefix
+            ) {
+              redirectUrl = `${langPrefix}${redirectUrl}`;
+            }
+          }
+        }
+      }
+      return c.redirect(redirectUrl, 302);
     }
     if (isset(firstResp)) {
       // stringify the response

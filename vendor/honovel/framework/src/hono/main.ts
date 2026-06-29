@@ -205,7 +205,7 @@ function buildIncomingUrl(requestUrl: URL): string {
   return `${protocol}://${incomingHost}/${uri || ""}`;
 }
 
-import { languageDetector, DetectorOptions } from "hono/language";
+import { DetectorOptions, languageDetector } from "hono/language";
 
 const i18n = {
   order: ["path", "querystring", "cookie", "header"],
@@ -224,7 +224,7 @@ const i18n = {
     httpOnly: true,
   },
   debug: false,
-};
+} as DetectorOptions;
 
 class Server {
   private static Hono = Hono;
