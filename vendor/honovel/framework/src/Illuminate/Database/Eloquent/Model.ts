@@ -843,6 +843,19 @@ export default class Model<T extends ModelAttributes = ModelAttributes> {
   }
 
   /**
+   * Add a raw ORDER BY expression to the query.
+   * @param raw A SQLRaw expression; pass user values as `?` placeholders.
+   * @param bindings Values bound to the placeholders in `raw`, in order.
+   * @returns The query builder instance.
+   */
+  public static orderByRaw(raw: SQLRaw, bindings: unknown[] = []): Builder {
+    return new Builder({
+      model: this,
+      fields: ["*"],
+    }).orderByRaw(raw, bindings);
+  }
+
+  /**
    * Get all records from the database.
    * @returns An array of model instances.
    */

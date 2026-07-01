@@ -8,7 +8,7 @@
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
 	<meta name="keywords" content="Dragon Nest SEA, Guild, Community, Philippines">
 	<meta name="author" content="Kiratrizon">
-	@icon('assets/pecu-logo.png')
+	@icon('assets/peculiarlads-icon-dark.png')
 	<title>{{ env('GUILD_NAME') }} | {{ $title }}</title>
 	@vite('resources/ts/app.ts')
 	@vite('resources/css/dark.css')
@@ -40,7 +40,6 @@
 
 	.dashboard-brand,
 	.dashboard-title,
-	.theme-button,
 	.sidebar-toggle {
 		color: var(--accent);
 	}
@@ -55,12 +54,10 @@
 		color: var(--accent);
 	}
 
-	.theme-button,
 	.sidebar-toggle {
 		border-color: var(--border);
 	}
 
-	.theme-button:hover,
 	.sidebar-toggle:hover {
 		background: var(--hover);
 	}
@@ -77,7 +74,7 @@
 
 </head>
 
-<body class="dashboard-shell min-h-screen flex" data-theme="dark">
+<body class="dashboard-shell min-h-screen flex" data-theme="dark-abyss">
 
 @let(routePrefix = $entity === "Admin" ? "admin" : ($entity === "User" ? "user" : ""))
 
@@ -87,7 +84,7 @@
 	class="dashboard-sidebar fixed inset-y-0 left-0 z-40 w-64 -translate-x-full backdrop-blur-md border-r flex flex-col transition-all duration-300 ease-in-out lg:static lg:translate-x-0 lg:z-auto">
 
 	<div class="p-6 border-b flex items-center gap-2" style="border-color: var(--border);">
-		<span class="text-2xl shrink-0">🐉</span>
+		<img class="theme-icon h-6 w-6 shrink-0" src="/assets/peculiarlads-icon-dark.png" alt="{{ env('GUILD_NAME') }}" />
 		<span class="dashboard-brand text-lg font-bold sidebar-label">
 			{{ env('GUILD_NAME') }}
 		</span>
@@ -107,6 +104,12 @@
 			<span class="sidebar-label">{{ request().__('guild_members') }}</span>
 		</a>
 
+		<a href="{{ route(`${routePrefix}.characters`) }}"
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'characters' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">⚔️</span>
+			<span class="sidebar-label">{{ request().__('characters') }}</span>
+		</a>
+
 		<a href="{{ route(`${routePrefix}.events`) }}"
 		class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'events' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📅</span>
@@ -119,11 +122,6 @@
 		</a>
 
 		@if($entity === "Admin")
-		<a href="{{ route('admin.characters') }}"
-		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'characters' ? 'nav-link-active cursor-not-allowed' : '' }}">
-			<span class="shrink-0">⚔️</span>
-			<span class="sidebar-label">{{ request().__('characters') }}</span>
-		</a>
 		<a href="{{ route(`${routePrefix}.recruits`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'recruits' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📝</span>
@@ -172,9 +170,12 @@
 
 		<div class="flex items-center gap-4">
 
-			<button id="themeToggle" type="button" class="theme-button inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 text-sm transition">
-				{{ request().__('dark_theme') }}
-			</button>
+			<select id="themeSelect" class="theme-select" aria-label="{{ request().__('theme') }}">
+				<option value="dark-abyss">{{ request().__('theme_dark_abyss') }}</option>
+				<option value="lightning-blaze">{{ request().__('theme_lightning_blaze') }}</option>
+				<option value="icy-moon">{{ request().__('theme_icy_moon') }}</option>
+				<option value="heatwave">{{ request().__('theme_heatwave') }}</option>
+			</select>
 
 			<div class="greeting-text text-sm">
 				Hello, {{ request().user()?.name ?? 'Adventurer' }}!
@@ -213,9 +214,7 @@
 	const backdrop = document.getElementById("sidebarBackdrop");
 	const mobileToggle = document.getElementById("sidebarToggleMobile");
 	const desktopToggle = document.getElementById("sidebarToggleDesktop");
-	const themeToggle = document.getElementById("themeToggle");
 	const labels = document.querySelectorAll(".sidebar-label");
-	const body = document.body;
 	const isDesktop = () => window.matchMedia("(min-width: 1024px)").matches;
 
 	const setDesktopCollapse = (collapsed) => {
@@ -254,19 +253,7 @@
 		setDesktopCollapse(Boolean(collapsed));
 	});
 
-	const applyTheme = (theme) => {
-		const normalized = theme === "light" ? "light" : "dark";
-		body.setAttribute("data-theme", normalized);
-		if (themeToggle) {
-			themeToggle.textContent = normalized === "light" ? "☀️ Light" : "🌙 Dark";
-		}
-		localStorage.setItem("pecu:theme", normalized);
-	};
-
-	themeToggle?.addEventListener("click", () => {
-		const next = body.getAttribute("data-theme") === "dark" ? "light" : "dark";
-		applyTheme(next);
-	});
+	// Theme selection is handled globally by resources/ts/app.ts
 
 	window.addEventListener("resize", () => {
 		if (isDesktop()) {
@@ -279,10 +266,6 @@
 			sidebar?.classList.add("-translate-x-full");
 		}
 	});
-
-	const storedTheme = localStorage.getItem("pecu:theme");
-	const preferredTheme = storedTheme || "dark";
-	applyTheme(preferredTheme);
 
 	if (isDesktop()) {
 		const collapsed = localStorage.getItem("pecu:sidebar-collapsed") === "1";

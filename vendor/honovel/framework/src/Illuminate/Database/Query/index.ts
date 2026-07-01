@@ -44,6 +44,11 @@ export type WhereOperator =
 
 type JoinType = "INNER" | "LEFT" | "RIGHT" | "FULL" | "CROSS";
 type OrderByDirection = "ASC" | "DESC" | "asc" | "desc";
+// An ORDER BY entry is either a quoted column + direction, or a raw SQL
+// expression carrying its own placeholder bindings (see `orderByRaw`).
+type OrderByEntry =
+  | { kind: "column"; expr: string; direction: OrderByDirection }
+  | { kind: "raw"; expr: string; bindings: WhereValue[] };
 type WhereSeparator = "AND" | "OR";
 const placeHolderuse: string = "?";
 
@@ -486,7 +491,7 @@ export class JoinInterpolator extends WhereInterpolator {
 export class Builder extends WhereInterpolator {
   private limitValue: number | null = null;
   private offsetValue: number | null = null;
-  private orderByValue: Record<string, OrderByDirection>[] = [];
+  private orderByValue: OrderByEntry[] = [];
   private groupByValue: string[] = [];
   #bindings: Record<string, WhereValue[]> = {};
   #params: WherePrimitive[] = [];
@@ -929,7 +934,33 @@ export class Builder extends WhereInterpolator {
       throw new SQLError("Invalid order direction");
     }
     this.orderByValue.push({
-      [this.database.quoteIdentifier(column)]: direction,
+      kind: "column",
+      expr: this.database.quoteIdentifier(column),
+      direction,
+    });
+    return this;
+  }
+
+  /**
+   * Add a raw ORDER BY expression to the query.
+   *
+   * Use this only for orderings the quoted `orderBy` cannot express (e.g.
+   * `FIELD(status, ...)`, `CASE WHEN ...`, computed expressions). The raw SQL
+   * is emitted verbatim, so it MUST NOT contain user input as text — pass any
+   * user-supplied values as `?` placeholders and provide them via `bindings`.
+   *
+   * @param raw A SQLRaw expression (e.g. `DB.raw("FIELD(status, ?, ?)")`).
+   * @param bindings Values bound to the placeholders in `raw`, in order.
+   * @returns The query builder instance.
+   */
+  public orderByRaw(raw: SQLRaw, bindings: WhereValue[] = []): this {
+    if (!(raw instanceof SQLRaw)) {
+      throw new SQLError("Invalid raw order by clause");
+    }
+    this.orderByValue.push({
+      kind: "raw",
+      expr: raw.toString(),
+      bindings: [...bindings],
     });
     return this;
   }
@@ -1087,9 +1118,11 @@ export class Builder extends WhereInterpolator {
         " ORDER BY " +
         orderBy
           .map((order) => {
-            const column = Object.keys(order)[0];
-            const direction = order[column];
-            return `${column} ${direction}`;
+            if (order.kind === "raw") {
+              this.#params.push(...order.bindings);
+              return order.expr;
+            }
+            return `${order.expr} ${order.direction}`;
           })
           .join(", ");
     }

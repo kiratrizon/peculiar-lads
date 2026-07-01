@@ -5,8 +5,12 @@
 	<!-- Hero Section -->
 	<header class="relative z-10 py-16 md:py-24 px-4">
 		<div class="container mx-auto flex flex-col items-center text-center">
-			<div class="mb-6 pulse-glow rounded-full p-2 bg-gradient-to-r from-gray-600 to-gray-400">
-				<span class="text-6xl md:text-8xl">🐲</span>
+			<div class="mb-6 pulse-glow rounded-full overflow-hidden p-2 hero-round-mark">
+				<img
+					class="theme-icon h-16 w-16 md:h-24 md:w-24 rounded-full object-cover"
+					src="/assets/peculiarlads-icon-dark.png"
+					alt="{{ env('GUILD_NAME') }}"
+				/>
 			</div>
 			<h1 class="text-5xl md:text-7xl font-extrabold tracking-wide drop-shadow-2xl mb-4" style="color: var(--text-main);">
 				{{ env('GUILD_NAME') }}

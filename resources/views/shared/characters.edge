@@ -28,13 +28,11 @@
             <table class="w-full text-sm" style="color: var(--text-main);">
                 <thead style="color: var(--accent);">
                     <tr>
-                        <th class="px-4 py-2 text-left">{{ request().__('id') }}</th>
-                        <th class="px-4 py-2 text-left">{{ request().__('owner') }}</th>
-                        <th class="px-4 py-2 text-left">{{ request().__('discord') }}</th>
                         <th class="px-4 py-2 text-left">{{ request().__('ign') }}</th>
-                        <th class="px-4 py-2 text-left">{{ request().__('nstg_level') }}</th>
                         <th class="px-4 py-2 text-left">{{ request().__('class') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('nstg_level') }}</th>
                         <th class="px-4 py-2 text-left">{{ request().__('type') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('owner') }}</th>
                     </tr>
                 </thead>
 
@@ -42,32 +40,20 @@
                     @if($characters.getData().length > 0)
                         @each($character in $characters.getData())
                         <tr class="hover:bg-gray-500/10 transition duration-200">
-                            <td class="px-4 py-2 font-medium">
-                                {{ $character.id }}
-                            </td>
-
-                            <td class="px-4 py-2">
-                                {{ $character.nickname }}
-                            </td>
-
-                            <td class="px-4 py-2">
-                                {{ $character.discord }}
-                            </td>
-
                             <td class="px-4 py-2">
                                 {{ $character.ign }}
                             </td>
-
-                            <td class="px-4 py-2">
-                                <span style="font-weight: bold; color:green;">{{ $character.nstg }}</span> <span style="font-weight: bold; color:blue">{{ $character.duration ? `- 0${Math.floor($character.duration/60)}:${($character.duration%60) < 10 ? `0${$character.duration%60}`:$character.duration%60}` : '' }}</span>
-                            </td>
-
                             <td class="px-4 py-2">
                                 {{ $character.class }}
                             </td>
-
+                            <td class="px-4 py-2">
+                                <span style="font-weight: bold; color:green;">{{ $character.nstg }}</span> <span style="font-weight: bold; color:blue">{{ $character.duration ? `- 0${Math.floor($character.duration/60)}:${($character.duration%60) < 10 ? `0${$character.duration%60}`:$character.duration%60}` : '' }}</span>
+                            </td>
                             <td class="px-4 py-2">
                                 {{ $character.main ? request().__('main') : request().__('sub') }}
+                            </td>
+                            <td class="px-4 py-2">
+                                <a href="{{ route(`${$entity == "Admin" ? "admin":"user"}.members.show`, {member:$character.uid}) }}">{{ $character.nickname }}</a>
                             </td>
                         </tr>
                         @end

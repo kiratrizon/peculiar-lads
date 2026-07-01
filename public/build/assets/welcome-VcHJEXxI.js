@@ -1,1 +1,0 @@
-import{j as r}from"./jquery.module-gzd0YkcT.js";import{S as t}from"./sweetalert2.esm.all-DVN6D7eS.js";r(document).ready(function(){const o=r("#message").val();o&&t.fire({title:"Thank you for your application!",text:o,icon:"success"});const e=r("#globalError").val();e&&t.fire({title:"Error",text:e,icon:"error"})});

@@ -14,6 +14,7 @@ class CharacterController extends Controller {
     const characterQuery = Character.query();
 
     const fields = [
+      "users.id as uid",
       "characters.id",
       "characters.ign",
       "nstg_level.code as nstg",
@@ -21,7 +22,7 @@ class CharacterController extends Controller {
       "users.discord",
       "users.name as nickname",
       "characters.main",
-      "characters.duration",
+      "COALESCE(characters.duration, null) AS duration",
     ];
 
     characterQuery.select(...fields.map((e) => DB.raw(e)));
@@ -46,7 +47,8 @@ class CharacterController extends Controller {
     }
 
     characterQuery.orderBy("characters.nstg_level_id", "desc");
-    characterQuery.orderBy("characters.duration", "desc");
+    characterQuery.orderByRaw(DB.raw("characters.duration is null"));
+    characterQuery.orderBy("characters.duration");
 
     const characters = await characterQuery.paginate(
       page,
