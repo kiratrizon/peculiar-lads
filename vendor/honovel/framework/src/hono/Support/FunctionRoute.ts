@@ -1618,7 +1618,7 @@ export async function handleAction(
       // @ts-ignore //
       data.addTags(tags);
 
-      const rendered = await data.element();
+      const rendered = await data.element(c.get("_variables"));
       statusCode = 200;
       // move all new to old
       const sessionFlashData = request.session.get(
@@ -1648,37 +1648,37 @@ export async function handleAction(
         default:
           throw new Error("Invalid use of redirect()");
       }
-      if (config("app.enable_locale")) {
-        const lang = request.getLanguage();
-        if (lang) {
-          const langPrefix = `/${lang}`;
-          if (
-            redirectUrl.startsWith("http://") ||
-            redirectUrl.startsWith("https://")
-          ) {
-            try {
-              const parsed = new URL(redirectUrl);
-              if (
-                !parsed.pathname.startsWith(`${langPrefix}/`) &&
-                parsed.pathname !== langPrefix
-              ) {
-                parsed.pathname = `${langPrefix}${parsed.pathname}`;
-                redirectUrl = parsed.toString();
-              }
-            } catch {
-              /* leave as-is */
-            }
-          } else {
-            if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
-            if (
-              !redirectUrl.startsWith(`${langPrefix}/`) &&
-              redirectUrl !== langPrefix
-            ) {
-              redirectUrl = `${langPrefix}${redirectUrl}`;
-            }
-          }
-        }
-      }
+      // if (config("app.enable_locale")) {
+      //   const lang = request.getLanguage();
+      //   if (lang) {
+      //     const langPrefix = `/${lang}`;
+      //     if (
+      //       redirectUrl.startsWith("http://") ||
+      //       redirectUrl.startsWith("https://")
+      //     ) {
+      //       try {
+      //         const parsed = new URL(redirectUrl);
+      //         if (
+      //           !parsed.pathname.startsWith(`${langPrefix}/`) &&
+      //           parsed.pathname !== langPrefix
+      //         ) {
+      //           parsed.pathname = `${langPrefix}${parsed.pathname}`;
+      //           redirectUrl = parsed.toString();
+      //         }
+      //       } catch {
+      //         /* leave as-is */
+      //       }
+      //     } else {
+      //       if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
+      //       if (
+      //         !redirectUrl.startsWith(`${langPrefix}/`) &&
+      //         redirectUrl !== langPrefix
+      //       ) {
+      //         redirectUrl = `${langPrefix}${redirectUrl}`;
+      //       }
+      //     }
+      //   }
+      // }
       return c.redirect(redirectUrl, 302);
     } else if (data instanceof HonoResponse) {
       // @ts-ignore //
@@ -1760,7 +1760,7 @@ export async function exceptionToResponse(
       return convertToResponse(c, res);
     }
     if (firstResp instanceof HonoView) {
-      const rendered = await firstResp.element();
+      const rendered = await firstResp.element(c.get("_variables"));
       return c.html(rendered, 200);
     }
     if (firstResp instanceof HonoRedirect) {
@@ -1779,37 +1779,37 @@ export async function exceptionToResponse(
         default:
           throw new Error("Invalid use of redirect()");
       }
-      if (config("app.enable_locale")) {
-        const lang = myHono.request.getLanguage();
-        if (lang) {
-          const langPrefix = `/${lang}`;
-          if (
-            redirectUrl.startsWith("http://") ||
-            redirectUrl.startsWith("https://")
-          ) {
-            try {
-              const parsed = new URL(redirectUrl);
-              if (
-                !parsed.pathname.startsWith(`${langPrefix}/`) &&
-                parsed.pathname !== langPrefix
-              ) {
-                parsed.pathname = `${langPrefix}${parsed.pathname}`;
-                redirectUrl = parsed.toString();
-              }
-            } catch {
-              /* leave as-is */
-            }
-          } else {
-            if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
-            if (
-              !redirectUrl.startsWith(`${langPrefix}/`) &&
-              redirectUrl !== langPrefix
-            ) {
-              redirectUrl = `${langPrefix}${redirectUrl}`;
-            }
-          }
-        }
-      }
+      // if (config("app.enable_locale")) {
+      //   const lang = myHono.request.getLanguage();
+      //   if (lang) {
+      //     const langPrefix = `/${lang}`;
+      //     if (
+      //       redirectUrl.startsWith("http://") ||
+      //       redirectUrl.startsWith("https://")
+      //     ) {
+      //       try {
+      //         const parsed = new URL(redirectUrl);
+      //         if (
+      //           !parsed.pathname.startsWith(`${langPrefix}/`) &&
+      //           parsed.pathname !== langPrefix
+      //         ) {
+      //           parsed.pathname = `${langPrefix}${parsed.pathname}`;
+      //           redirectUrl = parsed.toString();
+      //         }
+      //       } catch {
+      //         /* leave as-is */
+      //       }
+      //     } else {
+      //       if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
+      //       if (
+      //         !redirectUrl.startsWith(`${langPrefix}/`) &&
+      //         redirectUrl !== langPrefix
+      //       ) {
+      //         redirectUrl = `${langPrefix}${redirectUrl}`;
+      //       }
+      //     }
+      //   }
+      // }
       return c.redirect(redirectUrl, 302);
     }
     if (isset(firstResp)) {

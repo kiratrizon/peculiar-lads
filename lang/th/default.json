@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "Select your class",
-  "select_nstg_placeholder": "Select your NSTG level"
+  "select_nstg_placeholder": "Select your NSTG level",
+  "name": "ชื่อ",
+  "joined": "เข้าร่วม",
+  "search_name_placeholder": "ค้นหาตามชื่อ...",
+  "search_discord_placeholder": "ค้นหาตาม Discord...",
+  "member_details": "รายละเอียดสมาชิก",
+  "member_id": "รหัสสมาชิก",
+  "characters": "ตัวละคร",
+  "schedules": "ตารางเวลา",
+  "date": "วันที่",
+  "time": "เวลา",
+  "activity": "กิจกรรม",
+  "no_characters_found": "ไม่พบตัวละคร",
+  "duration": "ระยะเวลา"
 }

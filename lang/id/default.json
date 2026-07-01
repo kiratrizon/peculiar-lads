@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "Select your class",
-  "select_nstg_placeholder": "Select your NSTG level"
+  "select_nstg_placeholder": "Select your NSTG level",
+  "name": "Nama",
+  "joined": "Bergabung",
+  "search_name_placeholder": "Cari berdasarkan nama...",
+  "search_discord_placeholder": "Cari berdasarkan Discord...",
+  "member_details": "Detail anggota",
+  "member_id": "ID anggota",
+  "characters": "Karakter",
+  "schedules": "Jadwal",
+  "date": "Tanggal",
+  "time": "Waktu",
+  "activity": "Aktivitas",
+  "no_characters_found": "Tidak ada karakter yang ditemukan",
+  "duration": "Durasi"
 }

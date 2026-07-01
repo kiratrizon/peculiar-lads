@@ -598,8 +598,8 @@ globalFn("strToTime", function (time, now) {
 });
 
 globalFn("date", function (format: string, unixTimestamp = null) {
-  const result = Carbon.createFromTimestamp(unixTimestamp, format);
-  return result.toString();
+  const result = Carbon.createFromTimestamp(unixTimestamp, format).toString();
+  return result;
 });
 
 globalFn("time", () => {

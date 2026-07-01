@@ -1,0 +1,93 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6">
+    <h1>{{ request().__('characters') }}</h1>
+</div>
+
+<div class="flex justify-center gap-2">
+    <input type="text" id="search_ign" placeholder="{{ request().__('search_members_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $search_ign ?? '' }}">
+    <button id="search-button" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: var(--accent); color: var(--bg-1);">{{ request().__('search') }}</button>
+</div>
+
+<section class="flex flex-col items-center justify-center flex-1 px-4 py-10">
+    <div class="w-full max-w-7xl backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-2xl font-bold" style="color: var(--accent);">
+                {{ request().__('characters') }}
+            </h2>
+            <p class="text-sm text-gray-500">
+                {{ request().__('list_registered_members') }}
+            </p>
+        </div>
+
+        <!-- Table -->
+        <div class="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+            <table class="w-full text-sm" style="color: var(--text-main);">
+                <thead style="color: var(--accent);">
+                    <tr>
+                        <th class="px-4 py-2 text-left">{{ request().__('id') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('owner') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('discord') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('ign') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('nstg_level') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('class') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('type') }}</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-500/20">
+                    @if($characters.getData().length > 0)
+                        @each($character in $characters.getData())
+                        <tr class="hover:bg-gray-500/10 transition duration-200">
+                            <td class="px-4 py-2 font-medium">
+                                {{ $character.id }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $character.nickname }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $character.discord }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $character.ign }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                <span style="font-weight: bold; color:green;">{{ $character.nstg }}</span> <span style="font-weight: bold; color:blue">{{ $character.duration ? `- 0${Math.floor($character.duration/60)}:${($character.duration%60) < 10 ? `0${$character.duration%60}`:$character.duration%60}` : '' }}</span>
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $character.class }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $character.main ? request().__('main') : request().__('sub') }}
+                            </td>
+                        </tr>
+                        @end
+                    @else
+                    <tr>
+                        <td colspan="7" class="px-4 py-8 text-center" style="color: var(--text-soft);">{{ request().__('no_characters_found') }}</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 py-2 flex justify-center">
+            {{{ $characters.html() }}}
+        </div>
+    </div>
+</section>
+
+@vite('resources/ts/shared/characters.ts')
+@end
+
+@endlayouts.pecu.dashboard

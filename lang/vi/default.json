@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "Select your class",
-  "select_nstg_placeholder": "Select your NSTG level"
+  "select_nstg_placeholder": "Select your NSTG level",
+  "name": "Tên",
+  "joined": "Ngày tham gia",
+  "search_name_placeholder": "Tìm theo tên...",
+  "search_discord_placeholder": "Tìm theo Discord...",
+  "member_details": "Chi tiết thành viên",
+  "member_id": "ID thành viên",
+  "characters": "Nhân vật",
+  "schedules": "Lịch trình",
+  "date": "Ngày",
+  "time": "Giờ",
+  "activity": "Hoạt động",
+  "no_characters_found": "Không tìm thấy nhân vật",
+  "duration": "Thời lượng"
 }

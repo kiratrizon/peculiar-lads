@@ -12,6 +12,7 @@ export type UserSchema = {
   name: string;
   api_token?: string;
   discord: string;
+  deactivated: boolean;
 };
 
 class User extends Authenticatable<UserSchema> implements JWTSubject {
@@ -22,6 +23,7 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     "name",
     "api_token",
     "discord",
+    "deactivated",
   ];
   protected static override _guarded: string[] = [];
 
@@ -40,10 +42,6 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
 
   public getJWTIdentifier(): string | number {
     return this.getAuthIdentifier() || "";
-  }
-
-  public userCharacters() {
-    return this.hasMany(UserCharacter);
   }
 
   public characters() {

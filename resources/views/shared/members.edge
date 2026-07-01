@@ -1,0 +1,80 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6">
+    <h1>{{ request().__('members') }}</h1>
+</div>
+
+<!-- search bar here + button to search -->
+<div class="flex justify-center gap-2">
+    <input type="text" id="search_name" placeholder="{{ request().__('search_name_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchName ?? '' }}">
+    <input type="text" id="search_discord" placeholder="{{ request().__('search_discord_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchDiscord ?? '' }}">
+    <button id="search-button" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: var(--accent); color: var(--bg-1);">{{ request().__('search') }}</button>
+</div>
+
+<section class="flex flex-col items-center justify-center flex-1 px-4 py-10">
+    <div class="w-full max-w-7xl backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+
+        <!-- Header -->
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-2xl font-bold" style="color: var(--accent);">
+                {{ request().__('guild_members') }}
+            </h2>
+            <p class="text-sm text-gray-500">
+                {{ request().__('list_registered_members') }}
+            </p>
+        </div>
+
+        <!-- Table -->
+        <div class="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+            <table class="w-full text-sm" style="color: var(--text-main);">
+                <thead style="color: var(--accent);">
+                    <tr>
+                        <th class="px-4 py-2 text-left">{{ request().__('id') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('name') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('discord') }}</th>
+                        <th class="px-4 py-2 text-left">{{ request().__('joined') }}</th>
+                    </tr>
+                </thead>
+
+                <tbody class="divide-y divide-gray-500/20">
+                    @if($users.getData().length > 0)
+                        @each($user in $users.getData())
+                        <tr class="hover:bg-gray-500/10 transition duration-200">
+                            <td class="px-4 py-2 font-medium">
+                                <a href="{{ route(`${$entity == "Admin" ? "admin" : "user"}.members.show`, {member:$user.id}) }}" class="inline-block px-2 py-0.5 rounded text-xs font-semibold tracking-wide transition-all duration-200 hover:opacity-80 hover:scale-105 cursor-pointer" style="background: var(--accent); color: var(--bg-1);">{{ $user.id }}</a>
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $user.name }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ $user.discord }}
+                            </td>
+
+                            <td class="px-4 py-2">
+                                {{ date("F j, Y", strToTime($user.joined)) }}
+                            </td>
+                        </tr>
+                        @end
+                    @else
+                    <tr>
+                        <td colspan="10" class="px-4 py-8 text-center" style="color: var(--text-soft);">{{ request().__('no_members_found') }}</td>
+                    </tr>
+                    @endif
+                </tbody>
+            </table>
+        </div>
+
+        <!-- Pagination -->
+        <div class="px-4 py-2 flex justify-center">
+            {{{ $users.html() }}}
+        </div>
+    </div>
+</section>
+
+@vite('resources/ts/shared/members.ts')
+@end
+
+@endlayouts.pecu.dashboard

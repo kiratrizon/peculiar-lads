@@ -9,6 +9,7 @@ export default class IsAdmin {
 
       return redirect().route("admin.login", { redirect: redirectUrl });
     }
+    request.set("entity", "Admin");
     return next();
   };
 }

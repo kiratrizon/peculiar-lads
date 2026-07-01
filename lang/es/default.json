@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "Selecciona tu clase",
-  "select_nstg_placeholder": "Selecciona tu nivel NSTG"
+  "select_nstg_placeholder": "Selecciona tu nivel NSTG",
+  "name": "Nombre",
+  "joined": "Miembro desde",
+  "search_name_placeholder": "Buscar por nombre...",
+  "search_discord_placeholder": "Buscar por Discord...",
+  "member_details": "Detalles del miembro",
+  "member_id": "ID de miembro",
+  "characters": "Personajes",
+  "schedules": "Horarios",
+  "date": "Fecha",
+  "time": "Hora",
+  "activity": "Actividad",
+  "no_characters_found": "No se encontraron personajes",
+  "duration": "Duración"
 }

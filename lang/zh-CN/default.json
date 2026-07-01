@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "选择职业",
-  "select_nstg_placeholder": "选择你的NSTG等级"
+  "select_nstg_placeholder": "选择你的NSTG等级",
+  "name": "名称",
+  "joined": "加入时间",
+  "search_name_placeholder": "按名称搜索...",
+  "search_discord_placeholder": "按Discord搜索...",
+  "member_details": "会员详细信息",
+  "member_id": "会员ID",
+  "characters": "角色",
+  "schedules": "日程",
+  "date": "日期",
+  "time": "时间",
+  "activity": "活动",
+  "no_characters_found": "未找到角色",
+  "duration": "持续时间"
 }

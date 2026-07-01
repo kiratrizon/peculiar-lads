@@ -10,4 +10,13 @@ use paginate and use tailwind
 /admin/settings
 should be a user's details like editing or updating info
 
-/
+/admin/members/{id}
+use the resources/views/shared/members-show.edge
+it should have 2 <table></table>
+first is user's characters
+second is his schedules
+please use static design first
+
+/admin/characters
+this one should be paginated
+a list of all characters in the guild

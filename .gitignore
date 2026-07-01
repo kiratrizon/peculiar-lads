@@ -18,3 +18,5 @@ node_modules
 /deno.jsonc
 /tmp
 .env
+
+.specify

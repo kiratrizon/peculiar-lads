@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "選擇職業",
-  "select_nstg_placeholder": "選擇你的NSTG等級"
+  "select_nstg_placeholder": "選擇你的NSTG等級",
+  "name": "名稱",
+  "joined": "加入時間",
+  "search_name_placeholder": "按名稱搜尋...",
+  "search_discord_placeholder": "按Discord搜尋...",
+  "member_details": "會員詳細資訊",
+  "member_id": "會員ID",
+  "characters": "角色",
+  "schedules": "行程",
+  "date": "日期",
+  "time": "時間",
+  "activity": "活動",
+  "no_characters_found": "找不到角色",
+  "duration": "持續時間"
 }

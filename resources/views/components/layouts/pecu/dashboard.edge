@@ -101,7 +101,7 @@
 			<span class="sidebar-label">{{ request().__('home') }}</span>
 		</a>
 
-		<a href="{{ route(`${routePrefix}.members`) }}"
+		<a href="{{ route(`${routePrefix}.members.index`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'members' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">👥</span>
 			<span class="sidebar-label">{{ request().__('guild_members') }}</span>
@@ -119,6 +119,11 @@
 		</a>
 
 		@if($entity === "Admin")
+		<a href="{{ route('admin.characters') }}"
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'characters' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">⚔️</span>
+			<span class="sidebar-label">{{ request().__('characters') }}</span>
+		</a>
 		<a href="{{ route(`${routePrefix}.recruits`) }}"
 		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'recruits' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📝</span>

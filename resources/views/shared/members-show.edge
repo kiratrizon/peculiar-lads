@@ -1,0 +1,82 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6">
+    <h1>{{ request().__('members') }}</h1>
+</div>
+
+<section class="flex flex-col items-center justify-center flex-1 px-4 py-10">
+    <div class="w-full max-w-7xl backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+
+        <div class="px-6 py-5 border-b border-gray-200">
+            <h2 class="text-2xl font-bold" style="color: var(--accent);">{{ $user.name }} - {{ request().__('member_details') }}</h2>
+            <p class="text-sm text-gray-500">{{ $user.discord }} • {{ request().__('member_id') }}: {{ $user.id }}</p>
+        </div>
+
+        <div class="grid gap-6 mt-6">
+            <div class="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+                <h3 class="text-xl font-semibold mb-4" style="color: var(--accent);">{{ request().__('characters') }}</h3>
+                <table class="w-full text-sm" style="color: var(--text-main);">
+                    <thead style="color: var(--accent);">
+                        <tr>
+                            <th class="px-4 py-2 text-left">{{ request().__('id') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('ign') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('nstg_level') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('class') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('type') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('duration') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-500/20">
+                        @if($characters.length > 0)
+                            @each($character in $characters)
+                            <tr class="hover:bg-gray-500/10 transition duration-200">
+                                <td class="px-4 py-2 font-medium">{{ $character.id }}</td>
+                                <td class="px-4 py-2">{{ $character.ign }}</td>
+                                <td class="px-4 py-2">{{ $character.nstg }}</td>
+                                <td class="px-4 py-2">{{ $character.class }}</td>
+                                <td class="px-4 py-2">{{ $character.main ? request().__('main') : request().__('sub') }}</td>
+                                <td class="px-4 py-2">{{ $character.duration ? `${Math.floor($character.duration / 60)}m ${$character.duration % 60}s` : "-" }}</td>
+                            </tr>
+                            @end
+                        @else
+                        <tr>
+                            <td colspan="6" class="px-4 py-8 text-center" style="color: var(--text-soft);">{{ request().__('no_characters_found') }}</td>
+                        </tr>
+                        @endif
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="backdrop-blur-xl border rounded-2xl p-4 shadow-2xl overflow-x-auto" style="background: var(--panel); border-color: var(--border);">
+                <h3 class="text-xl font-semibold mb-4" style="color: var(--accent);">{{ request().__('schedules') }}</h3>
+                <table class="w-full text-sm" style="color: var(--text-main);">
+                    <thead style="color: var(--accent);">
+                        <tr>
+                            <th class="px-4 py-2 text-left">{{ request().__('date') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('time') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('activity') }}</th>
+                            <th class="px-4 py-2 text-left">{{ request().__('status') }}</th>
+                        </tr>
+                    </thead>
+                    <tbody class="divide-y divide-gray-500/20">
+                        @each($schedule in $schedules)
+                        <tr class="hover:bg-gray-500/10 transition duration-200">
+                            <td class="px-4 py-2">{{ $schedule.date }}</td>
+                            <td class="px-4 py-2">{{ $schedule.time }}</td>
+                            <td class="px-4 py-2">{{ $schedule.activity }}</td>
+                            <td class="px-4 py-2">{{ $schedule.status }}</td>
+                        </tr>
+                        @end
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</section>
+
+@end
+
+@vite('resources/ts/shared/member-show.ts')
+
+@endlayouts.pecu.dashboard

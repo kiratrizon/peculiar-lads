@@ -5,6 +5,8 @@ import AllowedUser from "App/Http/Middlewares/AllowedUser.ts";
 import IsUser from "App/Http/Middlewares/IsUser.ts";
 import SavePath from "App/Http/Middlewares/SavePath.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
+import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
+import BindUser from "App/Http/Middlewares/BindUser.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -17,6 +19,8 @@ export default Application.withRouting({
       allowed_user: AllowedUser,
       isUser: IsUser,
       save_path: SavePath,
+      set_lang: LanguageSetter,
+      bind_member: BindUser,
     });
   })
   .withExceptions((exceptions) => {

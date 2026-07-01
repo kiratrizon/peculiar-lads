@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "クラスを選択",
-  "select_nstg_placeholder": "NSTGレベルを選択"
+  "select_nstg_placeholder": "NSTGレベルを選択",
+  "name": "名前",
+  "joined": "参加日",
+  "search_name_placeholder": "名前で検索...",
+  "search_discord_placeholder": "Discordで検索...",
+  "member_details": "メンバー詳細",
+  "member_id": "メンバーID",
+  "characters": "キャラクター",
+  "schedules": "スケジュール",
+  "date": "日付",
+  "time": "時間",
+  "activity": "アクティビティ",
+  "no_characters_found": "キャラクターが見つかりません",
+  "duration": "時間"
 }

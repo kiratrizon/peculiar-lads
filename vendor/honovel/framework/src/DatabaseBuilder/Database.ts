@@ -25,7 +25,6 @@ import {
 import {
   QueryResult,
   QueryResultDerived,
-  sqlReservedWords,
 } from "./databaseTypes.ts";
 
 type TInsertOrUpdateBuilder = {
@@ -313,16 +312,14 @@ export class Database {
             const defaultOptions: SqlSrvConnectionConfig["options"] =
               forSQLServer.options;
             for (const host of defaultHosts) {
-              const pool = new mssql.ConnectionPool(
-                {
-                  host,
-                  port: defaultPort,
-                  user: defaultUser,
-                  password: defaultPassword,
-                  database: defaultDatabase,
-                  options: defaultOptions,
-                },
-              );
+              const pool = new mssql.ConnectionPool({
+                host,
+                port: defaultPort,
+                user: defaultUser,
+                password: defaultPassword,
+                database: defaultDatabase,
+                options: defaultOptions,
+              });
               Database.connections[key].write.push(pool);
             }
             Database.connections[key].read = Database.connections[key].write;
@@ -564,26 +561,31 @@ export class Database {
 
   public quoteIdentifier(name: string): string {
     const dbType = this.dbUsed;
-    const needsQuoting = sqlReservedWords.includes(name.toLowerCase());
-
-    switch (dbType) {
-      case "mysql": {
-        // Escape backticks and optionally quote
-        const escapedMySQL = name.replace(/`/g, "``");
-        return needsQuoting ? `\`${escapedMySQL}\`` : escapedMySQL;
+    // Always quote — not only reserved words. Identifiers (table/column names)
+    // are never bound as parameters, so unquoted identifiers are the one place
+    // an attacker-controlled name could break out of the intended SQL. Quoting
+    // unconditionally, and escaping the driver's own quote char, makes any
+    // string safe to place in an identifier position.
+    // Qualified names ("table.column") are split so each segment is quoted
+    // separately (`table`.`column`), and "*" is passed through verbatim.
+    const quoteSegment = (segment: string): string => {
+      if (segment === "*") return segment;
+      switch (dbType) {
+        case "mysql":
+          return `\`${segment.replace(/`/g, "``")}\``;
+        case "sqlite":
+        case "pgsql":
+          return `"${segment.replace(/"/g, '""')}"`;
+        case "sqlsrv":
+          return `[${segment.replace(/]/g, "]]")}]`;
+        default:
+          return segment;
       }
-      case "sqlite":
-      case "pgsql": {
-        // Escape double quotes and optionally quote
-        const escapedPG = name.replace(/"/g, '""');
-        return needsQuoting ? `"${escapedPG}"` : escapedPG;
-      }
-      case "sqlsrv": {
-        // Escape closing brackets and optionally quote
-        const escapedSQL = name.replace(/]/g, "]]");
-        return needsQuoting ? `[${escapedSQL}]` : escapedSQL;
-      }
-    }
+    };
+    return name
+      .split(".")
+      .map((segment) => quoteSegment(segment.trim()))
+      .join(".");
   }
 
   private formatDefaultValue(value: unknown): string {
@@ -695,7 +697,9 @@ export const dbCloser = async () => {
               }
             })
             .catch((err: Error) => {
-              console.error(`Error closing ${driver} pool:`, err);
+              if (logging) {
+                console.error(`Error closing ${driver} pool:`, err);
+              }
             });
         }
         break;
@@ -709,7 +713,9 @@ export const dbCloser = async () => {
               console.log(`Closed sqlite database successfully.`);
             }
           } catch (err) {
-            console.error(`Error closing sqlite database:`, err);
+            if (logging) {
+              console.error(`Error closing sqlite database:`, err);
+            }
           }
         }
         break;
@@ -724,7 +730,9 @@ export const dbCloser = async () => {
               }
             })
             .catch((err: Error) => {
-              console.error(`Error closing sqlsrv pool:`, err);
+              if (logging) {
+                console.error(`Error closing sqlsrv pool:`, err);
+              }
             });
         }
         break;

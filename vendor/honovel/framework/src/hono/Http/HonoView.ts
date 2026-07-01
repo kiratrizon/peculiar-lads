@@ -20,14 +20,19 @@ class HonoView {
     }
     if (mergeData && typeof mergeData === "object") {
       for (const [key, value] of Object.entries(mergeData)) {
-        this.#data[key] = value;
+        this.#data[`$${key}`] = value;
       }
     }
     this.#viewFile = viewName;
     this.init();
   }
 
-  async element() {
+  async element(mergeData = {}) {
+    if (isObject(mergeData)) {
+      Object.entries(mergeData).forEach(([key, val]) => {
+        this.#data[`$${key}`] = val;
+      });
+    }
     const tempRendered = await this.renderElement(this.#viewFile, this.#data);
 
     if (env("DENO_DEPLOYMENT_ID")) {
@@ -43,7 +48,7 @@ class HonoView {
   protected addGlobal(param: Record<string, unknown> = {}) {
     Object.entries(param).forEach(([key, value]) => {
       if (key === "$slots") {
-        throw new Error("slot key is already reserved")
+        throw new Error("slot key is already reserved");
       }
       this.edge.global(key, value);
     });
@@ -57,7 +62,7 @@ class HonoView {
 
   private async renderElement(
     viewName: string,
-    data: Record<string, unknown> = {}
+    data: Record<string, unknown> = {},
   ) {
     const arrangeTemplate = viewName.split(".").join("/");
 

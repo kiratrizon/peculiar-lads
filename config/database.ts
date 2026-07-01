@@ -14,6 +14,7 @@ const constant: DatabaseConfig = {
       charset: "utf8mb4",
       options: {
         maxConnection: 4,
+        dateStrings: true,
       },
     },
     sqlite: {

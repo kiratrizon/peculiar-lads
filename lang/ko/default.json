@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "직업 선택",
-  "select_nstg_placeholder": "NSTG 레벨 선택"
+  "select_nstg_placeholder": "NSTG 레벨 선택",
+  "name": "이름",
+  "joined": "가입일",
+  "search_name_placeholder": "이름으로 검색...",
+  "search_discord_placeholder": "Discord로 검색...",
+  "member_details": "구성원 세부 정보",
+  "member_id": "구성원 ID",
+  "characters": "캐릭터",
+  "schedules": "일정",
+  "date": "날짜",
+  "time": "시간",
+  "activity": "활동",
+  "no_characters_found": "캐릭터를 찾을 수 없습니다",
+  "duration": "지속 시간"
 }

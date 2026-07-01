@@ -123,5 +123,18 @@
   "enter_discord_placeholder": "Enter your Discord username",
   "enter_email_placeholder": "Enter your email",
   "select_class_placeholder": "Piliin ang iyong klase",
-  "select_nstg_placeholder": "Piliin ang iyong NSTG level"
+  "select_nstg_placeholder": "Piliin ang iyong NSTG level",
+  "name": "Pangalan",
+  "joined": "Sumali",
+  "search_name_placeholder": "Maghanap ayon sa pangalan...",
+  "search_discord_placeholder": "Maghanap ayon sa Discord...",
+  "member_details": "Mga detalye ng miyembro",
+  "member_id": "ID ng miyembro",
+  "characters": "Mga karakter",
+  "schedules": "Mga iskedyul",
+  "date": "Petsa",
+  "time": "Oras",
+  "activity": "Aktibidad",
+  "no_characters_found": "Walang nahanap na karakter",
+  "duration": "Tagal"
 }

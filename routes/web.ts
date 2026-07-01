@@ -8,9 +8,12 @@ import BlockListedPlayerController from "App/Http/Controllers/BlockListedPlayerC
 import UserController from "App/Http/Controllers/UserController.ts";
 import FirstClass from "App/Models/FirstClass.ts";
 import PecuRecordsController from "App/Http/Controllers/PecuRecordsController.ts";
+import MemberController from "App/Http/Controllers/MemberController.ts";
+import CharacterController from "App/Http/Controllers/CharacterController.ts";
 
 Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
+  .middleware("set_lang")
   .group(() => {
     Route.middleware("guest").group(() => {
       Route.get("/", async () => {
@@ -57,10 +60,18 @@ Route.prefix("/{lang?}")
           "promptStayLogin",
         ]).name("promptStayLogin");
         Route.get("/home", [HomeController, "index"]).name("index");
+        Route.get("/characters", [CharacterController, "index"]).name(
+          "characters",
+        );
         Route.get("/logout", [UserController, "logout"]).name("logout");
-        Route.get("/members", [UserController, "members"]).name("members");
+        Route.middleware("bind_member").group(() => {
+          Route.resource("members", MemberController);
+        });
         Route.get("/events", [UserController, "events"]).name("events");
-        Route.get("/settings", [UserController, "settings"]).name("settings");
+        Route.match(["get", "post"], "/settings", [
+          UserController,
+          "settings",
+        ]).name("settings");
       });
 
     const adminPrefix = "/admin";
@@ -70,9 +81,14 @@ Route.prefix("/{lang?}")
       .group(() => {
         Route.middleware("isAdmin").group(() => {
           Route.get("/", [AdminController, "index"]).name("index");
-          Route.get("/members", [AdminController, "members"]).name("members");
+          Route.middleware("bind_member").group(() => {
+            Route.resource("members", MemberController);
+          });
           Route.get("/recruits", [AdminController, "recruits"]).name(
             "recruits",
+          );
+          Route.get("/characters", [CharacterController, "index"]).name(
+            "characters",
           );
           Route.get("/events", [AdminController, "events"]).name("events");
           Route.match(["get", "post"], "/settings", [

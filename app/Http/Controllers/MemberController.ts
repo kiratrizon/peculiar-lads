@@ -1,61 +1,157 @@
 import Controller from "App/Http/Controllers/Controller.ts";
+import { DB, Validator } from "Illuminate/Support/Facades/index.ts";
+import Character from "App/Models/Character.ts";
+import User from "App/Models/User.ts";
 
 class MemberController extends Controller {
-    // GET /resource
-    public index: HttpDispatch = async ({ request }) => {
-        // List all resources
-        return response().json({
-            message:"index"
-        })
-    };
+  // GET /resource
+  public index: HttpDispatch = async ({ request }) => {
+    const notif = await this.getUnreads({ request });
 
-    // GET /resource/{member}
-    public show: HttpDispatch = async ({ request }, {member}) => {
-        // Show a single resource by ID
-        return response().json({
-            message:`show ${member}`
-        })
-    };
+    const [page, perPage] = [
+      parseInt((request.query("page") as string) || "1"),
+      parseInt((request.query("perPage") as string) || "10"),
+    ];
+    const searchDiscord = request.query("discord");
+    const searchName = request.query("name");
 
-    // GET /resource/create
-    public create: HttpDispatch = async ({ request }) => {
-        // Return form or data for creating resource
-        return response().json({
-            message:`create`
-        })
-    };
+    const urlInstance = new URL(request.url);
+    const userQuery = User.query();
+    userQuery.select("id", "name", "discord", DB.raw("created_at as joined"));
+    userQuery.where("deactivated", false);
+    if (isset(searchDiscord)) {
+      // validate here
+      const discordValidate = await Validator.make(
+        { discord: searchDiscord },
+        {
+          discord: "alpha_num",
+        },
+      );
+      if (!discordValidate.fails()) {
+        userQuery.where("discord", "like", `%${searchDiscord}%`);
+      }
+    }
+    if (isset(searchName)) {
+      const nameValidate = await Validator.make(
+        { name: searchName },
+        {
+          name: "alpha",
+        },
+      );
+      if (!nameValidate.fails()) {
+        userQuery.where("name", "like", `%${searchName}%`);
+      }
+    }
 
-    // POST /resource
-    public store: HttpDispatch = async ({ request }) => {
-        // Create a new resource
-        return response().json({
-            message:`store`
-        })
-    };
+    const users = await userQuery.paginate(page, perPage, urlInstance);
+    return view("shared.members", {
+      selected: "members",
+      title: "Members",
+      notif,
+      users,
+      searchDiscord,
+      searchName,
+    });
+  };
 
-    // GET /resource/{member}/edit
-    public edit: HttpDispatch = async ({ request }, {member}) => {
-        // Return form or data for editing resource
-        return response().json({
-            message:`edit ${member}`
-        })
-    };
+  // GET /resource/{member}
+  public show: HttpDispatch = async ({ request }, { member }) => {
+    const notif = await this.getUnreads({ request });
+    const entity = request.url.includes("/admin/") ? "Admin" : "User";
 
-    // PUT or PATCH /resource/{member}
-    public update: HttpDispatch = async ({ request }, {member}) => {
-        // Update a resource by ID
-        return response().json({
-            message:`update ${member}`
-        })
-    };
+    const characters = await Character.query()
+      .select(
+        "characters.id",
+        "characters.ign",
+        DB.raw("nstg_level.code as nstg"),
+        DB.raw("third_classes.name as class"),
+        "characters.main",
+        "characters.duration",
+      )
+      .join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
+      .join(
+        "third_classes",
+        "characters.third_class_id",
+        "=",
+        "third_classes.id",
+      )
+      .where("characters.user_id", member.id)
+      .orderBy("characters.main", "desc")
+      .orderBy("nstg_level.id", "desc")
+      .orderBy("characters.duration")
+      .get();
 
-    // DELETE /resource/{member}
-    public destroy: HttpDispatch = async ({ request }, {member}) => {
-        // Delete a resource by ID
-        return response().json({
-            message:`delete ${member}`
-        })
-    };
+    const schedules = [
+      {
+        date: "2026-07-05",
+        time: "19:00",
+        activity: "Raid Training",
+        status: "Confirmed",
+      },
+      {
+        date: "2026-07-07",
+        time: "21:00",
+        activity: "Guild Dungeon",
+        status: "Pending",
+      },
+      {
+        date: "2026-07-09",
+        time: "18:30",
+        activity: "Community Hangout",
+        status: "Confirmed",
+      },
+    ];
+
+    return view("shared.members-show", {
+      selected: "members",
+      entity,
+      title: `${member.name} - Member Details`,
+      notif,
+      user: member,
+      characters,
+      schedules,
+    });
+  };
+
+  // GET /resource/create
+  public create: HttpDispatch = async ({ request: _request }) => {
+    // Return form or data for creating resource
+    return response().json({
+      message: `create`,
+    });
+  };
+
+  // POST /resource
+  public store: HttpDispatch = async ({ request: _request }) => {
+    // Create a new resource
+    return response().json({
+      message: `store`,
+    });
+  };
+
+  // GET /resource/{member}/edit
+  public edit: HttpDispatch = async ({ request: _request }, { member }) => {
+    // Return form or data for editing resource
+    return response().json({
+      message: `edit ${member}`,
+    });
+  };
+
+  // PUT or PATCH /resource/{member}
+  public update: HttpDispatch = async ({ request: _request }, { member }) => {
+    // Update a resource by ID
+    return response().json({
+      message: `update ${member}`,
+    });
+  };
+
+  // DELETE /resource/{member}
+  public destroy: HttpDispatch = async ({ request: _request }, { member }) => {
+    // Delete a resource by ID
+    return response().json({
+      message: `delete ${member}`,
+    });
+  };
 }
 
 export default MemberController;

@@ -47,6 +47,29 @@ type OrderByDirection = "ASC" | "DESC" | "asc" | "desc";
 type WhereSeparator = "AND" | "OR";
 const placeHolderuse: string = "?";
 
+// Operators are interpolated directly into SQL (they cannot be bound as
+// parameters), so only this fixed set is ever allowed. Any other value —
+// including attacker-controlled input reaching an operator position — is
+// rejected instead of being spliced into the query.
+const allowedWhereOperators: readonly string[] = [
+  "=",
+  "!=",
+  "<>",
+  "<",
+  "<=",
+  ">",
+  ">=",
+  "LIKE",
+  "NOT LIKE",
+];
+function assertWhereOperator(operator: WhereOperator): WhereOperator {
+  const normalized = String(operator).trim().toUpperCase();
+  if (!allowedWhereOperators.includes(normalized)) {
+    throw new SQLError(`Invalid SQL operator: ${operator}`);
+  }
+  return normalized as WhereOperator;
+}
+
 // where
 export class WhereInterpolator {
   protected database: Database;
@@ -153,7 +176,7 @@ export class WhereInterpolator {
       value = operatorOrValue as WherePrimitive;
     } else {
       value = valueArg;
-      operator = operatorOrValue as WhereOperator;
+      operator = assertWhereOperator(operatorOrValue as WhereOperator);
     }
     if (!empty(columnOrFn) && isString(columnOrFn)) {
       column = columnOrFn;
@@ -905,7 +928,9 @@ export class Builder extends WhereInterpolator {
     if (!["ASC", "DESC"].includes(direction.toUpperCase())) {
       throw new SQLError("Invalid order direction");
     }
-    this.orderByValue.push({ [column]: direction });
+    this.orderByValue.push({
+      [this.database.quoteIdentifier(column)]: direction,
+    });
     return this;
   }
 
@@ -917,7 +942,7 @@ export class Builder extends WhereInterpolator {
       if (!isString(column) || empty(column)) {
         throw new SQLError("Invalid column name for groupBy");
       }
-      this.groupByValue.push(column);
+      this.groupByValue.push(this.database.quoteIdentifier(column));
     }
     return this;
   }
@@ -1259,7 +1284,7 @@ export class Builder extends WhereInterpolator {
       if (newArgs.length === 4) {
         column1 = firstOrFn as string;
         column2 = second as string;
-        operator = operatorOrSecond as WhereOperator;
+        operator = assertWhereOperator(operatorOrSecond as WhereOperator);
       } else if (newArgs.length === 3) {
         column1 = firstOrFn as string;
         column2 = operatorOrSecond as string;
@@ -1267,8 +1292,10 @@ export class Builder extends WhereInterpolator {
       if (!isset(column1) || !isset(column2)) {
         throw new SQLError("Invalid join clause");
       }
+      const qCol1 = this.database.quoteIdentifier(column1);
+      const qCol2 = this.database.quoteIdentifier(column2);
       return [
-        `${type} JOIN ${newTable} ON ${column1} ${operator} ${column2}`,
+        `${type} JOIN ${newTable} ON ${qCol1} ${operator} ${qCol2}`,
         isRaw,
       ];
     }
@@ -1300,7 +1327,7 @@ export class Builder extends WhereInterpolator {
       if (newArgs.length === 4) {
         column1 = firstOrFn as string;
         column2 = second as string;
-        operator = operatorOrSecond as WhereOperator;
+        operator = assertWhereOperator(operatorOrSecond as WhereOperator);
       } else if (newArgs.length === 3) {
         column1 = firstOrFn as string;
         column2 = operatorOrSecond as string;
@@ -1308,8 +1335,10 @@ export class Builder extends WhereInterpolator {
       if (!isset(column1) || !isset(column2)) {
         throw new SQLError("Invalid join clause");
       }
+      const qCol1 = this.database.quoteIdentifier(column1);
+      const qCol2 = this.database.quoteIdentifier(column2);
       return [
-        `${type} JOIN ${newTable} ON ${column1} ${operator} ${column2}`,
+        `${type} JOIN ${newTable} ON ${qCol1} ${operator} ${qCol2}`,
         isRaw,
       ];
     }
@@ -1403,7 +1432,8 @@ export class Builder extends WhereInterpolator {
   ): void {
     const db = this.database;
     column = db.quoteIdentifier(column);
-    const clause = `${column} ${operator} ?`;
+    const safeOperator = assertWhereOperator(operator as WhereOperator);
+    const clause = `${column} ${safeOperator} ?`;
     const values: WhereValue[] = [value];
     if (this.havingClauses.length > 0) {
       this.havingClauses.push([`${type} ${clause}`, values]);
