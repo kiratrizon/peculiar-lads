@@ -8,6 +8,7 @@
     "@hono/graphql-server": "jsr:@hono/graphql-server@^0.7.0",
     "@std/io": "jsr:@std/io@^0.225.3",
     "@tailwindcss/vite": "npm:@tailwindcss/vite@^4.3.0",
+    "@upstash/redis": "npm:@upstash/redis@^1.38.0",
     "autoprefixer": "npm:autoprefixer@^10.5.0",
     "fast-xml-parser": "npm:fast-xml-parser@^5.8.0",
     "gridjs": "npm:gridjs@^6.2.0",
