@@ -10,8 +10,11 @@
 	<meta name="author" content="Kiratrizon">
 	@icon('assets/peculiarlads-icon-dark.png')
 	<title>{{ env('GUILD_NAME') }} | {{ $title }}</title>
+	<!-- csrf -->
+    {{{ csrfMeta() }}}
 	@vite('resources/ts/app.ts')
 	@vite('resources/css/dark.css')
+	@vite('resources/ts/shared/lang-select.ts')
 	{{{ $slots.styles ? await $slots.styles() : '' }}}
 
 <style>
@@ -154,7 +157,7 @@
 <div class="flex-1 flex flex-col">
 
 	<!-- Topbar -->
-	<header class="dashboard-topbar backdrop-blur-md border-b px-6 py-4 flex justify-between items-center">
+	<header class="dashboard-topbar backdrop-blur-md border-b px-4 sm:px-6 py-3 sm:py-4 flex flex-wrap items-center justify-between gap-3">
 
 		<div class="flex items-center gap-2">
 			<button id="sidebarToggleMobile" type="button" class="sidebar-toggle lg:hidden inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 transition">
@@ -163,12 +166,18 @@
 			<button id="sidebarToggleDesktop" type="button" class="sidebar-toggle hidden lg:inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 transition">
 				⇔
 			</button>
-			<div class="dashboard-title font-semibold text-lg">
+			<div class="dashboard-title font-semibold text-base sm:text-lg">
 				{{ request().__('guild_dashboard') }}
 			</div>
 		</div>
 
-		<div class="flex items-center gap-4">
+		<div class="flex flex-wrap items-center gap-2 sm:gap-4">
+
+			<select id="langSelect" class="lang-select" aria-label="{{ request().__('language') }}">
+				@each((val, key) in $languageConversion)
+					<option value="{{ key }}" {{ request().getLanguage() === key ? 'selected' : '' }}>{{ val }}</option>
+				@end
+			</select>
 
 			<select id="themeSelect" class="theme-select" aria-label="{{ request().__('theme') }}">
 				<option value="dark-abyss">{{ request().__('theme_dark_abyss') }}</option>
@@ -177,7 +186,7 @@
 				<option value="heatwave">{{ request().__('theme_heatwave') }}</option>
 			</select>
 
-			<div class="greeting-text text-sm">
+			<div class="greeting-text text-sm hidden sm:block max-w-[10rem] truncate">
 				Hello, {{ request().user()?.name ?? 'Adventurer' }}!
 			</div>
 

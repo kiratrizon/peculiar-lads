@@ -7,6 +7,7 @@ import SavePath from "App/Http/Middlewares/SavePath.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
 import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
+import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -22,6 +23,8 @@ export default Application.withRouting({
       set_lang: LanguageSetter,
       bind_member: BindUser,
     });
+
+    middleware.append(SetupLangVar);
   })
   .withExceptions((exceptions) => {
     exceptions.render(NotFoundHttpException, async ({ request }, _e) => {

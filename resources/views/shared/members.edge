@@ -6,9 +6,9 @@
 </div>
 
 <!-- search bar here + button to search -->
-<div class="flex justify-center gap-2">
-    <input type="text" id="search_name" placeholder="{{ request().__('search_name_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchName ?? '' }}">
-    <input type="text" id="search_discord" placeholder="{{ request().__('search_discord_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchDiscord ?? '' }}">
+<div class="flex flex-wrap justify-center gap-2 px-4">
+    <input type="text" id="search_name" placeholder="{{ request().__('search_name_placeholder') }}" class="flex-1 min-w-[10rem] px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchName ?? '' }}">
+    <input type="text" id="search_discord" placeholder="{{ request().__('search_discord_placeholder') }}" class="flex-1 min-w-[10rem] px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $searchDiscord ?? '' }}">
     <button id="search-button" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: var(--accent); color: var(--bg-1);">{{ request().__('search') }}</button>
 </div>
 

@@ -1,11 +1,13 @@
 import Seeder from "Illuminate/Database/Seeder.ts";
-import User from "App/Models/User.ts";
+import User, { UserSchema } from "App/Models/User.ts";
 import FirstClass from "App/Models/FirstClass.ts";
 import SecondClass from "App/Models/SecondClass.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import NSTGLevel from "App/Models/NSTGLevel.ts";
 import Admin from "App/Models/Admin.ts";
-import Character from "App/Models/Character.ts";
+import Character, { CharacterSchema } from "App/Models/Character.ts";
+import { Hash } from "Illuminate/Support/Facades/index.ts";
+import { Str } from "Illuminate/Support/index.ts";
 
 // Dragon Nest SEA
 export default class DatabaseSeeder extends Seeder {
@@ -20,7 +22,7 @@ export default class DatabaseSeeder extends Seeder {
             Knight: ["Grandmaster", "Mystic Knight"],
             Avenger: ["Dark Avenger"],
           },
-        }
+        },
       },
       {
         icon: "🏹",
@@ -30,7 +32,7 @@ export default class DatabaseSeeder extends Seeder {
             "Bow Master": ["Sniper", "Artillery"],
             Hunter: ["Silver Hunter"],
           },
-        }
+        },
       },
       {
         icon: "🔮",
@@ -40,7 +42,7 @@ export default class DatabaseSeeder extends Seeder {
             "Force User": ["Majesty", "Smasher"],
             Mara: ["Black Mara"],
           },
-        }
+        },
       },
       {
         icon: "✨",
@@ -50,7 +52,7 @@ export default class DatabaseSeeder extends Seeder {
             Priest: ["Saint", "Inquisitor"],
             Heretic: ["Arch Heretic"],
           },
-        }
+        },
       },
       {
         icon: "🔧",
@@ -60,7 +62,7 @@ export default class DatabaseSeeder extends Seeder {
             Alchemist: ["Adept", "Physician"],
             Mechanic: ["Ray Mechanic"],
           },
-        }
+        },
       },
       {
         icon: "🎪",
@@ -70,7 +72,7 @@ export default class DatabaseSeeder extends Seeder {
             Dancer: ["Blade Dancer", "Spirit Dancer"],
             Oracle: ["Oracle Elder"],
           },
-        }
+        },
       },
       {
         icon: "🗡️",
@@ -80,7 +82,7 @@ export default class DatabaseSeeder extends Seeder {
             Bringer: ["Light Fury", "Abyss Walker"],
             Phantom: ["Bleed Phantom"],
           },
-        }
+        },
       },
       {
         icon: "🌸",
@@ -90,7 +92,7 @@ export default class DatabaseSeeder extends Seeder {
             Knightess: ["Avalanche", "Randgrid"],
             Plaga: ["Vena Plaga"],
           },
-        }
+        },
       },
       {
         icon: "🤖",
@@ -100,7 +102,7 @@ export default class DatabaseSeeder extends Seeder {
             Launcher: ["Impactor", "Buster"],
             Beastia: ["Beastia Reina"],
           },
-        }
+        },
       },
       {
         icon: "🛡️",
@@ -109,7 +111,7 @@ export default class DatabaseSeeder extends Seeder {
             "Treasure Hunter": ["Duelist", "Trickster"],
             Wanderer: ["Revenant", "Maverick"],
           },
-        }
+        },
       },
       {
         icon: "🌀",
@@ -117,22 +119,26 @@ export default class DatabaseSeeder extends Seeder {
           Arta: {
             Artist: ["Ringmaster"],
           },
-        }
+        },
       },
-    ]
+    ];
 
     let created3rdClass = 0;
     for (const newClass of newClasses) {
       const characterData = newClass.character_data;
       const icon = newClass.icon;
-      for (const [mainClass, secondaryClasses] of Object.entries(characterData)) {
+      for (const [mainClass, secondaryClasses] of Object.entries(
+        characterData,
+      )) {
         const firstClassData = await FirstClass.create({
           name: mainClass,
           icon,
         });
 
         const id = firstClassData.getKey();
-        for (const [secondaryClass, thirdClasses] of Object.entries(secondaryClasses)) {
+        for (const [secondaryClass, thirdClasses] of Object.entries(
+          secondaryClasses,
+        )) {
           const secondClassData = await SecondClass.create({
             first_class_id: id,
             name: secondaryClass,
@@ -165,21 +171,40 @@ export default class DatabaseSeeder extends Seeder {
     adminFactory.count(1);
     await adminFactory.create();
 
-    const userFactory = await User.factory();
-    userFactory.count(10);
-    const createdUser = await userFactory.create();
+    if ((config("app.env", "development") as string) !== "production") {
+      const userFactory = await User.factory();
+      userFactory.count(10);
+      const createdUser = await userFactory.create();
 
-    // check if createdUser is iterable
-    if (isArray(createdUser)) {
-      const characterFactory = await Character.factory();
-      for (const user of createdUser) {
-        const userId = user.getKey();
-        characterFactory.count(1);
-        await characterFactory.create({
-          user_id: userId,
-          main: true,
-        });
+      // check if createdUser is iterable
+      if (isArray(createdUser)) {
+        const characterFactory = await Character.factory();
+        for (const user of createdUser) {
+          const userId = user.getKey();
+          characterFactory.count(1);
+          await characterFactory.create({
+            user_id: userId,
+            main: true,
+          });
+        }
       }
+    } else {
+      const myData: UserSchema = {
+        name: "Throy",
+        discord: "kiratriz",
+        email: "tgenesistroy@gmail.com",
+        password: Hash.make(env("MY_PASS", "")),
+        deactivated: false,
+        api_token: "1-" + Str.random(32),
+      };
+      const userQuery = await User.create(myData);
+      const myCharacter = await Character.create({
+        ign: "Eirazyn",
+        main: true,
+        user_id: userQuery.getKey(),
+        third_class_id: 4,
+        nstg_level_id: 12,
+      } as CharacterSchema);
     }
   }
 }

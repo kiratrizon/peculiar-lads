@@ -1,0 +1,6 @@
+{
+    "slogan":"가장 난이도 높은 네스트를 정복하든, PvP 아레나를 장악하든, 아니면 그저 친구들과 함께 모험을 즐기든, 우리와 함께할 자리는 언제나 열려 있습니다. '드래곤네스트'를 향한 열정을 가진 모든 실력의 모험가 여러분을 환영합니다!",
+    "intro":"<span class=\"text-2xl font-black\" style=\"color: var(--text-main);\">%s</span>는 단순한 길드가 아닙니다. 우리는 <strong>Dragon Nest SEA 플레이어들의 가족</strong>으로, <strong class=\"text-red-500\">%s</strong>를 기반으로 팀워크, 우정, 그리고 모험의 힘을 믿습니다.",
+    "why_join": "자신에 대해 알려주세요. 왜 %s에 가입하고 싶은가요?",
+    "join": "Join %s"
+}

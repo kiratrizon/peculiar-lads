@@ -10,21 +10,24 @@
     @icon('assets/peculiarlads-icon-dark.png')
     <title>Blocklisted | {{ $title }}</title>
 
+    <!-- csrf -->
+    {{{ csrfMeta() }}}
     @vite('resources/ts/app.ts')
     @vite('resources/css/dark.css')
+    @vite('resources/ts/shared/lang-select.ts')
     {{{ $slots.styles ? await $slots.styles() : '' }}}
 </head>
 
 <body class="bg-gray-950 min-h-screen text-gray-100" style="background:#0a0a0a;">
 
 <!-- Topbar -->
-<header class="bg-black/60 backdrop-blur-md border-b border-gray-800 px-6 py-4 flex justify-between items-center">
+<header class="bg-black/60 backdrop-blur-md border-b border-gray-800 px-4 sm:px-6 py-4 flex flex-wrap justify-between items-center gap-3">
 
     <div class="font-semibold text-gray-200 text-lg flex items-center gap-2">
         {{ request().__('blocklisted_panel') }}
     </div>
 
-    <nav class="flex items-center gap-4 text-sm">
+    <nav class="flex flex-wrap items-center gap-2 sm:gap-4 text-sm">
         <a href="/admin"
            class="px-3 py-1 rounded hover:bg-gray-800 hover:text-gray-100 transition text-gray-400">
             {{ request().__('dashboard') }}
@@ -34,6 +37,12 @@
            class="px-3 py-1 rounded hover:bg-gray-800 hover:text-gray-100 transition text-gray-400">
             {{ request().__('players') }}
         </a>
+
+        <select id="langSelect" class="lang-select" aria-label="{{ request().__('language') }}">
+            @each((val, key) in $languageConversion)
+                <option value="{{ key }}" {{ request().getLanguage() === key ? 'selected' : '' }}>{{ val }}</option>
+            @end
+        </select>
     </nav>
 
 </header>

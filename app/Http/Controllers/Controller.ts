@@ -21,20 +21,6 @@ class Controller extends BaseController {
     };
     return stats;
   }
-
-  protected languageConversion: Record<string, string> = {
-    en: "English",
-    es: "Español",
-    ja: "日本語",
-    ko: "한국어",
-    id: "Bahasa Indonesia",
-    vi: "Tiếng Việt",
-    "zh-CN": "简体中文",
-    "zh-TW": "繁體中文",
-    fil: "Filipino",
-    fr: "Français",
-    th: "ไทย",
-  };
 }
 
 export default Controller;

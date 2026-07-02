@@ -42,10 +42,10 @@
 					<div class="grid md:grid-cols-2 gap-8 items-center">
 						<div>
 							<p class="text-lg mb-4 leading-relaxed" style="color: var(--text-main);">
-								<span class="text-2xl font-black" style="color: var(--text-main);">{{ env('GUILD_NAME') }}</span> is more than just a guild—we're a <strong>family of Dragon Nest SEA players</strong> based in the <strong class="text-red-500">Philippines</strong> who believe in the power of teamwork, friendship, and adventure.
+								{{{ sprintf(request().__('welcome.intro'), env('GUILD_NAME'), "Philippines") }}}
 							</p>
 							<p class="mb-4 leading-relaxed" style="color: var(--text-soft);">
-								Whether you're conquering the toughest nests, dominating in PvP arenas, or simply enjoying the journey with friends, you'll find your place among us. We welcome adventurers of all skill levels who share our passion for Dragon Nest!
+								{{ request().__("welcome.slogan") }}
 							</p>
 							<div class="flex gap-3 flex-wrap">
 								<span class="bg-gray-900 text-white px-4 py-2 rounded-full font-semibold text-sm">{{ request().__('active_community') }}</span>
@@ -60,7 +60,7 @@
 									<p class="text-sm uppercase tracking-wide">{{ request().__('active_members_label') }}</p>
 								</div>
 							</div>
-							<div class="grid grid-cols-2 gap-4">
+							<div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
 								<div class="bg-gray-700 p-4 rounded-lg text-white text-center">
 									<p class="text-2xl font-bold">100+</p>
 									<p class="text-xs">{{ request().__('nests_cleared') }}</p>
@@ -133,7 +133,7 @@
 						<form class="rounded-2xl p-8 flex flex-col gap-5" style="background: var(--panel);" action="{{ route('apply') }}" method="post">
 							@csrf()
 							<div class="text-center mb-4">
-								<h3 class="text-3xl font-bold mb-2" style="color: var(--text-main);">Join {{ env('GUILD_NAME') }}! 🚀</h3>
+								<h3 class="text-3xl font-bold mb-2" style="color: var(--text-main);">{{sprintf(request().__('welcome.join'), env('GUILD_NAME'))}}! 🚀</h3>
 								<p style="color: var(--text-soft);">{{ request().__('fill_form_desc') }}</p>
 							</div>
 							<div>
@@ -194,7 +194,7 @@
 							</div>
 							<div>
 								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('why_join') }}</label>
-								<textarea placeholder="Tell us about yourself and why you'd like to join {{ env('GUILD_NAME') }}..." name="reason" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" rows="4" required>{{ old('reason') }}</textarea>
+								<textarea placeholder="{{ sprintf(request().__('welcome.why_join'), env('GUILD_NAME')) }}" name="reason" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" rows="4" required>{{ old('reason') }}</textarea>
 								@if(errors.has('reason'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('reason') }}

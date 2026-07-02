@@ -11,8 +11,11 @@
 	@icon('assets/peculiarlads-icon-dark.png')
 	@vite('resources/ts/app.ts')
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
+	<!-- csrf -->
+    {{{ csrfMeta() }}}
 	@vite('resources/css/dark.css')
 	@vite('resources/css/guest.css')
+	@vite('resources/ts/shared/lang-select.ts')
 </head>
 <body class="guest-shell min-h-screen flex flex-col relative overflow-x-hidden" data-theme="dark-abyss">
 	<!-- Animated background elements -->
@@ -23,13 +26,18 @@
 	</div>
 
 	<!-- Navigation -->
-	<nav class="guest-nav relative z-10 backdrop-blur-md border-b">
+	<nav class="guest-nav relative z-20 backdrop-blur-md border-b">
 		<div class="container mx-auto px-4 py-4 flex justify-between items-center">
 			<div class="flex items-center gap-2">
 				<img class="theme-icon h-6 w-6" src="/assets/peculiarlads-icon-dark.png" alt="{{ env('GUILD_NAME') }}" />
 				<span class="guest-brand text-xl font-bold">{{ env('GUILD_NAME') }}</span>
 			</div>
-			<div class="hidden md:flex gap-3 items-center">
+
+			<button id="guestNavToggle" type="button" class="guest-link md:hidden inline-flex items-center justify-center rounded-md border px-2.5 py-1.5 transition" style="border-color: var(--border);" aria-label="{{ request().__('menu') }}" aria-expanded="false" aria-controls="guestNavMenu">
+				☰
+			</button>
+
+			<div id="guestNavMenu" class="hidden md:flex flex-col md:flex-row gap-3 md:items-center absolute md:static top-full inset-x-0 md:inset-auto px-4 py-4 md:p-0 border-b md:border-0" style="background: var(--panel); border-color: var(--border);">
 				<a href="{{ route('welcome') }}#about" class="guest-link px-2 py-1 rounded transition">{{ request().__('about') }}</a>
 				<a href="{{ route('welcome') }}#features" class="guest-link px-2 py-1 rounded transition">{{ request().__('features') }}</a>
 				<a href="{{ route('welcome') }}#classes" class="guest-link px-2 py-1 rounded transition">{{ request().__('classes') }}</a>
@@ -38,6 +46,11 @@
 				@if(!removeLoginButton)
 					<a href="{{ route('login') }}" class="guest-link px-2 py-1 rounded transition">{{ request().__('login') }}</a>
 				@end
+				<select id="langSelect" class="lang-select" aria-label="{{ request().__('language') }}">
+					@each((val, key) in $languageConversion)
+						<option value="{{ key }}" {{ request().getLanguage() === key ? 'selected' : '' }}>{{ val }}</option>
+					@end
+				</select>
 				<select id="themeSelectGuestDefault" class="theme-select" aria-label="{{ request().__('theme') }}">
 					<option value="dark-abyss">{{ request().__('theme_dark_abyss') }}</option>
 					<option value="lightning-blaze">{{ request().__('theme_lightning_blaze') }}</option>
@@ -49,6 +62,18 @@
 	</nav>
 
     {{{ await $slots.main() }}}
+
+	<script>
+		(() => {
+			const toggle = document.getElementById("guestNavToggle");
+			const menu = document.getElementById("guestNavMenu");
+			toggle?.addEventListener("click", () => {
+				const isOpen = !menu.classList.contains("hidden");
+				menu.classList.toggle("hidden", isOpen);
+				toggle.setAttribute("aria-expanded", String(!isOpen));
+			});
+		})();
+	</script>
 
 	<footer class="guest-footer relative z-10 py-8 backdrop-blur-md border-t">
 		<div class="container mx-auto px-4">

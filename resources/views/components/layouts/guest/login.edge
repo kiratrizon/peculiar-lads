@@ -9,19 +9,29 @@
 	<meta name="author" content="Kiratrizon">
 	@icon('assets/peculiarlads-icon-dark.png')
 	<title>{{ env('GUILD_NAME') }} | {{ $fromSignUp ? 'Signup' : $entity+' Login'}}</title>
+	<!-- csrf -->
+    {{{ csrfMeta() }}}
 	@vite('resources/ts/app.ts')
 	@vite('resources/css/dark.css')
 	@vite('resources/css/login.css')
+	@vite('resources/ts/shared/lang-select.ts')
 </head>
 
 <body class="login-shell min-h-screen flex items-center justify-center relative overflow-hidden" data-theme="dark-abyss">
 
-	<select id="themeSelectGuestLogin" class="theme-select absolute top-4 right-4 z-20" aria-label="{{ request().__('theme') }}">
-		<option value="dark-abyss">{{ request().__('theme_dark_abyss') }}</option>
-		<option value="lightning-blaze">{{ request().__('theme_lightning_blaze') }}</option>
-		<option value="icy-moon">{{ request().__('theme_icy_moon') }}</option>
-		<option value="heatwave">{{ request().__('theme_heatwave') }}</option>
-	</select>
+	<div class="fixed top-4 right-4 z-20 flex flex-wrap items-center justify-end gap-2 max-w-[calc(100%-2rem)]">
+		<select id="langSelect" class="lang-select" aria-label="{{ request().__('language') }}">
+			@each((val, key) in $languageConversion)
+			<option value="{{ key }}" {{ request().getLanguage() === key ? 'selected' : '' }}>{{ val }}</option>
+			@end
+		</select>
+		<select id="themeSelectGuestLogin" class="theme-select" aria-label="{{ request().__('theme') }}">
+			<option value="dark-abyss">{{ request().__('theme_dark_abyss') }}</option>
+			<option value="lightning-blaze">{{ request().__('theme_lightning_blaze') }}</option>
+			<option value="icy-moon">{{ request().__('theme_icy_moon') }}</option>
+			<option value="heatwave">{{ request().__('theme_heatwave') }}</option>
+		</select>
+	</div>
 
 	<!-- Background glow -->
 	<div class="fixed inset-0 opacity-20 pointer-events-none">

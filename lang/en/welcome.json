@@ -1,0 +1,6 @@
+{
+    "slogan":"Whether you're conquering the toughest nests, dominating in PvP arenas, or simply enjoying the journey with friends, you'll find your place among us. We welcome adventurers of all skill levels who share our passion for Dragon Nest!",
+    "intro":"<span class=\"text-2xl font-black\" style=\"color: var(--text-main);\">%s</span> is more than just a guild—we're a <strong>family of Dragon Nest SEA players</strong> based in the <strong class=\"text-red-500\">%s</strong> who believe in the power of teamwork, friendship, and adventure.",
+    "why_join": "Tell us about yourself and why you'd like to join %s...",
+    "join": "Join %s"
+}

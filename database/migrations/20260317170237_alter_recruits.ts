@@ -7,15 +7,13 @@ export default new (class extends Migration {
     await Schema.table("recruits", (table: Blueprint) => {
       // alter logic
       table.string("email").notNullable();
-    }
-    );
+    });
   }
 
   public async down() {
     await Schema.table("recruits", (table: Blueprint) => {
       // reverse alter logic
-      table.dropColumn("email");
-    }
-    );
+      table.string("email").nullable();
+    });
   }
 })();

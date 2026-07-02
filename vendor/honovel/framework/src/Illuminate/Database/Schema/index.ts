@@ -78,6 +78,10 @@ export class Blueprint {
   private table: string;
   public columns: ColumnDefinition[] = [];
   public drops: string[] = [];
+  /** Table-level default character set (MySQL only), e.g. `$table->charset = 'utf8mb4'`. */
+  public charset?: string;
+  /** Table-level default collation (MySQL only), e.g. `$table->collation = 'utf8mb4_unicode_ci'`. */
+  public collation?: string;
   private columnCount: number = 0;
   constructor(
     table: string,
@@ -856,10 +860,22 @@ export class Blueprint {
         const col = db.quoteIdentifier(name);
         statements.push(`ALTER TABLE ${table} DROP COLUMN ${col}`);
       }
+      if (this.connection === "mysql" && (this.charset || this.collation)) {
+        let sql = `ALTER TABLE ${table} CONVERT TO CHARACTER SET ${this.charset ?? "utf8mb4"}`;
+        if (this.collation) sql += ` COLLATE ${this.collation}`;
+        statements.push(sql);
+      }
       return statements.length ? statements.join(";\n") + ";" : "";
     } else {
       const all = [...columnSqls, ...indexes, ...foreignKeySqls].join(",\n  ");
-      return `CREATE TABLE ${table} (\n  ${all}\n);`;
+      let tableOptions = "";
+      if (this.connection === "mysql") {
+        const opts: string[] = [];
+        if (this.charset) opts.push(`DEFAULT CHARSET=${this.charset}`);
+        if (this.collation) opts.push(`COLLATE=${this.collation}`);
+        if (opts.length) tableOptions = ` ${opts.join(" ")}`;
+      }
+      return `CREATE TABLE ${table} (\n  ${all}\n)${tableOptions};`;
     }
   }
 
@@ -930,6 +946,16 @@ export class Blueprint {
     const parts: string[] = [
       `${db.quoteIdentifier(name)} ${this.mapType(type, col)}`,
     ];
+
+    // Character set & collation (MySQL only; applies to CHAR/VARCHAR/TEXT/ENUM/SET types)
+    if (this.connection === "mysql") {
+      if (options.charset) {
+        parts.push(`CHARACTER SET ${options.charset}`);
+      }
+      if (options.collation) {
+        parts.push(`COLLATE ${options.collation}`);
+      }
+    }
 
     // Unsigned (only for MySQL/PostgreSQL)
     if (options.unsigned && ["mysql"].includes(this.connection)) {

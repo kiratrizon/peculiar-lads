@@ -5,8 +5,8 @@
     <h1>{{ request().__('characters') }}</h1>
 </div>
 
-<div class="flex justify-center gap-2">
-    <input type="text" id="search_ign" placeholder="{{ request().__('search_members_placeholder') }}" class="px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $search_ign ?? '' }}">
+<div class="flex flex-wrap justify-center gap-2 px-4">
+    <input type="text" id="search_ign" placeholder="{{ request().__('search_members_placeholder') }}" class="flex-1 min-w-[10rem] px-4 py-2 rounded-lg border bg-transparent focus:outline-none focus:ring-2 focus:ring-indigo-500" value="{{ $search_ign ?? '' }}">
     <button id="search-button" class="px-4 py-2 rounded-lg text-sm font-medium transition" style="background: var(--accent); color: var(--bg-1);">{{ request().__('search') }}</button>
 </div>
 

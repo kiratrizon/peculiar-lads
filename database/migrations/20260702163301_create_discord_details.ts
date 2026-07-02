@@ -4,17 +4,14 @@ import { Blueprint } from "Illuminate/Database/Schema/index.ts";
 
 export default new (class extends Migration {
   public async up() {
-    await Schema.create("first_classes", (table: Blueprint) => {
-      table.charset = "utf8mb4";
-      table.collation = "utf8mb4_unicode_ci";
-
+    await Schema.create("discord_details", (table: Blueprint) => {
       table.id();
-      table.string("name").nullable();
+      table.string("discord_link").notNullable();
       table.timestamps();
     });
   }
 
   public async down() {
-    await Schema.dropIfExists("first_classes");
+    await Schema.dropIfExists("discord_details");
   }
 })();

@@ -773,4 +773,18 @@ globalFn("isURL", function (url: string) {
   );
 });
 
+globalFn("sprintf", (format: string, ...args: unknown[]): string => {
+  const placeholders = (format.match(/%s/g) || []).length;
+
+  if (args.length !== placeholders) {
+    throw new Error(
+      `sprintf() expects ${placeholders} argument(s), got ${args.length}.`,
+    );
+  }
+
+  let i = 0;
+
+  return format.replace(/%s/g, () => String(args[i++]));
+});
+
 DB.init();

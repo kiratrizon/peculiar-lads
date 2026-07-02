@@ -539,4 +539,12 @@ declare global {
    * @returns `true` if the URL is valid, otherwise `false`.
    */
   function isURL(url: string): boolean;
+
+  /**
+   * sprintf function that formats a string using placeholders and values.
+   * @param format - The format string containing placeholders.
+   * @param args - The values to replace the placeholders in the format string.
+   * @returns The formatted string with placeholders replaced by the provided values.
+   */
+  function sprintf(format: string, ...args: unknown[]): string;
 }

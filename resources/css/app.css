@@ -14,7 +14,8 @@ button:hover {
 }
 
 /* Theme picker — shared across every layout (guest, login, dashboard) */
-.theme-select {
+.theme-select,
+.lang-select {
   background: var(--panel-2);
   color: var(--accent);
   border: 1px solid var(--border);
@@ -27,16 +28,19 @@ button:hover {
   transition: background 0.2s ease, border-color 0.2s ease;
 }
 
-.theme-select:hover {
+.theme-select:hover,
+.lang-select:hover {
   background: var(--hover);
 }
 
-.theme-select:focus {
+.theme-select:focus,
+.lang-select:focus {
   border-color: var(--accent);
 }
 
 /* Dropdown items render on the native menu, so give them a solid surface */
-.theme-select option {
+.theme-select option,
+.lang-select option {
   background: var(--bg-2);
   color: var(--text-main);
 }

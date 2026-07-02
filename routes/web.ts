@@ -15,6 +15,12 @@ Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
   .middleware("set_lang")
   .group(() => {
+    // global setup
+    Route.post("/setup-lang", async ({ request }) => {
+      const lang = request.input("lang");
+      dd(request.server("HTTP_REFERER"));
+    });
+
     Route.middleware("guest").group(() => {
       Route.get("/", async () => {
         const [allClass, nstg, firstClasses] = await Promise.all([
