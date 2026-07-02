@@ -28,8 +28,8 @@ type ViteConfig = {
     manifest: boolean;
     rollupOptions?: {
       input?: string[];
-    },
-  },
+    };
+  };
   publicDir: string;
 };
 
@@ -41,7 +41,11 @@ const input: string[] = [
   "resources/ts/recruit/view.ts",
   "resources/css/login.css",
   "resources/ts/admin/recruits.ts",
-  "resources/ts/stay-login.ts"
+  "resources/ts/stay-login.ts",
+  "resources/css/dark.css",
+  "resources/ts/shared/members.ts",
+  "resources/ts/shared/member-show.ts",
+  "resources/ts/shared/lang-select.ts",
 ];
 
 export default <ViteConfig>{
@@ -76,4 +80,4 @@ export default <ViteConfig>{
     },
   },
   publicDir: "public/build/assets",
-}
+};

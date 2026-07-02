@@ -1,0 +1,1 @@
+import{j as n}from"./jquery.module-gzd0YkcT.js";n(document).ready(async function(){n("#search-button").click(function(){const c=window.location.pathname,o=n("#search_name").val()||"",a=n("#search_discord").val()||"";window.location.href=`${c}?name=${o}&discord=${a}`})});
