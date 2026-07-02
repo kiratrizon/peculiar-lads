@@ -14,6 +14,10 @@ const constant: CacheConfig = {
     memory: {
       driver: "memory",
     },
+    redis: {
+      driver: "redis",
+      connection: "cache",
+    },
   },
 };
 
