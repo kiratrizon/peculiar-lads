@@ -81,12 +81,48 @@ class CharacterController extends Controller {
     });
   };
 
-  // POST /resource
-  public store: HttpDispatch = async ({ request }) => {
-    // Create a new resource
-    return response().json({
-      message: `store`,
+  // POST /members/{member}/characters
+  public store: HttpDispatch = async ({ request }, { member }) => {
+    const isAdmin = request.get("entity") === "Admin";
+    // @ts-ignore //
+    if (!isAdmin && member.id !== request.user()?.id) {
+      return response().json({ message: "Forbidden" }, 403);
+    }
+
+    const validator = await Validator.make(request.all(), {
+      ign: "required|max:10|alpha_num",
+      third_class_id: "required|integer|exists:third_classes,id",
+      nstg_level_id: "required|integer|exists:nstg_level,id",
+      main: "boolean",
+      duration_minutes: "nullable|integer",
+      duration_seconds: "nullable|integer",
     });
+
+    if (validator.fails()) {
+      const firstError = Object.values(validator.getErrors()).flat()[0];
+      return response().json(
+        { message: firstError ?? "Validation failed." },
+        422,
+      );
+    }
+
+    const durationMinutes = request.input("duration_minutes");
+    const durationSeconds = request.input("duration_seconds");
+    const hasDuration = !empty(durationMinutes) || !empty(durationSeconds);
+
+    await Character.create({
+      user_id: member.id,
+      ign: request.input("ign") as string,
+      third_class_id: Number(request.input("third_class_id")),
+      nstg_level_id: Number(request.input("nstg_level_id")),
+      main: request.input("main") === true,
+      duration: hasDuration
+        ? Math.max(0, Number(durationMinutes) || 0) * 60 +
+          Math.max(0, Math.min(59, Number(durationSeconds) || 0))
+        : undefined,
+    });
+
+    return response().json({ message: request.__("save_success") });
   };
 
   // GET /resource/{Character}/edit
@@ -97,20 +133,66 @@ class CharacterController extends Controller {
     });
   };
 
-  // PUT or PATCH /resource/{Character}
-  public update: HttpDispatch = async ({ request }, { Character }) => {
-    // Update a resource by ID
-    return response().json({
-      message: `update ${Character}`,
+  // PUT or PATCH /characters/{character}
+  public update: HttpDispatch = async ({ request }, { character }) => {
+    const isAdmin = request.get("entity") === "Admin";
+    // @ts-ignore //
+    if (!isAdmin && character.user_id !== request.user()?.id) {
+      return response().json({ message: "Forbidden" }, 403);
+    }
+
+    // validate here first if not admin, then check if the character belongs to the user
+    if (!isAdmin && character.user_id !== request.user()?.id) {
+      return response().json({ message: "Forbidden" }, 403);
+    }
+
+    const validator = await Validator.make(request.all(), {
+      ign: "required|max:10|alpha_num",
+      third_class_id: "required|integer|exists:third_classes,id",
+      nstg_level_id: "required|integer|exists:nstg_level,id",
+      main: "boolean",
+      duration_minutes: "nullable|integer",
+      duration_seconds: "nullable|integer",
     });
+
+    if (validator.fails()) {
+      const firstError = Object.values(validator.getErrors()).flat()[0];
+      return response().json(
+        { message: firstError ?? "Validation failed." },
+        422,
+      );
+    }
+
+    const durationMinutes = request.input("duration_minutes");
+    const durationSeconds = request.input("duration_seconds");
+    const hasDuration = !empty(durationMinutes) || !empty(durationSeconds);
+
+    character.fill({
+      ign: request.input("ign") as string,
+      third_class_id: Number(request.input("third_class_id")),
+      nstg_level_id: Number(request.input("nstg_level_id")),
+      main: request.input("main") === true,
+      duration: hasDuration
+        ? Math.max(0, Number(durationMinutes) || 0) * 60 +
+          Math.max(0, Math.min(59, Number(durationSeconds) || 0))
+        : undefined,
+    });
+    await character.save();
+
+    return response().json({ message: request.__("save_success") });
   };
 
-  // DELETE /resource/{Character}
-  public destroy: HttpDispatch = async ({ request }, { Character }) => {
-    // Delete a resource by ID
-    return response().json({
-      message: `delete ${Character}`,
-    });
+  // DELETE /characters/{character}
+  public destroy: HttpDispatch = async ({ request }, { character }) => {
+    const isAdmin = request.get("entity") === "Admin";
+    // @ts-ignore //
+    if (!isAdmin && character.user_id !== request.user()?.id) {
+      return response().json({ message: "Forbidden" }, 403);
+    }
+
+    await Character.query().where("id", character.id).delete();
+
+    return response().json({ message: request.__("delete_success") });
   };
 }
 

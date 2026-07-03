@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ request().getLanguage() }}">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -12,6 +12,7 @@
 
     <!-- csrf -->
     {{{ csrfMeta() }}}
+    <meta name="language" content="{{ request().route('lang') ? "on" : "off" }}">
     @vite('resources/ts/app.ts')
     @vite('resources/css/dark.css')
     @vite('resources/ts/shared/lang-select.ts')

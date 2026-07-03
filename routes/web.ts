@@ -18,7 +18,17 @@ Route.prefix("/{lang?}")
     // global setup
     Route.post("/setup-lang", async ({ request }) => {
       const lang = request.input("lang");
-      dd(request.server("HTTP_REFERER"));
+      const pathEraser = `/${request.getLanguage()}`;
+      const routeLang = request.input("route_lang") as "on" | "off";
+      const referrer = (request.server("HTTP_REFERER") || "/") as string;
+      const newReturnUrl = new URL(referrer);
+      newReturnUrl.searchParams.set("lang", lang as string);
+      if (routeLang === "on") {
+        newReturnUrl.pathname = newReturnUrl.pathname.replace(pathEraser, "");
+      }
+      return response().json({
+        redirect_url: newReturnUrl.toString(),
+      });
     });
 
     Route.middleware("guest").group(() => {
@@ -72,6 +82,20 @@ Route.prefix("/{lang?}")
         Route.get("/logout", [UserController, "logout"]).name("logout");
         Route.middleware("bind_member").group(() => {
           Route.resource("members", MemberController);
+          Route.post("/members/{member}/characters", [
+            CharacterController,
+            "store",
+          ]).name("members.characters.store");
+        });
+        Route.middleware("bind_character").group(() => {
+          Route.put("/characters/{character}", [
+            CharacterController,
+            "update",
+          ]).name("characters.update");
+          Route.delete("/characters/{character}", [
+            CharacterController,
+            "destroy",
+          ]).name("characters.destroy");
         });
         Route.get("/events", [UserController, "events"]).name("events");
         Route.match(["get", "post"], "/settings", [
@@ -89,6 +113,10 @@ Route.prefix("/{lang?}")
           Route.get("/", [AdminController, "index"]).name("index");
           Route.middleware("bind_member").group(() => {
             Route.resource("members", MemberController);
+            Route.post("/members/{member}/characters", [
+              CharacterController,
+              "store",
+            ]).name("members.characters.store");
           });
           Route.get("/recruits", [AdminController, "recruits"]).name(
             "recruits",
@@ -96,6 +124,16 @@ Route.prefix("/{lang?}")
           Route.get("/characters", [CharacterController, "index"]).name(
             "characters",
           );
+          Route.middleware("bind_character").group(() => {
+            Route.put("/characters/{character}", [
+              CharacterController,
+              "update",
+            ]).name("characters.update");
+            Route.delete("/characters/{character}", [
+              CharacterController,
+              "destroy",
+            ]).name("characters.destroy");
+          });
           Route.get("/events", [AdminController, "events"]).name("events");
           Route.match(["get", "post"], "/settings", [
             AdminController,

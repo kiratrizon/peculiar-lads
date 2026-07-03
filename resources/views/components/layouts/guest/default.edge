@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="{{ request().getLanguage() }}">
 <head>
 	<meta charset="UTF-8">
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,6 +13,7 @@
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
 	<!-- csrf -->
     {{{ csrfMeta() }}}
+	    <meta name="language" content="{{ request().route('lang') ? "on" : "off" }}">
 	@vite('resources/css/dark.css')
 	@vite('resources/css/guest.css')
 	@vite('resources/ts/shared/lang-select.ts')

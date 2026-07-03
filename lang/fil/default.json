@@ -140,5 +140,12 @@
   "time": "Oras",
   "activity": "Aktibidad",
   "no_characters_found": "Walang nahanap na karakter",
-  "duration": "Tagal"
+  "duration": "Tagal",
+  "edit": "I-edit",
+  "delete": "Tanggalin",
+  "delete_confirmation": "Sigurado ka bang gusto mong tanggalin ang rekord na ito? Ang aksyon na ito ay hindi maibabalik.",
+  "delete_success": "Matagumpay na natanggal ang rekord.",
+  "delete_error": "Nagkaroon ng error habang tinatanggal ang rekord. Pakisubusang subukan muli.",
+  "save_success": "Matagumpay na naisave ang mga pagbabago.",
+  "save_error": "Nagkaroon ng error habang sine-save ang mga pagbabago. Pakisubusang subukan muli."
 }

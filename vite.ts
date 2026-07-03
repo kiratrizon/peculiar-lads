@@ -12,6 +12,9 @@ type ViteConfig = {
       key?: string;
       keyFormat?: string;
     };
+    watch?: {
+      ignored?: string | string[];
+    };
   };
   cors?: {
     origin?: string | string[];
@@ -53,6 +56,9 @@ export default <ViteConfig>{
     cors: true,
     strictPort: true,
     port: 5173, // keep default unless you REALLY need 9000
+    watch: {
+      ignored: ["**/.env", "**/.env.*", "**/node_modules/**"],
+    },
   },
 
   // add cors

@@ -140,5 +140,12 @@
   "time": "Waktu",
   "activity": "Aktivitas",
   "no_characters_found": "Tidak ada karakter yang ditemukan",
-  "duration": "Durasi"
+  "duration": "Durasi",
+  "edit": "Edit",
+  "delete": "Hapus",
+  "delete_confirmation": "Apakah Anda yakin ingin menghapus catatan ini? Tindakan ini tidak dapat dibatalkan.",
+  "delete_success": "Catatan berhasil dihapus.",
+  "delete_error": "Terjadi kesalahan saat menghapus catatan. Silakan coba lagi.",
+  "save_success": "Perubahan berhasil disimpan.",
+  "save_error": "Terjadi kesalahan saat menyimpan perubahan. Silakan coba lagi."
 }

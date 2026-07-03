@@ -2,6 +2,8 @@ import Controller from "App/Http/Controllers/Controller.ts";
 import { DB, Validator } from "Illuminate/Support/Facades/index.ts";
 import Character from "App/Models/Character.ts";
 import User from "App/Models/User.ts";
+import ThirdClass from "App/Models/ThirdClass.ts";
+import NSTGLevel from "App/Models/NSTGLevel.ts";
 
 class MemberController extends Controller {
   // GET /resource
@@ -57,29 +59,34 @@ class MemberController extends Controller {
   // GET /resource/{member}
   public show: HttpDispatch = async ({ request }, { member }) => {
     const notif = await this.getUnreads({ request });
-    const entity = request.url.includes("/admin/") ? "Admin" : "User";
 
-    const characters = await Character.query()
-      .select(
-        "characters.id",
-        "characters.ign",
-        DB.raw("nstg_level.code as nstg"),
-        DB.raw("third_classes.name as class"),
-        "characters.main",
-        "characters.duration",
-      )
-      .join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
-      .join(
-        "third_classes",
-        "characters.third_class_id",
-        "=",
-        "third_classes.id",
-      )
-      .where("characters.user_id", member.id)
-      .orderBy("characters.main", "desc")
-      .orderBy("nstg_level.id", "desc")
-      .orderBy("characters.duration")
-      .get();
+    const [characters, allClass, nstg] = await Promise.all([
+      Character.query()
+        .select(
+          "characters.id",
+          "characters.ign",
+          "characters.third_class_id",
+          "characters.nstg_level_id",
+          DB.raw("nstg_level.code as nstg"),
+          DB.raw("third_classes.name as class"),
+          "characters.main",
+          "characters.duration",
+        )
+        .join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
+        .join(
+          "third_classes",
+          "characters.third_class_id",
+          "=",
+          "third_classes.id",
+        )
+        .where("characters.user_id", member.id)
+        .orderBy("characters.main", "desc")
+        .orderBy("nstg_level.id", "desc")
+        .orderBy("characters.duration")
+        .get(),
+      ThirdClass.all(),
+      NSTGLevel.all(),
+    ]);
 
     const schedules = [
       {
@@ -103,13 +110,21 @@ class MemberController extends Controller {
     ];
 
     return view("shared.members-show", {
-      selected: "members",
-      entity,
+      selected:
+        request.get("entity") == "Admin" ||
+        (request.get("entity") == "User" && request.user()?.id !== member.id)
+          ? "members"
+          : "my_characters",
       title: `${member.name} - Member Details`,
       notif,
       user: member,
       characters,
       schedules,
+      allClass,
+      nstg,
+      canEdit:
+        request.get("entity") == "Admin" ||
+        (request.get("entity") == "User" && request.user()?.id === member.id),
     });
   };
 

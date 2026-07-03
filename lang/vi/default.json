@@ -140,5 +140,12 @@
   "time": "Giờ",
   "activity": "Hoạt động",
   "no_characters_found": "Không tìm thấy nhân vật",
-  "duration": "Thời lượng"
+  "duration": "Thời lượng",
+  "edit": "Chỉnh sửa",
+  "delete": "Xóa",
+  "delete_confirmation": "Bạn có chắc chắn muốn xóa hồ sơ này không? Hành động này không thể hoàn tác.",
+  "delete_success": "Hồ sơ đã được xóa thành công.",
+  "delete_error": "Đã xảy ra lỗi khi xóa hồ sơ. Vui lòng thử lại.",
+  "save_success": "Thay đổi đã được lưu thành công.",
+  "save_error": "Đã xảy ra lỗi khi lưu thay đổi. Vui lòng thử lại."
 }

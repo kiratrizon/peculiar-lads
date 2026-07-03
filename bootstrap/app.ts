@@ -7,6 +7,7 @@ import SavePath from "App/Http/Middlewares/SavePath.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
 import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
+import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 
 export default Application.withRouting({
@@ -22,6 +23,7 @@ export default Application.withRouting({
       save_path: SavePath,
       set_lang: LanguageSetter,
       bind_member: BindUser,
+      bind_character: BindCharacter,
     });
 
     middleware.append(SetupLangVar);

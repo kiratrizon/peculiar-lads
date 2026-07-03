@@ -140,5 +140,12 @@
   "time": "时间",
   "activity": "活动",
   "no_characters_found": "未找到角色",
-  "duration": "持续时间"
+  "duration": "持续时间",
+  "edit": "编辑",
+  "delete": "删除",
+  "delete_confirmation": "您确定要删除此记录吗？此操作无法撤销。",
+  "delete_success": "记录已成功删除。",
+  "delete_error": "删除记录时发生错误。请再试一次。",
+  "save_success": "更改已成功保存。",
+  "save_error": "保存更改时发生错误。请再试一次。"
 }

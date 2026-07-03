@@ -4,18 +4,16 @@ import { Blueprint } from "Illuminate/Database/Schema/index.ts";
 
 export default new (class extends Migration {
   public async up() {
-    await Schema.table("{{ TableName }}", (table: Blueprint) => {
-        // alter logic
-        table.alterMode();
-      }
-    );
+    await Schema.table("characters", (table: Blueprint) => {
+      // alter logic
+      table.string("ign", 10).unique().notNullable().change();
+    });
   }
 
   public async down() {
-    await Schema.table("{{ TableName }}", (table: Blueprint) => {
-        // reverse alter logic
-        table.alterMode();
-      }
-    );
+    await Schema.table("characters", (table: Blueprint) => {
+      // reverse alter logic
+      table.string("ign", 10).change();
+    });
   }
 })();

@@ -140,5 +140,12 @@
   "time": "Hora",
   "activity": "Actividad",
   "no_characters_found": "No se encontraron personajes",
-  "duration": "Duración"
+  "duration": "Duración",
+  "edit": "Editar",
+  "delete": "Eliminar",
+  "delete_confirmation": "¿Estás seguro de que deseas eliminar este registro? Esta acción no se puede deshacer.",
+  "delete_success": "Registro eliminado con éxito.",
+  "delete_error": "Ocurrió un error al eliminar el registro. Por favor, inténtalo de nuevo.",
+  "save_success": "Cambios guardados con éxito.",
+  "save_error": "Ocurrió un error al guardar los cambios. Por favor, inténtalo de nuevo."
 }
