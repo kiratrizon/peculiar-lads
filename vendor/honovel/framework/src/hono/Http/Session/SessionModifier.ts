@@ -333,5 +333,13 @@ export default class SessionModifier {
   }
 
   // garbage collection
-  private async gc(): Promise<void> {}
+  private async gc(): Promise<void> {
+    if (methodExist(SessionModifier.store, "deleteExpired")) {
+      const [chance, outOf] = SessionModifier.sesConfig.lottery;
+      const wins = Math.floor(Math.random() * outOf) + 1 <= chance;
+      if (wins) {
+        await SessionModifier.store.deleteExpired();
+      }
+    }
+  }
 }
