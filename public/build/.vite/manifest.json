@@ -53,12 +53,12 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-Z-jvALE1.js",
+    "file": "assets/app-BrfjzEk1.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-B-STTLCO.css"
+      "assets/app-B5bEC-wk.css"
     ]
   },
   "resources/ts/recruit/view.ts": {
@@ -72,7 +72,7 @@
     ]
   },
   "resources/ts/shared/lang-select.ts": {
-    "file": "assets/lang-select-B578bVnx.js",
+    "file": "assets/lang-select-C8dl-cas.js",
     "name": "lang-select",
     "src": "resources/ts/shared/lang-select.ts",
     "isEntry": true,
@@ -81,10 +81,14 @@
     ]
   },
   "resources/ts/shared/member-show.ts": {
-    "file": "assets/member-show-l0sNRNKZ.js",
+    "file": "assets/member-show-BPIIzF9k.js",
     "name": "member-show",
     "src": "resources/ts/shared/member-show.ts",
-    "isEntry": true
+    "isEntry": true,
+    "imports": [
+      "_jquery.module-gzd0YkcT.js",
+      "_sweetalert2.esm.all-DE6NlnlT.js"
+    ]
   },
   "resources/ts/shared/members.ts": {
     "file": "assets/members-BXZyITKl.js",
