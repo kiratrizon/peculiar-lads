@@ -254,4 +254,4 @@ client.on(Events.GuildMemberRemove, async (member) => {
   }
 });
 
-client.login(env("HIRAZYN_TOKEN") as string);
+await client.login(env("HIRAZYN_TOKEN") as string);
