@@ -1,5 +1,6 @@
 import type {
   ChatInputCommandInteraction,
+  ModalSubmitInteraction,
   SlashCommandBuilder,
   SlashCommandOptionsOnlyBuilder,
   SlashCommandSubcommandsOnlyBuilder,
@@ -13,4 +14,5 @@ export type CommandData =
 export type Command = {
   data: CommandData;
   execute: (interaction: ChatInputCommandInteraction) => Promise<unknown>;
+  handleModal?: (interaction: ModalSubmitInteraction) => Promise<unknown>;
 };

@@ -120,6 +120,33 @@ client.once(Events.ClientReady, async () => {
 });
 
 client.on(Events.InteractionCreate, async (interaction) => {
+  if (interaction.isModalSubmit()) {
+    const [commandName] = interaction.customId.split(":");
+    const command = client.commands.get(commandName);
+
+    if (!command?.handleModal) {
+      return;
+    }
+
+    try {
+      await command.handleModal(interaction);
+    } catch (e) {
+      console.error(e);
+      if (interaction.replied || interaction.deferred) {
+        await interaction.followUp({
+          content: "There was an error 1",
+          ephemeral: true,
+        });
+      } else {
+        await interaction.reply({
+          content: "There was an error 2",
+          ephemeral: true,
+        });
+      }
+    }
+    return;
+  }
+
   if (!interaction.isChatInputCommand()) return;
   const command = client.commands.get(interaction?.commandName);
 
@@ -129,7 +156,7 @@ client.on(Events.InteractionCreate, async (interaction) => {
 
   try {
     await command.execute(interaction);
-  } catch (e: Error) {
+  } catch (e) {
     console.error(e);
     if (interaction.replied || interaction.deferred) {
       await interaction.followUp({
