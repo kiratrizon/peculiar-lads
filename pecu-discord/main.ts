@@ -254,4 +254,9 @@ client.on(Events.GuildMemberRemove, async (member) => {
   }
 });
 
-await client.login(env("HIRAZYN_TOKEN") as string);
+try {
+  await client.login(env("HIRAZYN_TOKEN") as string);
+} catch (e) {
+  console.error("Failed to log in to Discord", e);
+  Deno.exit(1);
+}
