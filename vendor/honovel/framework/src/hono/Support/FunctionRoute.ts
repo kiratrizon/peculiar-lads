@@ -254,6 +254,48 @@ interface IMiddlewareCompiler {
   from?: "handle" | "fallback";
 }
 
+function splitMiddlewareParams(parts: string[]): string[] {
+  return parts.flatMap((part) => part.split(",").map((p) => p.trim()));
+}
+
+/** Pushes `handle`/`fallback` compiler entries for a middleware instance. Every call site in
+ * toMiddleware() used to repeat this same handle/fallback-extraction logic inline. */
+function pushMiddlewareEntries(
+  middlewareCallback: IMiddlewareCompiler[],
+  middlewareInstance: InstanceType<MiddlewareLikeClass>,
+  className: string,
+  params: string[],
+): void {
+  const handle = middlewareInstance.handle;
+  const fallback = middlewareInstance.fallback;
+  const hasHandle = methodExist(middlewareInstance, "handle") && isFunction(handle);
+  const hasFallback =
+    methodExist(middlewareInstance, "fallback") && isFunction(fallback);
+
+  if (hasHandle) {
+    middlewareCallback.push({
+      debugString: `// class ${className}@handle \n// Code Referrence \n\n${handle.toString()}`,
+      middleware: [handle.bind(middlewareInstance) as HttpMiddleware, params],
+      from: hasFallback ? "handle" : undefined,
+    });
+  }
+
+  if (hasFallback) {
+    if (!hasHandle) {
+      middlewareCallback.push({
+        debugString: "",
+        middleware: [defaultHandle, []],
+        from: "handle",
+      });
+    }
+    middlewareCallback.push({
+      debugString: `// class ${className}@fallback \n// Code Referrence \n\n${fallback.toString()}`,
+      middleware: [fallback.bind(middlewareInstance) as HttpMiddleware, params],
+      from: "fallback",
+    });
+  }
+}
+
 export function toMiddleware(
   args: (string | HttpMiddleware | MiddlewareLikeClass)[],
 ): [MiddlewareHandler[], TFallbackMiddleware[]] {
@@ -268,8 +310,7 @@ export function toMiddleware(
       if (argParts.length === 0) {
         // if it's in the group middleware
         if (keyExist(MiddlewareGroups, firstKey)) {
-          arg = firstKey;
-          const middlewareGroup = MiddlewareGroups[arg];
+          const middlewareGroup = MiddlewareGroups[firstKey];
 
           // map through each middleware in the group
           middlewareGroup.forEach((middleware) => {
@@ -280,220 +321,51 @@ export function toMiddleware(
                 throw new Error(`Invalid middleware name: ${middleware}`);
               }
               if (keyExist(RouteMiddleware, middlewareName)) {
-                middleware = middlewareName;
-                const middlewareClass = RouteMiddleware[middleware];
+                const middlewareClass = RouteMiddleware[middlewareName];
                 const middlewareInstance =
                   new (middlewareClass as new () => InstanceType<
                     typeof middlewareClass
                   >)();
-                if (
-                  methodExist(middlewareInstance, "handle") &&
-                  isFunction(middlewareInstance.handle)
-                ) {
-                  middlewareCallback.push({
-                    debugString: `// class ${
-                      middlewareClass.name
-                    }@handle \n// Code Referrence \n\n${middlewareInstance.handle.toString()}`,
-                    middleware: [
-                      middlewareInstance.handle.bind(
-                        middlewareInstance,
-                      ) as HttpMiddleware,
-                      middlewareParts.flatMap((part) =>
-                        part.split(",").map((p) => p.trim()),
-                      ),
-                    ],
-                    from:
-                      methodExist(middlewareInstance, "fallback") &&
-                      isFunction(middlewareInstance.fallback)
-                        ? "handle"
-                        : undefined,
-                  });
-                }
-                if (
-                  methodExist(middlewareInstance, "fallback") &&
-                  isFunction(middlewareInstance.fallback)
-                ) {
-                  if (!methodExist(middlewareInstance, "handle")) {
-                    middlewareCallback.push({
-                      debugString: "",
-                      middleware: [defaultHandle, []],
-                      from: "handle",
-                    });
-                  }
-                  middlewareCallback.push({
-                    debugString: `// class ${
-                      middlewareClass.name
-                    }@fallback \n// Code Referrence \n\n${middlewareInstance.fallback.toString()}`,
-                    middleware: [
-                      middlewareInstance.fallback.bind(
-                        middlewareInstance,
-                      ) as HttpMiddleware,
-                      middlewareParts.flatMap((part) =>
-                        part.split(",").map((p) => p.trim()),
-                      ),
-                    ],
-                    from: "fallback",
-                  });
-                }
+                pushMiddlewareEntries(
+                  middlewareCallback,
+                  middlewareInstance,
+                  middlewareClass.name,
+                  splitMiddlewareParams(middlewareParts),
+                );
               }
             } else {
               const middlewareInstance = new middleware();
-              if (
-                methodExist(middlewareInstance, "handle") &&
-                isFunction(middlewareInstance.handle)
-              ) {
-                middlewareCallback.push({
-                  debugString: `// class ${
-                    middleware.name
-                  }@handle \n// Code Referrence \n\n${middlewareInstance.handle.toString()}`,
-                  middleware: [
-                    middlewareInstance.handle.bind(
-                      middlewareInstance,
-                    ) as HttpMiddleware,
-                    [],
-                  ],
-                  from:
-                    methodExist(middlewareInstance, "fallback") &&
-                    isFunction(middlewareInstance.fallback)
-                      ? "handle"
-                      : undefined,
-                });
-              }
-              if (
-                methodExist(middlewareInstance, "fallback") &&
-                isFunction(middlewareInstance.fallback)
-              ) {
-                if (!methodExist(middlewareInstance, "handle")) {
-                  middlewareCallback.push({
-                    debugString: "",
-                    middleware: [defaultHandle, []],
-                    from: "handle",
-                  });
-                }
-                middlewareCallback.push({
-                  debugString: `// class ${
-                    middleware.name
-                  }@fallback \n// Code Referrence \n\n${middlewareInstance.fallback.toString()}`,
-                  middleware: [
-                    middlewareInstance.fallback.bind(
-                      middlewareInstance,
-                    ) as HttpMiddleware,
-                    [],
-                  ],
-                  from: "fallback",
-                });
-              }
+              pushMiddlewareEntries(
+                middlewareCallback,
+                middlewareInstance,
+                middleware.name,
+                [],
+              );
             }
           });
         } else if (keyExist(RouteMiddleware, firstKey)) {
-          arg = firstKey;
-
-          const middlewareClass = RouteMiddleware[arg];
+          const middlewareClass = RouteMiddleware[firstKey];
           const middlewareInstance = new (middlewareClass as new (
             ...args: any[]
           ) => any)();
-          if (
-            methodExist(middlewareInstance, "handle") &&
-            isFunction(middlewareInstance.handle)
-          ) {
-            middlewareCallback.push({
-              debugString: `// class ${
-                middlewareClass.name
-              }@handle \n// Code Referrence \n\n${middlewareInstance.handle.toString()}`,
-              middleware: [
-                middlewareInstance.handle.bind(
-                  middlewareInstance,
-                ) as HttpMiddleware,
-                argParts.flatMap((part) =>
-                  part.split(",").map((p) => p.trim()),
-                ),
-              ],
-              from:
-                methodExist(middlewareInstance, "fallback") &&
-                isFunction(middlewareInstance.fallback)
-                  ? "handle"
-                  : undefined,
-            });
-          }
-          if (
-            methodExist(middlewareInstance, "fallback") &&
-            isFunction(middlewareInstance.fallback)
-          ) {
-            if (!methodExist(middlewareInstance, "handle")) {
-              middlewareCallback.push({
-                debugString: "",
-                middleware: [defaultHandle, []],
-                from: "handle",
-              });
-            }
-            middlewareCallback.push({
-              debugString: `// class ${
-                middlewareClass.name
-              }@fallback \n// Code Referrence \n\n${middlewareInstance.fallback.toString()}`,
-              middleware: [
-                middlewareInstance.fallback.bind(
-                  middlewareInstance,
-                ) as HttpMiddleware,
-                argParts.flatMap((part) =>
-                  part.split(",").map((p) => p.trim()),
-                ),
-              ],
-              from: "fallback",
-            });
-          }
+          pushMiddlewareEntries(
+            middlewareCallback,
+            middlewareInstance,
+            middlewareClass.name,
+            [],
+          );
         }
       } else if (keyExist(RouteMiddleware, firstKey)) {
-        arg = firstKey;
-
-        const middlewareClass = RouteMiddleware[arg];
+        const middlewareClass = RouteMiddleware[firstKey];
         const middlewareInstance = new (middlewareClass as new (
           ...args: any[]
         ) => any)();
-        if (
-          methodExist(middlewareInstance, "handle") &&
-          isFunction(middlewareInstance.handle)
-        ) {
-          middlewareCallback.push({
-            debugString: `// class ${
-              middlewareClass.name
-            }@handle \n// Code Referrence \n\n${middlewareInstance.handle.toString()}`,
-            middleware: [
-              middlewareInstance.handle.bind(
-                middlewareInstance,
-              ) as HttpMiddleware,
-              argParts.flatMap((part) => part.split(",").map((p) => p.trim())),
-            ],
-            from:
-              methodExist(middlewareInstance, "fallback") &&
-              isFunction(middlewareInstance.fallback)
-                ? "handle"
-                : undefined,
-          });
-        }
-        if (
-          methodExist(middlewareInstance, "fallback") &&
-          isFunction(middlewareInstance.fallback)
-        ) {
-          if (!methodExist(middlewareInstance, "handle")) {
-            middlewareCallback.push({
-              debugString: "",
-              middleware: [defaultHandle, []],
-              from: "handle",
-            });
-          }
-          middlewareCallback.push({
-            debugString: `// class ${
-              middlewareClass.name
-            }@fallback \n// Code Referrence \n\n${middlewareInstance.fallback.toString()}`,
-            middleware: [
-              middlewareInstance.fallback.bind(
-                middlewareInstance,
-              ) as HttpMiddleware,
-              argParts.flatMap((part) => part.split(",").map((p) => p.trim())),
-            ],
-            from: "fallback",
-          });
-        }
+        pushMiddlewareEntries(
+          middlewareCallback,
+          middlewareInstance,
+          middlewareClass.name,
+          splitMiddlewareParams(argParts),
+        );
       }
     } else if (isFunction(arg)) {
       const isClass = /^class\s/.test(arg.toString());
@@ -502,51 +374,12 @@ export function toMiddleware(
         const middlewareInstance = new (middlewareClass as new (
           ...args: any[]
         ) => any)();
-        if (
-          methodExist(middlewareInstance, "handle") &&
-          isFunction(middlewareInstance.handle)
-        ) {
-          middlewareCallback.push({
-            debugString: `// class ${
-              middlewareClass.name
-            }@handle \n// Code Referrence \n\n${middlewareInstance.handle.toString()}`,
-            middleware: [
-              middlewareInstance.handle.bind(
-                middlewareInstance,
-              ) as HttpMiddleware,
-              [],
-            ],
-            from:
-              methodExist(middlewareInstance, "fallback") &&
-              isFunction(middlewareInstance.fallback)
-                ? "handle"
-                : undefined,
-          });
-        }
-        if (
-          methodExist(middlewareInstance, "fallback") &&
-          isFunction(middlewareInstance.fallback)
-        ) {
-          if (!methodExist(middlewareInstance, "handle")) {
-            middlewareCallback.push({
-              debugString: "",
-              middleware: [defaultHandle, []],
-              from: "handle",
-            });
-          }
-          middlewareCallback.push({
-            debugString: `// class ${
-              middlewareClass.name
-            }@fallback \n// Code Referrence \n\n${middlewareInstance.fallback.toString()}`,
-            middleware: [
-              middlewareInstance.fallback.bind(
-                middlewareInstance,
-              ) as HttpMiddleware,
-              [],
-            ],
-            from: "fallback",
-          });
-        }
+        pushMiddlewareEntries(
+          middlewareCallback,
+          middlewareInstance,
+          middlewareClass.name,
+          [],
+        );
       } else {
         middlewareCallback.push({
           debugString: `// Code Referrence \n\n${arg.toString()}`,
@@ -717,27 +550,7 @@ function generateMiddlewareOrDispatch(
             // @ts-ignore //
             type = "route";
           }
-          const debuggingPurpose = renderDebugErrorPage(
-            `${ucFirst(type)} Error`,
-            debugString,
-            `Returned undefined value from the ${type} function.`,
-          );
-          if (!isset(env("DENO_DEPLOYMENT_ID"))) {
-            return c.html(debuggingPurpose, 500);
-          }
-          console.debug(
-            debuggingPurpose,
-            "error",
-            `Request URI ${request.method.toUpperCase()} ${request.path()}\nRequest ID ${request.server(
-              "HTTP_X_REQUEST_ID",
-            )}`,
-          );
-          return c.json(
-            {
-              message: "Internal server error",
-            },
-            500,
-          );
+          return renderDebugOrInternalError(c, request, type, debugString);
         }
       }
     };
@@ -829,30 +642,41 @@ function generateFallback(
         await request.dispose();
         return resp;
       } else {
-        const debuggingPurpose = renderDebugErrorPage(
-          `${ucFirst(type)} Error`,
-          debugString,
-          `Returned undefined value from the ${type} function.`,
-        );
-        if (!isset(env("DENO_DEPLOYMENT_ID"))) {
-          return c.html(debuggingPurpose, 500);
-        }
-        console.debug(
-          debuggingPurpose,
-          "error",
-          `Request URI ${request.method.toUpperCase()} ${request.path()}\nRequest ID ${request.server(
-            "HTTP_X_REQUEST_ID",
-          )}`,
-        );
-        return c.json(
-          {
-            message: "Internal server error",
-          },
-          500,
-        );
+        return renderDebugOrInternalError(c, request, type, debugString);
       }
     }
   };
+}
+
+/** Shared by generateMiddlewareOrDispatch and generateFallback: renders the debug error
+ * page locally, or logs and returns a generic 500 in deployed environments. */
+function renderDebugOrInternalError(
+  c: MyContext,
+  request: HRequest,
+  type: string,
+  debugString: string,
+): Response {
+  const debuggingPurpose = renderDebugErrorPage(
+    `${ucFirst(type)} Error`,
+    debugString,
+    `Returned undefined value from the ${type} function.`,
+  );
+  if (!isset(env("DENO_DEPLOYMENT_ID"))) {
+    return c.html(debuggingPurpose, 500);
+  }
+  console.debug(
+    debuggingPurpose,
+    "error",
+    `Request URI ${request.method.toUpperCase()} ${request.path()}\nRequest ID ${request.server(
+      "HTTP_X_REQUEST_ID",
+    )}`,
+  );
+  return c.json(
+    {
+      message: "Internal server error",
+    },
+    500,
+  );
 }
 
 export const returnResponse: MiddlewareHandler = async (c: MyContext) => {
@@ -1376,6 +1200,15 @@ async function handleErrors(
   return resp as Response;
 }
 
+// Per-process caches for the `@vite` edge tag, so it doesn't hit disk on every template
+// compile (HonoView compiles the whole template on every render, see HonoView.ts).
+/** Raw manifest.json text, keyed by build outDir. The manifest is a build artifact that
+ * never changes while the process is running, so a single read is safe. */
+const cachedViteManifestJson = new Map<string, string>();
+/** Files already recorded in storage/framework/cache/vite.json (dev mode only). `null`
+ * until lazily loaded from disk on first use. */
+let knownViteDevFiles: Set<string> | null = null;
+
 export async function handleAction(
   data: unknown,
   c: MyContext,
@@ -1524,40 +1357,50 @@ export async function handleAction(
                     );
                   }
                 });
-                // get file contents from the json file
-                const fileContents = getFileContents(
-                  basePath("storage/framework/cache/vite.json"),
-                );
-                try {
-                  const fileContentsJson = jsonDecode(fileContents);
-                  // check if it's included in the filesToSave
-                  const files = fileContentsJson.files as string[];
-                  // concatenate but never duplicate
-                  const concatenatedFiles = [...files, ...filesToSave];
-                  // remove duplicates
-                  const uniqueFiles = concatenatedFiles.filter(
-                    (file, index, self) => self.indexOf(file) === index,
+                // Lazily loads the known file set once per process instead of re-reading
+                // vite.json on every compile; only writes back when something is new.
+                if (knownViteDevFiles === null) {
+                  knownViteDevFiles = new Set(
+                    (jsonDecode(
+                      getFileContents(
+                        basePath("storage/framework/cache/vite.json"),
+                      ) || "{}",
+                    )?.files as string[] | undefined) || [],
                   );
-                  // save to the json file
+                }
+                const newFiles = filesToSave.filter(
+                  (file) => !knownViteDevFiles!.has(file),
+                );
+                if (newFiles.length) {
+                  newFiles.forEach((file) => knownViteDevFiles!.add(file));
                   writeFile(
                     basePath("storage/framework/cache/vite.json"),
                     jsonEncode({
-                      files: uniqueFiles,
+                      files: [...knownViteDevFiles],
                     }),
                   );
-                } catch {
-                  // handle error
                 }
               } else {
                 // find the manifest.json under use deno readfile
 
                 const pathOfOutdir = viteConfig.build?.outDir || "public/build";
 
-                const viteJson = Deno.readTextFileSync(
-                  basePath(`${pathOfOutdir}/.vite/manifest.json`),
-                );
+                // The build manifest is a static artifact of `vite build` — it never changes
+                // for the lifetime of this process, so read it from disk once and reuse the
+                // raw text (still re-parsed below, same as before, to keep JSON.parse errors
+                // caught by the existing try/catch instead of throwing on a cache miss).
+                if (!cachedViteManifestJson.has(pathOfOutdir)) {
+                  cachedViteManifestJson.set(
+                    pathOfOutdir,
+                    Deno.readTextFileSync(
+                      basePath(`${pathOfOutdir}/.vite/manifest.json`),
+                    ),
+                  );
+                }
                 try {
-                  const manifest = JSON.parse(viteJson);
+                  const manifest = JSON.parse(
+                    cachedViteManifestJson.get(pathOfOutdir)!,
+                  );
                   // remove trailing slash
                   const staticPath = pathOfOutdir.replace("public/", "");
                   args.forEach((file) => {
@@ -1621,65 +1464,11 @@ export async function handleAction(
       const rendered = await data.element(c.get("_variables"));
       statusCode = 200;
       // move all new to old
-      const sessionFlashData = request.session.get(
-        "_flash",
-      ) as SessionDataTypes["_flash"];
-      const old = sessionFlashData.old;
-      const newData = sessionFlashData.new;
-      // merge
-      const merged = [...old, ...newData];
-      request.session.put("_flash", {
-        old: [...merged],
-        new: [],
-      });
+      rotateFlashSession(request, "old");
       return c.html(rendered, 200);
     } else if (data instanceof HonoRedirect) {
       saveSessionIfRedirect(request, data);
-      let redirectUrl: string = "";
-      switch (data.type) {
-        case "back":
-          redirectUrl = (request.session.get("_previous.url") || "/") as string;
-          break;
-        case "redirect":
-        case "to":
-        case "route":
-          redirectUrl = data.getTargetUrl();
-          break;
-        default:
-          throw new Error("Invalid use of redirect()");
-      }
-      // if (config("app.enable_locale")) {
-      //   const lang = request.getLanguage();
-      //   if (lang) {
-      //     const langPrefix = `/${lang}`;
-      //     if (
-      //       redirectUrl.startsWith("http://") ||
-      //       redirectUrl.startsWith("https://")
-      //     ) {
-      //       try {
-      //         const parsed = new URL(redirectUrl);
-      //         if (
-      //           !parsed.pathname.startsWith(`${langPrefix}/`) &&
-      //           parsed.pathname !== langPrefix
-      //         ) {
-      //           parsed.pathname = `${langPrefix}${parsed.pathname}`;
-      //           redirectUrl = parsed.toString();
-      //         }
-      //       } catch {
-      //         /* leave as-is */
-      //       }
-      //     } else {
-      //       if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
-      //       if (
-      //         !redirectUrl.startsWith(`${langPrefix}/`) &&
-      //         redirectUrl !== langPrefix
-      //       ) {
-      //         redirectUrl = `${langPrefix}${redirectUrl}`;
-      //       }
-      //     }
-      //   }
-      // }
-      return c.redirect(redirectUrl, 302);
+      return c.redirect(resolveRedirectUrl(request, data), 302);
     } else if (data instanceof HonoResponse) {
       // @ts-ignore //
       const cookies = data.getCookies();
@@ -1717,17 +1506,36 @@ export function saveSessionIfRedirect(request: HRequest, data: HonoRedirect) {
   if (isset(data.errorData)) {
     request.session.flash("errors", data.errorData);
   }
+  rotateFlashSession(request, "new");
+}
+
+/** Merges the "_flash" old+new buckets and rotates the result into `target`, emptying the
+ * other bucket. Used both after a view renders (rotate into "old") and before a redirect
+ * (rotate into "new" so the flashed data survives into the next request). */
+function rotateFlashSession(request: HRequest, target: "old" | "new"): void {
   const sessionFlashData = request.session.get(
     "_flash",
   ) as SessionDataTypes["_flash"];
-  const old = sessionFlashData.old;
-  const newData = sessionFlashData.new;
-  // merge
-  const merged = [...old, ...newData];
+  const merged = [...sessionFlashData.old, ...sessionFlashData.new];
   request.session.put("_flash", {
-    old: [],
-    new: [...merged],
+    old: target === "old" ? merged : [],
+    new: target === "new" ? merged : [],
   });
+}
+
+/** Resolves the redirect target URL for a HonoRedirect, shared by handleAction and
+ * exceptionToResponse. */
+function resolveRedirectUrl(request: HRequest, data: HonoRedirect): string {
+  switch (data.type) {
+    case "back":
+      return (request.session.get("_previous.url") || "/") as string;
+    case "redirect":
+    case "to":
+    case "route":
+      return data.getTargetUrl();
+    default:
+      throw new Error("Invalid use of redirect()");
+  }
 }
 
 export function convertToResponse(c: MyContext, res: Response): Response {
@@ -1765,52 +1573,7 @@ export async function exceptionToResponse(
     }
     if (firstResp instanceof HonoRedirect) {
       saveSessionIfRedirect(myHono.request, firstResp);
-      let redirectUrl: string = "";
-      switch (firstResp.type) {
-        case "back":
-          redirectUrl = (myHono.request.session.get("_previous.url") ||
-            "/") as string;
-          break;
-        case "redirect":
-        case "to":
-        case "route":
-          redirectUrl = firstResp.getTargetUrl();
-          break;
-        default:
-          throw new Error("Invalid use of redirect()");
-      }
-      // if (config("app.enable_locale")) {
-      //   const lang = myHono.request.getLanguage();
-      //   if (lang) {
-      //     const langPrefix = `/${lang}`;
-      //     if (
-      //       redirectUrl.startsWith("http://") ||
-      //       redirectUrl.startsWith("https://")
-      //     ) {
-      //       try {
-      //         const parsed = new URL(redirectUrl);
-      //         if (
-      //           !parsed.pathname.startsWith(`${langPrefix}/`) &&
-      //           parsed.pathname !== langPrefix
-      //         ) {
-      //           parsed.pathname = `${langPrefix}${parsed.pathname}`;
-      //           redirectUrl = parsed.toString();
-      //         }
-      //       } catch {
-      //         /* leave as-is */
-      //       }
-      //     } else {
-      //       if (!redirectUrl.startsWith("/")) redirectUrl = `/${redirectUrl}`;
-      //       if (
-      //         !redirectUrl.startsWith(`${langPrefix}/`) &&
-      //         redirectUrl !== langPrefix
-      //       ) {
-      //         redirectUrl = `${langPrefix}${redirectUrl}`;
-      //       }
-      //     }
-      //   }
-      // }
-      return c.redirect(redirectUrl, 302);
+      return c.redirect(resolveRedirectUrl(myHono.request, firstResp), 302);
     }
     if (isset(firstResp)) {
       // stringify the response

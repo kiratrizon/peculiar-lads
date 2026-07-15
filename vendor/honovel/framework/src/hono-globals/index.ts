@@ -388,6 +388,27 @@ globalFn("pathExists", function (fileString: string = ""): boolean {
   }
 });
 
+// Async twin of pathExists — for per-request-unique paths (e.g. keyed by session ID) that
+// can't be cached away, so the check must not block the event loop. Bounded/reusable paths
+// (config files, CLI-time checks) should keep using the sync pathExists above.
+globalFn(
+  "pathExistsAsync",
+  async function (fileString: string = ""): Promise<boolean> {
+    if (fileString === "") {
+      return false;
+    }
+    try {
+      await Deno.stat(fileString);
+      return true;
+    } catch (err) {
+      if (err instanceof Deno.errors.NotFound) {
+        return false;
+      }
+      throw err;
+    }
+  },
+);
+
 globalFn("makeDir", function (dirString = "") {
   if (dirString === "") {
     return;

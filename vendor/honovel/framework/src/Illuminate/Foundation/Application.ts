@@ -3,7 +3,7 @@ import Exception from "./Execptions/Exception.ts";
 import Exceptions, { IExceptionCallback } from "./Execptions/Exceptions.ts";
 import HttpException from "./HttpExecptions/HttpException.ts";
 
-type RouterLoader = () => Promise<any>;
+export type RouterLoader = () => Promise<any>;
 
 export interface RoutingConfig {
   web?: RouterLoader;

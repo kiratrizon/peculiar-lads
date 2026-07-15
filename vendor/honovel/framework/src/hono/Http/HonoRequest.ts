@@ -24,6 +24,13 @@ class HonoRequest extends Macroable {
     "X-Forwarded-Port",
   ];
 
+  /** Parsed `lang/{locale}/{file}.json` contents, keyed by "locale/file". A HonoRequest is
+   * re-created on every request (see HttpHono's constructor), so this must live on the
+   * class, not the instance, to actually avoid repeat reads across requests. Translation
+   * files don't change during a process's lifetime, so a `null` cache entry (file missing
+   * or invalid JSON) is cached too, avoiding a repeat failed read on every call. */
+  static #translationCache = new Map<string, Record<string, unknown> | null>();
+
   #c: MyContext;
 
   constructor(c: MyContext) {
@@ -641,22 +648,38 @@ class HonoRequest extends Macroable {
     );
   }
 
+  /** Loads and parses a `lang/{locale}/{file}.json` file, caching the result (including
+   * `null` on a missing file or invalid JSON) so repeat `__()` calls for the same file
+   * never touch disk again for the lifetime of the process. */
+  static #loadTranslationFile(
+    locale: string,
+    file: string,
+  ): Record<string, unknown> | null {
+    const cacheKey = `${locale}/${file}`;
+    const cached = HonoRequest.#translationCache.get(cacheKey);
+    if (cached !== undefined) return cached;
+
+    const contents = getFileContents(basePath(`lang/${locale}/${file}.json`));
+    let data: Record<string, unknown> | null = null;
+    if (contents) {
+      try {
+        data = JSON.parse(contents);
+      } catch {
+        data = null;
+      }
+    }
+    HonoRequest.#translationCache.set(cacheKey, data);
+    return data;
+  }
+
   public __(key: string, replace: Record<string, string> = {}): string {
     const parts = key.split(".");
     const file = parts.length === 1 ? "default" : parts[0];
     const nestedKeys = parts.length === 1 ? parts : parts.slice(1);
 
     const resolve = (locale: string): string | null => {
-      const path = basePath(`lang/${locale}/${file}.json`);
-      const contents = getFileContents(path);
-      if (!contents) return null;
-
-      let data: Record<string, unknown>;
-      try {
-        data = JSON.parse(contents);
-      } catch {
-        return null;
-      }
+      const data = HonoRequest.#loadTranslationFile(locale, file);
+      if (!data) return null;
 
       let current: unknown = data;
       for (const k of nestedKeys) {

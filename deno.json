@@ -55,7 +55,10 @@
     "uuid": "npm:uuid@^11.1.1",
     "prettier": "npm:prettier@^3.8.3",
     "Honovel": "./vendor/honovel/framework/Server.ts",
-    "vite": "npm:vite@^7.3.5"
+    "vite": "npm:vite@^7.3.5",
+    "@napi-rs/canvas": "npm:@napi-rs/canvas@^1.0.2",
+    "@openrouter/sdk": "npm:@openrouter/sdk@^0.13.55",
+    "discord.js": "npm:discord.js@^14.26.5"
   },
   "tasks": {
     "smelt": "deno run -A vendor/bin/smelt",
@@ -93,5 +96,6 @@
   "repository": {
     "type": "git",
     "url": "https://github.com/kiratrizon/honovel.git"
-  }
+  },
+  "allowScripts": ["npm:@openrouter/sdk@0.13.55", "npm:esbuild@0.28.1", "npm:fsevents@2.3.3"]
 }

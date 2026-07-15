@@ -1,7 +1,6 @@
 import { Edge, edgeGlobals } from "edge.js";
 import { ViewParams } from "../../../../@types/declaration/IHonoView.d.ts";
 import { TagContract } from "edge.js/types";
-import prettier from "prettier";
 // Import Edge.js for Deno
 // import { Edge as TestEdge } from "https://deno.land/x/edge/src/edge.ts";
 // import { edgePlugin } from "https://deno.land/x/edge@3.2.1/plugins/mod.ts";
@@ -9,8 +8,11 @@ import prettier from "prettier";
 class HonoView {
   #data: Record<string, unknown> = {};
   #viewFile = "";
+  // Caching is disabled in local dev so template edits show up without a restart, and
+  // enabled everywhere else so a view only ever compiles once per process (avoiding
+  // repeated tag-compile work, e.g. the @vite tag's manifest read, on every request).
   private edge = new Edge({
-    cache: false,
+    cache: isset(env("DENO_DEPLOYMENT_ID")),
   });
   constructor({ viewName = "", data, mergeData }: ViewParams = {}) {
     if (data && typeof data === "object") {
@@ -76,6 +78,9 @@ class HonoView {
 
   private async pretty(html: string) {
     try {
+      // Only ever called outside DENO_DEPLOYMENT_ID (see element() above), so loading
+      // prettier lazily here means a deployed process never pays for it at all.
+      const { default: prettier } = await import("prettier");
       return await prettier.format(html, { parser: "html" });
     } catch {
       // fallback if something breaks (invalid HTML)

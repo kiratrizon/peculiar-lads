@@ -206,6 +206,7 @@ function buildIncomingUrl(requestUrl: URL): string {
 }
 
 import { DetectorOptions, languageDetector } from "hono/language";
+import { RouterLoader } from "Illuminate/Foundation/Application.ts";
 
 const i18n = {
   order: ["path", "querystring", "cookie", "header"],
@@ -230,6 +231,8 @@ class Server {
   private static Hono = Hono;
   public static app: HonoType;
   public static domainPattern: Record<string, Record<string, HonoType>> = {};
+
+  private static console: RouterLoader;
 
   public static routes: Record<
     string,
@@ -440,6 +443,10 @@ class Server {
     };
 
     for (const [key, val] of Object.entries(ordered)) {
+      if (key == "commands") {
+        this.console = val;
+        continue;
+      }
       try {
         await val();
       } catch (err) {
@@ -550,24 +557,26 @@ class Server {
             }
           }
 
-          // const warmUpFallbacks: TFallbackMiddleware[] = [
-          //   ...globalMiddlewareFallback,
-          //   ...routeGroupMiddlewareFallback,
-          // ];
-          // const warmUpFallbacksArr: MiddlewareHandler[] = [];
-          // warmUpFallbacks.forEach((fb, index) => {
-          //   warmUpFallbacksArr.unshift(toFallback([index + 1, fb]));
-          // });
+          if (config("app.env") == "local") {
+            const warmUpFallbacks: TFallbackMiddleware[] = [
+              ...globalMiddlewareFallback,
+              ...routeGroupMiddlewareFallback,
+            ];
+            const warmUpFallbacksArr: MiddlewareHandler[] = [];
+            warmUpFallbacks.forEach((fb, index) => {
+              warmUpFallbacksArr.unshift(toFallback([index + 1, fb]));
+            });
 
-          // const warmUpBuilds = [
-          //   toDispatch({ args: warmUpdispatch, debugString: "" }, []),
-          //   ...warmUpFallbacksArr,
-          //   returnResponse,
-          // ];
-          // const warmUpApp = await this.generateNewApp();
-          // // @ts-ignore //
-          // warmUpApp.get("/__warmup", ...warmUpBuilds);
-          // byEndpointsRouter.route("/", warmUpApp);
+            const warmUpBuilds = [
+              toDispatch({ args: warmUpdispatch, debugString: "" }, []),
+              ...warmUpFallbacksArr,
+              returnResponse,
+            ];
+            const warmUpApp = await this.generateNewApp();
+            // @ts-ignore //
+            warmUpApp.get("/__warmup", ...warmUpBuilds);
+            byEndpointsRouter.route("/", warmUpApp);
+          }
 
           // for groups
           if (isset(groups) && !empty(groups) && isObject(groups)) {
@@ -853,6 +862,10 @@ class Server {
         path.join(storagePath("framework/route"), "routes.json"),
         prettyRoutes,
       );
+    }
+
+    if (isset(this.console) && isFunction(this.console)) {
+      await this.console();
     }
   }
 }

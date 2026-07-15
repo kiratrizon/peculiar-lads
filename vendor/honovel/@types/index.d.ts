@@ -261,6 +261,18 @@ declare global {
   function pathExists(fileString: string): boolean;
 
   /**
+   * Async equivalent of `pathExists`, using `Deno.stat` instead of `Deno.statSync`.
+   *
+   * Use this instead of `pathExists` when the path being checked is per-request-unique
+   * (e.g. keyed by session ID) rather than one of a small, reusable set of paths — in that
+   * case the check can't be cached away, so it must not block the event loop while it runs.
+   *
+   * @param fileString - Relative file path from the base path.
+   * @returns `true` if the file exists, otherwise `false`.
+   */
+  function pathExistsAsync(fileString: string): Promise<boolean>;
+
+  /**
    * Checks if the given path is a directory.
    * @param dirString - The relative path to check.
    * @returns `true` if the path is a directory, otherwise `false`.
