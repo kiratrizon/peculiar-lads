@@ -1,0 +1,158 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6 max-w-3xl">
+
+  <div class="flex items-center justify-between gap-4">
+    <div class="flex flex-col gap-2">
+      <h1 class="text-2xl font-bold" style="color: var(--accent);">{{request().__('schedule.head')}}</h1>
+      <p class="text-sm" style="color: var(--text-soft);">{{request().__('schedule.pick')}}</p>
+    </div>
+
+    <form method="POST" action="{{ route('admin.schedule.channels.sync') }}">
+      @csrf()
+      <button type="submit"
+              class="px-4 py-2 rounded-lg font-semibold transition"
+              style="background: var(--accent); color: var(--bg-1);">
+        Sync channels from Discord
+      </button>
+    </form>
+  </div>
+
+  @if(session().has("message"))
+  <div class="px-4 py-3 rounded-lg text-sm font-medium"
+       style="background: rgba(34, 197, 94, 0.12); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.35);">
+    {{ session().get("message") }}
+  </div>
+  @endif
+
+  @if(errors.has('sync'))
+  <div class="px-4 py-3 rounded-lg text-sm font-medium"
+       style="background: rgba(239, 68, 68, 0.12); color: #dc2626; border: 1px solid rgba(239, 68, 68, 0.35);">
+    {{ errors.first('sync') }}
+  </div>
+  @endif
+
+  <form method="POST" action="{{ route('admin.schedule.channels.store') }}"
+        class="p-4 rounded-2xl shadow-xl border flex flex-wrap items-end gap-3"
+        style="background: var(--panel); border-color: var(--border);">
+    @csrf()
+
+    <div>
+      <label class="block text-sm mb-1" style="color: var(--text-soft);">Channel ID</label>
+      <input type="text" name="channel_id" required value="{{ old('channel_id') }}"
+             placeholder="1526535715704537088"
+             class="px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);">
+      @if(errors.has('channel_id'))
+      <p class="text-red-500 text-sm mt-1">{{ errors.first('channel_id') }}</p>
+      @endif
+    </div>
+
+    <div>
+      <label class="block text-sm mb-1" style="color: var(--text-soft);">Name</label>
+      <input type="text" name="name" required value="{{ old('name') }}"
+             placeholder="announcements"
+             class="px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);">
+      @if(errors.has('name'))
+      <p class="text-red-500 text-sm mt-1">{{ errors.first('name') }}</p>
+      @endif
+    </div>
+
+    <button type="submit"
+            class="px-4 py-2 rounded-lg font-semibold transition"
+            style="background: var(--accent); color: var(--bg-1);">
+      Add channel
+    </button>
+  </form>
+
+  <div id="channelList" class="rounded-2xl shadow-xl border flex flex-col divide-y"
+       style="background: var(--panel); border-color: var(--border);">
+    @if($channels.length === 0)
+    <div class="p-6 text-sm" style="color: var(--text-soft);">
+      No channels synced yet. Click "Sync channels from Discord" to pull them in.
+    </div>
+    @endif
+
+    @each(channel in $channels)
+    <div class="channel-row flex items-center gap-4 px-6 py-4 transition"
+         style="color: var(--text-main);"
+         data-channel-id="{{ channel.channel_id }}"
+         draggable="true"
+         onmouseover="this.style.background='var(--hover)'"
+         onmouseout="this.style.background='transparent'">
+      <span class="drag-handle shrink-0 cursor-grab select-none" style="color: var(--text-soft);" title="Drag to reorder">⠿</span>
+      <a href="{{ route('admin.schedule.message', { discord_channel_id: channel.channel_id }) }}"
+         class="flex-1 flex items-center justify-between gap-4 min-w-0" style="color: inherit;"
+         draggable="false">
+        <span class="font-medium truncate">#{{ channel.name }}</span>
+        <span class="text-xs shrink-0" style="color: var(--text-soft);">{{ channel.channel_id }}</span>
+      </a>
+      <form method="POST"
+            action="{{ route('admin.schedule.channels.destroy', { discord_channel_id: channel.channel_id }) }}"
+            class="shrink-0">
+          @csrf()
+          @method("DELETE")
+        <button type="submit" class="text-sm underline text-red-500">{{request().__('delete')}}</button>
+      </form>
+    </div>
+    @end
+  </div>
+
+</div>
+@end
+
+@slot('scripts')
+<script>
+(() => {
+  const list = document.getElementById("channelList");
+  if (!list) return;
+
+  let dragging = null;
+
+  list.addEventListener("dragstart", (event) => {
+    const row = event.target.closest(".channel-row");
+    if (!row) return;
+    dragging = row;
+    event.dataTransfer.effectAllowed = "move";
+    row.style.opacity = "0.4";
+  });
+
+  list.addEventListener("dragend", () => {
+    if (dragging) dragging.style.opacity = "";
+    dragging = null;
+    persistOrder();
+  });
+
+  list.addEventListener("dragover", (event) => {
+    event.preventDefault();
+    const row = event.target.closest(".channel-row");
+    if (!row || row === dragging || !dragging) return;
+
+    const rect = row.getBoundingClientRect();
+    const isAfter = event.clientY - rect.top > rect.height / 2;
+    row.parentNode.insertBefore(dragging, isAfter ? row.nextSibling : row);
+  });
+
+  const persistOrder = () => {
+    const channelIds = [...list.querySelectorAll(".channel-row")].map(
+      (row) => row.dataset.channelId,
+    );
+    const csrfToken = document
+      .querySelector('meta[name="csrf-token"]')
+      ?.getAttribute("content");
+
+    fetch("{{ route('admin.schedule.channels.reorder') }}", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Accept: "application/json",
+        "X-CSRF-TOKEN": csrfToken || "",
+      },
+      body: JSON.stringify({ channel_ids: channelIds }),
+    });
+  };
+})();
+</script>
+@end
+
+@endlayouts.pecu.dashboard

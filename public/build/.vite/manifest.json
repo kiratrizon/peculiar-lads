@@ -8,7 +8,7 @@
     "name": "sweetalert2.esm.all"
   },
   "resources/css/dark.css": {
-    "file": "assets/dark-ZhYnFMch.css",
+    "file": "assets/dark-Dt52rkeL.css",
     "src": "resources/css/dark.css",
     "isEntry": true,
     "name": "dark",
@@ -53,12 +53,12 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-BrfjzEk1.js",
+    "file": "assets/app-CecQn-Ar.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-B5bEC-wk.css"
+      "assets/app-D-lavbld.css"
     ]
   },
   "resources/ts/recruit/view.ts": {

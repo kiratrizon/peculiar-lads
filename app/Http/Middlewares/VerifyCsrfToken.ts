@@ -13,7 +13,7 @@ export default class VerifyCsrfToken {
             {
               message: "CSRF token mismatch.",
             },
-            403
+            403,
           );
         } else {
           abort(403, "CSRF token mismatch.");

@@ -1,0 +1,242 @@
+@layouts.pecu.dashboard()
+
+@slot('main')
+<div class="flex flex-col gap-6 max-w-4xl">
+
+  <div class="flex flex-col gap-2">
+    <h1 class="text-2xl font-bold" style="color: var(--accent);">#{{ $channel.name }}</h1>
+    <p class="text-sm" style="color: var(--text-soft);">Schedule a message to be sent in this channel (times are Asia/Manila).</p>
+    <a href="{{ route('admin.schedule.channels') }}" class="text-sm underline" style="color: var(--accent);">&larr; Back to channels</a>
+  </div>
+
+  @if(session().has("message"))
+  <div class="px-4 py-3 rounded-lg text-sm font-medium"
+       style="background: rgba(34, 197, 94, 0.12); color: #16a34a; border: 1px solid rgba(34, 197, 94, 0.35);">
+    {{ session().get("message") }}
+  </div>
+  @endif
+
+  <form
+    method="{{ $editing ? 'PUT' : 'POST' }}"
+    action="{{ $editing ? route('admin.schedule.message.update', { discord_channel_id: $channel.channel_id, scheduledMessage: $editing.id }) : route('admin.schedule.message.store', { discord_channel_id: $channel.channel_id }) }}"
+    class="p-6 rounded-2xl shadow-xl border flex flex-col gap-5"
+    style="background: var(--panel); border-color: var(--border);"
+  >
+    @csrf()
+
+    <div>
+      <label class="block text-sm mb-1" style="color: var(--text-soft);">Message</label>
+      <textarea id="messageContent" name="content" rows="5" required
+                class="w-full px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);"
+      >{{ old('content', $editing ? $editing.content : '') }}</textarea>
+      @if(errors.has('content'))
+        <p class="text-red-500 text-sm mt-1">{{ errors.first('content') }}</p>
+      @endif
+
+      <div class="flex flex-wrap items-center gap-2 mt-2">
+        <select id="mentionRoleSelect" class="px-3 py-1.5 rounded-lg border text-sm"
+                style="background: transparent; border-color: var(--border); color: var(--text-main);">
+          @each(role in $roles)
+            <option value="{{ role.id }}" data-name="{{ role.name }}">{{ '@' + role.name }}</option>
+          @end
+        </select>
+        <button type="button" id="insertMentionBtn" class="px-3 py-1.5 rounded-lg text-sm font-semibold"
+                style="background: var(--hover); color: var(--accent);">
+          + Insert role mention
+        </button>
+      </div>
+
+      <div class="mt-2 text-sm rounded-lg border px-3 py-2" style="border-color: var(--border); color: var(--text-soft);">
+        <span class="opacity-70">Preview:</span>
+        <span id="messagePreview"></span>
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm mb-2" style="color: var(--text-soft);">Recurrence</label>
+      <div class="flex flex-wrap gap-4">
+        <label class="flex items-center gap-2 text-sm" style="color: var(--text-main);">
+          <input type="radio" name="recurrence_type" value="single" class="recurrence-radio"
+                 {{ old('recurrence_type', $editing ? $editing.recurrence_type : 'single') === 'single' ? 'checked' : '' }}>
+          Single Day
+        </label>
+        <label class="flex items-center gap-2 text-sm" style="color: var(--text-main);">
+          <input type="radio" name="recurrence_type" value="weekly" class="recurrence-radio"
+                 {{ old('recurrence_type', $editing ? $editing.recurrence_type : '') === 'weekly' ? 'checked' : '' }}>
+          Repeat Every Week
+        </label>
+        <label class="flex items-center gap-2 text-sm" style="color: var(--text-main);">
+          <input type="radio" name="recurrence_type" value="monthly" class="recurrence-radio"
+                 {{ old('recurrence_type', $editing ? $editing.recurrence_type : '') === 'monthly' ? 'checked' : '' }}>
+          Repeat Every Month
+        </label>
+      </div>
+      @if(errors.has('recurrence_type'))
+        <p class="text-red-500 text-sm mt-1">{{ errors.first('recurrence_type') }}</p>
+      @endif
+    </div>
+
+    <div class="flex flex-wrap gap-4">
+      <div id="singleDateField" class="recurrence-field">
+        <label class="block text-sm mb-1" style="color: var(--text-soft);">Date</label>
+        <input type="date" name="scheduled_date"
+               value="{{ old('scheduled_date', $editing ? $editing.scheduled_date : '') }}"
+               class="px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);">
+        @if(errors.has('scheduled_date'))
+          <p class="text-red-500 text-sm mt-1">{{ errors.first('scheduled_date') }}</p>
+        @endif
+      </div>
+
+      <div id="weeklyDayField" class="recurrence-field">
+        <label class="block text-sm mb-1" style="color: var(--text-soft);">Day of week</label>
+        <select name="day_of_week" class="px-4 py-2 rounded-lg border"
+                style="background: transparent; border-color: var(--border); color: var(--text-main);">
+          @let(dayNames = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'])
+          @each((dayName, index) in dayNames)
+            <option value="{{ index }}"
+                    {{ String(old('day_of_week', $editing ? $editing.day_of_week : '')) === String(index) ? 'selected' : '' }}>
+              {{ dayName }}
+            </option>
+          @end
+        </select>
+        @if(errors.has('day_of_week'))
+          <p class="text-red-500 text-sm mt-1">{{ errors.first('day_of_week') }}</p>
+        @endif
+      </div>
+
+      <div id="monthlyDayField" class="recurrence-field">
+        <label class="block text-sm mb-1" style="color: var(--text-soft);">Day of month</label>
+        <input type="number" name="day_of_month" min="1" max="31"
+               value="{{ old('day_of_month', $editing ? $editing.day_of_month : '') }}"
+               class="px-4 py-2 rounded-lg border w-24" style="background: transparent; border-color: var(--border); color: var(--text-main);">
+        @if(errors.has('day_of_month'))
+          <p class="text-red-500 text-sm mt-1">{{ errors.first('day_of_month') }}</p>
+        @endif
+      </div>
+
+      <div>
+        <label class="block text-sm mb-1" style="color: var(--text-soft);">Time (Asia/Manila)</label>
+        <input type="time" name="scheduled_time" required
+               value="{{ old('scheduled_time', $editing ? $editing.scheduled_time : '') }}"
+               class="px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);">
+        @if(errors.has('scheduled_time'))
+          <p class="text-red-500 text-sm mt-1">{{ errors.first('scheduled_time') }}</p>
+        @endif
+      </div>
+    </div>
+
+    @if($editing)
+    <label class="flex items-center gap-2 text-sm" style="color: var(--text-soft);">
+      <input type="checkbox" name="is_active" value="1" {{ $editing.is_active ? 'checked' : '' }}>
+      Active
+    </label>
+    @endif
+
+    <div class="flex items-center gap-3 pt-2">
+      <button type="submit" class="px-6 py-2 rounded-lg font-semibold transition" style="background: var(--accent); color: var(--bg-1);">
+        {{ $editing ? 'Update schedule' : 'Schedule message' }}
+      </button>
+      @if($editing)
+      <a href="{{ route('admin.schedule.message', { discord_channel_id: $channel.channel_id }) }}"
+         class="text-sm underline" style="color: var(--text-soft);">Cancel</a>
+      @endif
+    </div>
+  </form>
+
+  <div class="rounded-2xl shadow-xl border flex flex-col divide-y" style="background: var(--panel); border-color: var(--border);">
+    @if($schedules.length === 0)
+    <div class="p-6 text-sm" style="color: var(--text-soft);">No scheduled messages yet.</div>
+    @endif
+
+    @each(schedule in $schedules)
+    <div class="flex items-center justify-between gap-4 px-6 py-4">
+      <div class="flex flex-col gap-1 min-w-0">
+        <span class="text-sm truncate" style="color: var(--text-main);">{{ schedule.content }}</span>
+        <span class="text-xs" style="color: var(--text-soft);">
+          {{ schedule.recurrence_type }} &middot; next run: {{ schedule.next_run_display }}
+          @if(!schedule.is_active)
+            &middot; paused
+          @endif
+        </span>
+      </div>
+      <div class="flex items-center gap-3 shrink-0">
+        <a href="{{ route('admin.schedule.message.edit', { discord_channel_id: $channel.channel_id, scheduledMessage: schedule.id }) }}"
+           class="text-sm underline" style="color: var(--accent);">Edit</a>
+        <form method="POST"
+              action="{{ route('admin.schedule.message.destroy', { discord_channel_id: $channel.channel_id, scheduledMessage: schedule.id }) }}"
+              onsubmit="return confirm('Delete this scheduled message?');">
+              @csrf()
+              @method('DELETE')
+          <button type="submit" class="text-sm underline text-red-500">{{request().__('delete')}}</button>
+        </form>
+      </div>
+    </div>
+    @end
+  </div>
+
+</div>
+@end
+
+@slot('scripts')
+<script>
+(() => {
+  const textarea = document.getElementById('messageContent');
+  const roleSelect = document.getElementById('mentionRoleSelect');
+  const insertBtn = document.getElementById('insertMentionBtn');
+  const preview = document.getElementById('messagePreview');
+
+  const roleMentionPattern = /\{\{role:(\d+):([^}]*)\}\}/g;
+
+  const renderPreview = () => {
+    if (!preview || !textarea) return;
+    preview.textContent = textarea.value.replace(roleMentionPattern, (_match, _id, label) => `@${label}`);
+  };
+
+  insertBtn?.addEventListener('click', () => {
+    if (!textarea || !roleSelect) return;
+    const option = roleSelect.options[roleSelect.selectedIndex];
+    if (!option) return;
+
+    const start = textarea.selectionStart ?? textarea.value.length;
+    const end = textarea.selectionEnd ?? textarea.value.length;
+    const selected = textarea.value.slice(start, end) || option.dataset.name;
+    // Built from single braces (not doubled) because Edge scans the raw
+    // file text for mustache pairs even inside a <script> block - a
+    // literal adjacent double-brace here would get parsed as an Edge
+    // expression instead of shipped as plain JS.
+    const openBraces = '{' + '{';
+    const closeBraces = '}' + '}';
+    const macro = openBraces + 'role:' + option.value + ':' + selected + closeBraces;
+
+    textarea.value = textarea.value.slice(0, start) + macro + textarea.value.slice(end);
+    textarea.focus();
+    textarea.selectionStart = textarea.selectionEnd = start + macro.length;
+    renderPreview();
+  });
+
+  textarea?.addEventListener('input', renderPreview);
+  renderPreview();
+
+  const recurrenceRadios = document.querySelectorAll('.recurrence-radio');
+  const fields = {
+    single: document.getElementById('singleDateField'),
+    weekly: document.getElementById('weeklyDayField'),
+    monthly: document.getElementById('monthlyDayField'),
+  };
+
+  const updateRecurrenceFields = () => {
+    const checked = document.querySelector('.recurrence-radio:checked');
+    const value = checked ? checked.value : 'single';
+    Object.entries(fields).forEach(([key, el]) => {
+      if (!el) return;
+      el.style.display = key === value ? '' : 'none';
+    });
+  };
+
+  recurrenceRadios.forEach((radio) => radio.addEventListener('change', updateRecurrenceFields));
+  updateRecurrenceFields();
+})();
+</script>
+@end
+
+@endlayouts.pecu.dashboard

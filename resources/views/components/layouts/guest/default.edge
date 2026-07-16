@@ -2,6 +2,15 @@
 <html lang="{{ request().getLanguage() }}">
 <head>
 	<meta charset="UTF-8">
+	<!-- Sets the theme before anything else paints, so the page never flashes
+	     the default theme before swapping to the saved one (see app.ts). -->
+	<script>
+	(function () {
+		var theme = localStorage.getItem("pecu:theme");
+		var valid = ["dark-abyss", "lightning-blaze", "icy-moon", "heatwave"];
+		document.documentElement.setAttribute("data-theme", valid.indexOf(theme) !== -1 ? theme : "dark-abyss");
+	})();
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- seo -->
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
@@ -18,7 +27,7 @@
 	@vite('resources/css/guest.css')
 	@vite('resources/ts/shared/lang-select.ts')
 </head>
-<body class="guest-shell min-h-screen flex flex-col relative overflow-x-hidden" data-theme="dark-abyss">
+<body class="guest-shell min-h-screen flex flex-col relative overflow-x-hidden">
 	<!-- Animated background elements -->
 	<div class="fixed inset-0 overflow-hidden pointer-events-none opacity-20">
 		<div class="absolute top-20 left-10 w-32 h-32 bg-gray-400 rounded-full blur-3xl float-animation"></div>

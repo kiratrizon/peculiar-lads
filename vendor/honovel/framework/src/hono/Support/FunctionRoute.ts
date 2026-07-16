@@ -110,8 +110,18 @@ export class URLArranger {
           isOptional = true;
         }
 
-        // If it's an alpha string, handle it
-        if (regex.alphanumeric.test(part)) {
+        // every params should always start with alpha
+        if (!regex.alpha.test(part[0])) {
+          throw new Error(
+            "Route params should always start with alpha literal string",
+          );
+        }
+
+        // If it's an alpha string, handle it or if it's an underscored alphanum
+        if (
+          regex.alphanumeric.test(part) ||
+          part.split("_").every((e) => regex.alphanumeric.test(e))
+        ) {
           if (isOptional) {
             optionalParams.push(part);
             sequenceParams.push(part);
@@ -268,7 +278,8 @@ function pushMiddlewareEntries(
 ): void {
   const handle = middlewareInstance.handle;
   const fallback = middlewareInstance.fallback;
-  const hasHandle = methodExist(middlewareInstance, "handle") && isFunction(handle);
+  const hasHandle =
+    methodExist(middlewareInstance, "handle") && isFunction(handle);
   const hasFallback =
     methodExist(middlewareInstance, "fallback") && isFunction(fallback);
 
@@ -1289,18 +1300,16 @@ export async function handleAction(
           block: false,
           seekable: true,
           compile: (parser, buffer, token) => {
-            // token.properties.jsArg contains the evaluated arguments
+            // token.properties.jsArg contains the raw argument source text
+            // (e.g. `'DELETE'`, quotes included), not an evaluated value -
+            // strip the surrounding quote characters before using it.
             let out = "";
             const types = token.properties.jsArg || "''";
             const arr = Array.isArray(types) ? types : [types];
-            out += arr
-              .map(
-                (t) =>
-                  '<input type="hidden" name="_method" value="' +
-                  t.toUpperCase() +
-                  '">',
-              )
-              .join("");
+            const val = String(arr[0])
+              .trim()
+              .replace(/^['"]|['"]$/g, "");
+            out += `<input type='hidden' name='_method' value='${val}'>`;
 
             buffer.outputRaw(out);
           },

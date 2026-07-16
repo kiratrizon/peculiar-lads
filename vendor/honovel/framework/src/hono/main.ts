@@ -10,6 +10,8 @@ import Boot from "../Maneuver/Boot.ts";
 import { HonoType } from "../../../@types/declaration/imain.d.ts";
 
 import { INRoute } from "../../../@types/declaration/IRoute.d.ts";
+
+import { methodOverride } from "hono/method-override";
 import {
   buildRequestInit,
   regexToHono,
@@ -374,6 +376,7 @@ class Server {
     const asterisk = "*";
 
     if (withDefaults) {
+      app.use(asterisk, methodOverride({ app }));
       app.use(...myStaticDefaults);
       app.use(asterisk, async (c: MyContext, next: () => Promise<void>) => {
         c.set("subdomain", {});

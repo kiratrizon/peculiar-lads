@@ -15,7 +15,7 @@
 /* ── Dragon Nest attribute themes ───────────────────────────────── */
 
 /* Dark Abyss — the former Dark palette */
-body[data-theme="dark-abyss"] {
+html[data-theme="dark-abyss"] {
     --bg-1: #0a0a0a;
     --bg-2: #111111;
     --bg-3: #1c1c1c;
@@ -31,7 +31,7 @@ body[data-theme="dark-abyss"] {
 }
 
 /* Lightning Blaze — the former Light palette */
-body[data-theme="lightning-blaze"] {
+html[data-theme="lightning-blaze"] {
     --bg-1: #ffffff;
     --bg-2: #f5f5f5;
     --bg-3: #e8e8e8;
@@ -47,7 +47,7 @@ body[data-theme="lightning-blaze"] {
 }
 
 /* Icy Moon — midnight frost; cold cyan over deep glacier blue */
-body[data-theme="icy-moon"] {
+html[data-theme="icy-moon"] {
     --bg-1: #060f18;
     --bg-2: #0a1826;
     --bg-3: #102435;
@@ -63,7 +63,7 @@ body[data-theme="icy-moon"] {
 }
 
 /* Heatwave — smouldering ember dark lit by molten orange */
-body[data-theme="heatwave"] {
+html[data-theme="heatwave"] {
     --bg-1: #140806;
     --bg-2: #20100a;
     --bg-3: #2e1810;
@@ -84,15 +84,15 @@ body[data-theme="heatwave"] {
     background-position: center;
     background-repeat: no-repeat;
 }
-body[data-theme="dark-abyss"] .hero-round-mark {
+html[data-theme="dark-abyss"] .hero-round-mark {
     background-image: url("/assets/round-marks/2a-dark.png");
 }
-body[data-theme="lightning-blaze"] .hero-round-mark {
+html[data-theme="lightning-blaze"] .hero-round-mark {
     background-image: url("/assets/round-marks/2b-light.png");
 }
-body[data-theme="icy-moon"] .hero-round-mark {
+html[data-theme="icy-moon"] .hero-round-mark {
     background-image: url("/assets/round-marks/2d-ice.png");
 }
-body[data-theme="heatwave"] .hero-round-mark {
+html[data-theme="heatwave"] .hero-round-mark {
     background-image: url("/assets/round-marks/2c-fire.png");
 }

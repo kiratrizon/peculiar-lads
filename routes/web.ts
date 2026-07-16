@@ -10,6 +10,8 @@ import FirstClass from "App/Models/FirstClass.ts";
 import PecuRecordsController from "App/Http/Controllers/PecuRecordsController.ts";
 import MemberController from "App/Http/Controllers/MemberController.ts";
 import CharacterController from "App/Http/Controllers/CharacterController.ts";
+import DiscordChannelController from "App/Http/Controllers/DiscordChannelController.ts";
+import ScheduledMessageController from "App/Http/Controllers/ScheduledMessageController.ts";
 
 Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
@@ -134,6 +136,49 @@ Route.prefix("/{lang?}")
               "destroy",
             ]).name("characters.destroy");
           });
+          Route.get("/schedule/channels", [
+            DiscordChannelController,
+            "index",
+          ]).name("schedule.channels");
+          Route.post("/schedule/channels", [
+            DiscordChannelController,
+            "store",
+          ]).name("schedule.channels.store");
+          Route.post("/schedule/channels/sync", [
+            DiscordChannelController,
+            "sync",
+          ]).name("schedule.channels.sync");
+          Route.post("/schedule/channels/reorder", [
+            DiscordChannelController,
+            "reorder",
+          ])
+            .name("schedule.channels.reorder")
+            .middleware("ensure_accepts_json");
+          Route.delete("/schedule/channels/{discord_channel_id}", [
+            DiscordChannelController,
+            "destroy",
+          ]).name("schedule.channels.destroy");
+          Route.get("/schedule/message/{discord_channel_id}", [
+            ScheduledMessageController,
+            "index",
+          ]).name("schedule.message");
+          Route.post("/schedule/message/{discord_channel_id}", [
+            ScheduledMessageController,
+            "store",
+          ]).name("schedule.message.store");
+          Route.get(
+            "/schedule/message/{discord_channel_id}/{scheduledMessage}/edit",
+            [ScheduledMessageController, "edit"],
+          ).name("schedule.message.edit");
+          Route.put(
+            "/schedule/message/{discord_channel_id}/{scheduledMessage}",
+            [ScheduledMessageController, "update"],
+          ).name("schedule.message.update");
+          Route.delete(
+            "/schedule/message/{discord_channel_id}/{scheduledMessage}",
+            [ScheduledMessageController, "destroy"],
+          ).name("schedule.message.destroy");
+
           Route.get("/events", [AdminController, "events"]).name("events");
           Route.match(["get", "post"], "/settings", [
             AdminController,

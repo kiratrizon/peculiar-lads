@@ -4,8 +4,11 @@ import "../css/app.css";
 
 // Centralized theme handling. app.ts is loaded by every layout, so a single
 // implementation here drives the `<select class="theme-select">` on the guest,
-// login and dashboard shells. Themes are applied via `body[data-theme=...]`
-// (see resources/css/dark.css) and persisted to localStorage.
+// login and dashboard shells. Themes are applied via `html[data-theme=...]`
+// (see resources/css/dark.css) and persisted to localStorage. The attribute
+// lives on <html> (not <body>) because a tiny inline script in <head> - see
+// the layouts - sets it synchronously before first paint to avoid a flash of
+// the default theme; that script runs before <body> even exists.
 
 const THEMES = [
     "dark-abyss",
@@ -44,7 +47,7 @@ function updateFavicon(theme: string): void {
 
 function applyTheme(theme: string): void {
     const normalized = normalizeTheme(theme);
-    document.body.setAttribute("data-theme", normalized);
+    document.documentElement.setAttribute("data-theme", normalized);
     localStorage.setItem(STORAGE_KEY, normalized);
     updateFavicon(normalized);
     // Swap any on-page brand icons (<img class="theme-icon">) to match the theme.

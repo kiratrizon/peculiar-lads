@@ -3,6 +3,15 @@
 <html lang="{{ request().getLanguage() }}">
 <head>
 	<meta charset="UTF-8">
+	<!-- Sets the theme before anything else paints, so the page never flashes
+	     the default theme before swapping to the saved one (see app.ts). -->
+	<script>
+	(function () {
+		var theme = localStorage.getItem("pecu:theme");
+		var valid = ["dark-abyss", "lightning-blaze", "icy-moon", "heatwave"];
+		document.documentElement.setAttribute("data-theme", valid.indexOf(theme) !== -1 ? theme : "dark-abyss");
+	})();
+	</script>
 	<meta name="viewport" content="width=device-width, initial-scale=1.0">
 	<!-- seo -->
 	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
@@ -78,7 +87,7 @@
 
 </head>
 
-<body class="dashboard-shell min-h-screen flex" data-theme="dark-abyss">
+<body class="dashboard-shell min-h-screen flex">
 
 @let(routePrefix = $entity === "Admin" ? "admin" : ($entity === "User" ? "user" : ""))
 
@@ -123,6 +132,7 @@
 			<span class="sidebar-label">{{ request().__('characters') }}</span>
 		</a>
 
+		@if(false)
 		<a href="{{ route(`${routePrefix}.events`) }}"
 		class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'events' ? 'nav-link-active cursor-not-allowed' : '' }}">
 			<span class="shrink-0">📅</span>
@@ -133,6 +143,7 @@
 				</span>
 			@end
 		</a>
+		@end
 
 		@if($entity === "Admin")
 		<a href="{{ route(`${routePrefix}.recruits`) }}"
@@ -144,6 +155,12 @@
 				{{ $notif?.recruits?.length }}
 			</span>
 			@end
+		</a>
+
+		<a href="{{ route(`${routePrefix}.schedule.channels`) }}"
+		   class="nav-link flex items-center gap-3 px-4 py-2 rounded-lg transition {{ $selected === 'schedule' ? 'nav-link-active cursor-not-allowed' : '' }}">
+			<span class="shrink-0">🗓️</span>
+			<span class="sidebar-label">{{ request().__("schedule.head") }}</span>
 		</a>
 		@end
 
