@@ -3,5 +3,5 @@ const discordApp = async () => {
 };
 
 if (isset(env("DENO_DEPLOYMENT_ID"))) {
-  await discordApp();
+  // await discordApp();
 }
