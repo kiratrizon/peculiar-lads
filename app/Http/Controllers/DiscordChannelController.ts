@@ -2,7 +2,7 @@ import Controller from "App/Http/Controllers/Controller.ts";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
 import AdminChannelOrder from "App/Models/AdminChannelOrder.ts";
 import { ChannelTypes } from "@discordeno/bot";
-import { bot } from "../../../pecu-discord-deno/main.ts";
+import { discordRest } from "pecu-discord-deno/rest.ts";
 
 class DiscordChannelController extends Controller {
   public index: HttpDispatch = async ({ request }) => {
@@ -22,11 +22,11 @@ class DiscordChannelController extends Controller {
 
     const sortedChannels = [...channels].sort((a, b) => {
       // @ts-ignore //
-      const posA = positionByChannelRowId.get(a.id as number) ??
-        Number.MAX_SAFE_INTEGER;
+      const posA =
+        positionByChannelRowId.get(a.id as number) ?? Number.MAX_SAFE_INTEGER;
       // @ts-ignore //
-      const posB = positionByChannelRowId.get(b.id as number) ??
-        Number.MAX_SAFE_INTEGER;
+      const posB =
+        positionByChannelRowId.get(b.id as number) ?? Number.MAX_SAFE_INTEGER;
       return posA - posB;
     });
 
@@ -58,7 +58,7 @@ class DiscordChannelController extends Controller {
 
     await DiscordChannel.create({
       channel_id: data.channel_id,
-      guild_id: (env("DISCORD_GUILD_ID") as string | null) ?? "",
+      guild_id: config("discord.guild_id", ""),
       name: data.name,
     });
 
@@ -87,10 +87,7 @@ class DiscordChannelController extends Controller {
         // @ts-ignore //
         const channelRowId = channel.id as number;
 
-        const existingOrder = await AdminChannelOrder.where(
-          "admin_id",
-          adminId,
-        )
+        const existingOrder = await AdminChannelOrder.where("admin_id", adminId)
           .where("discord_channel_id", channelRowId)
           .first();
 
@@ -126,7 +123,7 @@ class DiscordChannelController extends Controller {
   };
 
   public sync: HttpDispatch = async ({ request }) => {
-    const guildId = env("DISCORD_GUILD_ID") as string | null;
+    const guildId = config("discord.guild_id", "");
 
     if (!guildId) {
       return redirect()
@@ -134,7 +131,7 @@ class DiscordChannelController extends Controller {
         .withErrors({ sync: "DISCORD_GUILD_ID is not configured in .env." });
     }
 
-    const discordChannels = await bot.helpers.getChannels(guildId);
+    const discordChannels = await discordRest.getChannels(guildId);
 
     for (const channel of discordChannels) {
       if (
@@ -145,9 +142,9 @@ class DiscordChannelController extends Controller {
       }
 
       const attributes = {
-        channel_id: channel.id.toString(),
+        channel_id: String(channel.id),
         guild_id: guildId,
-        name: channel.name ?? channel.id.toString(),
+        name: channel.name ?? String(channel.id),
       };
 
       const existing = await DiscordChannel.where(

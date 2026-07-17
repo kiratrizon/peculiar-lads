@@ -735,6 +735,14 @@ export interface FileSystemConfig {
     LocalDiskConfig | PublicDiskConfig | S3DiskConfig | CustomDiskConfig
   >;
 }
+export interface DiscordConfig {
+  /**
+   * The Discord guild (server) ID the admin panel manages.
+   * Example: "1344255172062478378"
+   */
+  guild_id: string;
+}
+
 export interface ConfigItems {
   app: AppConfig;
   auth: AuthConfig;
@@ -745,4 +753,5 @@ export interface ConfigItems {
   logging: LogConfig;
   cors: CorsConfig;
   session: SessionConfig;
+  discord: DiscordConfig;
 }

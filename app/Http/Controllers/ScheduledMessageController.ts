@@ -1,7 +1,7 @@
 import Controller from "App/Http/Controllers/Controller.ts";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
 import ScheduledMessage from "App/Models/ScheduledMessage.ts";
-import { bot } from "../../../pecu-discord-deno/main.ts";
+import { discordRest } from "pecu-discord-deno/rest.ts";
 import {
   computeNextMonthlyRun,
   computeNextWeeklyRun,
@@ -10,7 +10,7 @@ import {
   parseAppStoredDatetime,
   parseTimeOfDay,
   toAppStoredDatetime,
-} from "../../../pecu-discord-deno/scheduling.ts";
+} from "pecu-discord-deno/scheduling.ts";
 
 // deno-lint-ignore no-explicit-any
 const presentSchedule = (schedule: any) => ({
@@ -36,10 +36,10 @@ const resolveChannel = async (channelId: string) => {
 };
 
 const fetchRoles = async (guildId: string) => {
-  const roles = await bot.helpers.getRoles(guildId);
+  const roles = await discordRest.getRoles(guildId);
   return roles
     .filter((role) => role.name !== "@everyone")
-    .map((role) => ({ id: role.id.toString(), name: role.name }))
+    .map((role) => ({ id: String(role.id), name: role.name }))
     .sort((a, b) => a.name.localeCompare(b.name));
 };
 
