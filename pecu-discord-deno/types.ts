@@ -1,4 +1,4 @@
-import type { InternalBot } from "@discordeno/bot";
+import type { CreateApplicationCommand, InternalBot } from "@discordeno/bot";
 
 // `InternalBot` is the concrete Bot type produced when every transformer
 // property is marked "desired" (see main.ts's `createDesiredPropertiesObject({}, true)`),
@@ -12,10 +12,7 @@ export type AppInteraction = Inferred["interaction"];
 export type AppMember = Inferred["member"];
 export type AppUser = Inferred["user"];
 
-export type CommandData = {
-  name: string;
-  description: string;
-};
+export type CommandData = CreateApplicationCommand;
 
 export type Command = {
   data: CommandData;
