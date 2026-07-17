@@ -17,12 +17,15 @@
   @endif
 
   <form
-    method="{{ $editing ? 'PUT' : 'POST' }}"
+    method="POST"
     action="{{ $editing ? route('admin.schedule.message.update', { discord_channel_id: $channel.channel_id, scheduledMessage: $editing.id }) : route('admin.schedule.message.store', { discord_channel_id: $channel.channel_id }) }}"
     class="p-6 rounded-2xl shadow-xl border flex flex-col gap-5"
     style="background: var(--panel); border-color: var(--border);"
   >
     @csrf()
+    @if($editing)
+    @method('PUT')
+    @endif
 
     <div>
       <label class="block text-sm mb-1" style="color: var(--text-soft);">Message</label>
