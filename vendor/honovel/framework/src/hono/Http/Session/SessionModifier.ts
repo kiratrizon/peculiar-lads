@@ -156,6 +156,7 @@ export default class SessionModifier {
       secure: SessionModifier.sesConfig.secure || false,
       httpOnly: SessionModifier.sesConfig.httpOnly || true,
       partitioned: SessionModifier.sesConfig.partitioned || false,
+      path: SessionModifier.sesConfig.path || "/",
     });
 
     this.#value = await this.loadSession(this.#sessionId);
