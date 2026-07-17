@@ -13,7 +13,7 @@ import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
   // api: async () => await import("../routes/api.ts"),
-  commands: async () => await import("../routes/console.ts"),
+  // commands: async () => await import("../routes/console.ts"),
 })
   .withMiddleware((middleware) => {
     middleware.alias({
