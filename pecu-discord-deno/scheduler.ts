@@ -9,12 +9,7 @@ import {
   toAppStoredDatetime as toDbDatetime,
 } from "./scheduling.ts";
 
-// Registers a Deno.cron job rather than a plain `setInterval`: on Deno
-// Deploy, `Deno.cron` is deduplicated across regions/instances so exactly
-// one instance runs each tick, even though this same bot process gets
-// booted per-region via routes/console.ts (see the leader-lock discussion
-// earlier) - a setInterval poller here would send every scheduled message
-// once per active region.
+
 export const startScheduledMessagesCron = (bot: AppBot) => {
   Deno.cron("scheduled-messages", "* * * * *", async () => {
     const now = new Date();
