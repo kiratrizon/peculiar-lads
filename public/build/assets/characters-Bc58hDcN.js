@@ -1,0 +1,1 @@
+import{j as n}from"./jquery.module-gzd0YkcT.js";n(document).ready(function(){n("#search-button").click(function(){const a=globalThis.location.pathname;globalThis.location.href=`${a}?search_ign=${n("#search_ign").val()}`})});
