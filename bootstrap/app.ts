@@ -9,6 +9,7 @@ import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
 import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
+import RedirectToLocal from "App/Http/Middlewares/RedirectToLocal.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -26,7 +27,7 @@ export default Application.withRouting({
       bind_member: BindUser,
       bind_character: BindCharacter,
     });
-
+    middleware.append(RedirectToLocal);
     middleware.append(SetupLangVar);
   })
   .withExceptions((exceptions) => {

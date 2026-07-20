@@ -192,6 +192,9 @@ declare class HonoRequest {
   /** Get the request path */
   path(): string;
 
+  /** Get the request full path */
+  fullPath(): string;
+
   /** Get the full request URL */
   readonly url: string;
 

@@ -308,6 +308,10 @@ class HonoRequest extends Macroable {
     return this.#c.req.path || "";
   }
 
+  public fullPath(): string {
+    return this.url.slice(this.url.indexOf("/", 8));
+  }
+
   public get url(): string {
     return this.#c.req.url || "";
   }

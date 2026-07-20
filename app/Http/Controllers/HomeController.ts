@@ -3,7 +3,6 @@ import Controller from "App/Http/Controllers/Controller.ts";
 class HomeController extends Controller {
   // GET /resource
   public index: HttpDispatch = async ({ request }) => {
-    console.log(request.getLanguage());
     return view("user.home.index", {
       selected: "home",
       entity: "User",

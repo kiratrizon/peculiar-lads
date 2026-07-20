@@ -664,6 +664,7 @@ class MyArtisan {
   private async serve(options: {
     port?: number | null | string;
     host: string;
+    tunnel?: boolean;
   }) {
     const port = options.port;
     const serverPath = "vendor/honovel/framework/src/hono/run-server.ts";
@@ -746,16 +747,16 @@ class MyArtisan {
     Deno.mkdirSync(path.dirname(warmupJsonPath), { recursive: true });
 
     Deno.writeTextFileSync(warmupJsonPath, WARMUP_URL);
+
+    const cmdArgs = ["run", "--config", "./deno.json", "-A"];
+    if (options.tunnel) {
+      cmdArgs.push("--tunnel");
+    }
+    cmdArgs.push(
+      ...[`--watch${watchFlag}`, `--watch-exclude=vite.ts`, serverPath],
+    );
     const cmd = new Deno.Command("deno", {
-      args: [
-        "run",
-        "--config",
-        "./deno.json",
-        "-A",
-        `--watch${watchFlag}`,
-        `--watch-exclude=vite.ts`,
-        serverPath,
-      ],
+      args: cmdArgs,
       stdout: "inherit",
       stderr: "inherit",
       env: envObj,
@@ -1458,8 +1459,13 @@ class MyArtisan {
       .option("--host <host:string>", "Host to run the server on", {
         default: "127.0.0.1",
       })
-      .action((options: { port?: number | null | string; host: string }) =>
-        this.serve.bind(this)(options),
+      .option("--tunnel", "Expose your application")
+      .action(
+        (options: {
+          port?: number | null | string;
+          host: string;
+          tunnel?: boolean;
+        }) => this.serve.bind(this)(options),
       )
       // for maintenance mode
       .command("down", "Put the application into maintenance mode")
