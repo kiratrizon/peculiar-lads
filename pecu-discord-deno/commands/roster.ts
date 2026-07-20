@@ -64,10 +64,13 @@ const execute = async (interaction: AppInteraction) => {
     const className = character.class as string;
     // @ts-ignore //
     const nstg = character.nstg as string;
+    // `users.discord` is a free-typed username from the recruit application
+    // form, not a verified Discord ID, so it can't be rendered as a real
+    // <@mention> - show it as plain text instead.
     // @ts-ignore //
-    const discordId = character.discord as string;
+    const discordUsername = character.discord as string;
 
-    return `${main ? "⭐" : "•"} **${ign}** <@${discordId}> — ${className} (NSTG ${nstg})`;
+    return `${main ? "⭐" : "•"} **${ign}** (@${discordUsername}) — ${className} (NSTG ${nstg})`;
   });
 
   const truncatedNotice = characters.length > MAX_LISTED

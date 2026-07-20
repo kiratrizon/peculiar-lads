@@ -24,18 +24,24 @@ const execute = async (interaction: AppInteraction) => {
     : interaction.user.id.toString();
 
   const targetUsername = memberOptionValue
-    ? interaction.data?.resolved?.users?.get(BigInt(targetDiscordId))
-      ?.username ?? targetDiscordId
+    ? (interaction.data?.resolved?.users?.get(BigInt(targetDiscordId))
+        ?.username ?? targetDiscordId)
     : interaction.user.username;
 
-  const account = await User.where("discord", targetDiscordId).first();
+  // `users.discord` is a free-typed username from the recruit application
+  // form (resources/views/welcome.edge), not a verified Discord ID - so we
+  // match on username, not on the interaction's real snowflake. Old recruits
+  // may have typed the legacy "name#1234" format, hence the prefix fallback.
+  const account =
+    (await User.where("discord", targetUsername).first()) ??
+    (await User.where("discord", "like", `${targetUsername}#%`).first());
 
   if (!account) {
     await interaction.respond(
       {
         content: memberOptionValue
           ? `<@${targetDiscordId}> hasn't linked their Discord to the website yet.`
-          : "You haven't linked your Discord to the website yet.",
+          : `You haven't linked your Discord to the website yet. Please register here ${env("PECU_WEB")}#join`,
       },
       { isPrivate: true },
     );
@@ -56,12 +62,7 @@ const execute = async (interaction: AppInteraction) => {
       DB.raw("third_classes.name as class"),
     )
     .join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
-    .join(
-      "third_classes",
-      "characters.third_class_id",
-      "=",
-      "third_classes.id",
-    )
+    .join("third_classes", "characters.third_class_id", "=", "third_classes.id")
     .where("characters.user_id", accountId)
     .orderBy("characters.main", "desc")
     .orderBy("nstg_level.id", "desc")
@@ -69,22 +70,22 @@ const execute = async (interaction: AppInteraction) => {
 
   const characterLines = characters.length
     ? characters.map((character) => {
-      // @ts-ignore //
-      const ign = character.ign as string;
-      // @ts-ignore //
-      const main = Boolean(character.main);
-      // @ts-ignore //
-      const className = character.class as string;
-      // @ts-ignore //
-      const nstg = character.nstg as string;
-      // @ts-ignore //
-      const duration = character.duration as number | null;
+        // @ts-ignore //
+        const ign = character.ign as string;
+        // @ts-ignore //
+        const main = Boolean(character.main);
+        // @ts-ignore //
+        const className = character.class as string;
+        // @ts-ignore //
+        const nstg = character.nstg as string;
+        // @ts-ignore //
+        const duration = character.duration as number | null;
 
-      const durationText = formatDuration(duration);
-      return `${main ? "⭐" : "•"} **${ign}** — ${className} (NSTG ${nstg})${
-        durationText ? ` — ${durationText}` : ""
-      }`;
-    })
+        const durationText = formatDuration(duration);
+        return `${main ? "⭐" : "•"} **${ign}** — ${className} (NSTG ${nstg})${
+          durationText ? ` — ${durationText}` : ""
+        }`;
+      })
     : ["No characters registered yet."];
 
   await interaction.respond({
