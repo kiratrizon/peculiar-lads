@@ -28,21 +28,37 @@ const execute = async (interaction: AppInteraction) => {
         ?.username ?? targetDiscordId)
     : interaction.user.username;
 
-  // `users.discord` is a free-typed username from the recruit application
-  // form (resources/views/welcome.edge), not a verified Discord ID - so we
-  // match on username, not on the interaction's real snowflake. Old recruits
-  // may have typed the legacy "name#1234" format, hence the prefix fallback.
-  const account =
-    (await User.where("discord", targetUsername).first()) ??
-    (await User.where("discord", "like", `${targetUsername}#%`).first());
+  // Accounts created through the current recruit-application flow already
+  // have discord_id set at signup - matching on it is all /profile needs.
+  // Accounts created before discord_id existed are linked via /sync (which
+  // does the fragile username-based match once, then stores discord_id), so
+  // that fallback logic lives there instead of running on every lookup here.
+  const account = await User.where("discord_id", targetDiscordId).first();
 
   if (!account) {
+    const isSelf = !memberOptionValue ||
+      targetDiscordId === interaction.user.id.toString();
+
+    // The register link (with discord_id/discord pre-filled) is only ever
+    // shown to the account owner - never surfaced when checking someone
+    // else's profile, so no one else's registration status/link leaks to a
+    // third party.
+    let content: string;
+    if (isSelf) {
+      const url = new URL(env("PECU_WEB") as string);
+      url.search = new URLSearchParams({
+        discord_id: targetDiscordId,
+        discord: targetUsername,
+      }).toString();
+      url.hash = "join";
+      content =
+        `Your Discord isn't linked yet. If you already registered, run \`/sync\` to link it - otherwise register here: ${url}`;
+    } else {
+      content = `<@${targetDiscordId}> hasn't registered on the website yet.`;
+    }
+
     await interaction.respond(
-      {
-        content: memberOptionValue
-          ? `<@${targetDiscordId}> hasn't linked their Discord to the website yet.`
-          : `You haven't linked your Discord to the website yet. Please register here ${env("PECU_WEB")}#join`,
-      },
+      { content },
       { isPrivate: true },
     );
     return;

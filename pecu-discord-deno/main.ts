@@ -189,6 +189,23 @@ bot.events.guildMemberAdd = async (member, user) => {
   }
 
   try {
+    const joinUrl = new URL(env("PECU_WEB") as string);
+    joinUrl.search = new URLSearchParams({
+      discord_id: member.id.toString(),
+      discord: user.username,
+    }).toString();
+    joinUrl.hash = "join";
+
+    const dmChannel = await bot.helpers.getDmChannel(user.id);
+    await bot.helpers.sendMessage(dmChannel.id, {
+      content:
+        `Welcome to PeculiarLads! Please fill up your application here: ${joinUrl}`,
+    });
+  } catch (e) {
+    console.error("Error sending application DM to new member", e);
+  }
+
+  try {
     const autoRoleId = env("AUTO_ROLE_ID") as string | null;
     if (autoRoleId) {
       await bot.helpers.addRole(member.guildId, user.id, autoRoleId);

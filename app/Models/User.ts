@@ -12,6 +12,7 @@ export type UserSchema = {
   name: string;
   api_token?: string;
   discord: string;
+  discord_id: string | null;
   deactivated: boolean;
 };
 
@@ -23,6 +24,7 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     "name",
     "api_token",
     "discord",
+    "discord_id",
     "deactivated",
   ];
   protected static override _guarded: string[] = [];

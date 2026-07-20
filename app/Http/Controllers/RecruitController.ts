@@ -6,6 +6,7 @@ import { Resend } from "resend";
 import Admin from "../../Models/Admin.ts";
 import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
 import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
+import { discordRest } from "pecu-discord-deno/rest.ts";
 
 class RecruitController extends Controller {
 
@@ -72,6 +73,7 @@ class RecruitController extends Controller {
       class: "required",
       nstg: "required",
       discord: "required|min:4|max:50",
+      discord_id: "nullable|max:20",
       reason: "required|min:10|max:500",
       email: "required|email|min:4|max:50",
     });
@@ -109,6 +111,36 @@ class RecruitController extends Controller {
     const recruit = await Recruit.create(credentials);
 
     if (recruit) {
+      const discordId = credentials.discord_id as string | undefined;
+      if (discordId) {
+        try {
+          const guildId = env("DISCORD_GUILD_ID") as string;
+          const autoRoleId = env("AUTO_ROLE_ID") as string;
+          const verifiedRoleId = env("VERIFIED_ROLE_ID") as string;
+          const guildMember = await discordRest.getMember(guildId, discordId);
+
+          if (autoRoleId && guildMember.roles.includes(autoRoleId)) {
+            await discordRest.removeRole(
+              guildId,
+              discordId,
+              autoRoleId,
+              "Submitted guild application",
+            );
+          }
+
+          if (!guildMember.roles.includes(verifiedRoleId)) {
+            await discordRest.addRole(
+              guildId,
+              discordId,
+              verifiedRoleId,
+              "Submitted guild application",
+            );
+          }
+        } catch (error) {
+          console.error("Failed to update roles for recruit", error);
+        }
+      }
+
       const adminEmails = await Admin.query().select("email").whereNotNull("email").where("email", "!=", "").get();
       if (adminEmails.length > 0) {
 

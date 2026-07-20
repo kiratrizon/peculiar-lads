@@ -132,6 +132,7 @@
 					<div class="p-px rounded-2xl shadow-2xl" style="background: var(--border);">
 						<form class="rounded-2xl p-8 flex flex-col gap-5" style="background: var(--panel);" action="{{ route('apply') }}" method="post">
 							@csrf()
+							<input type="hidden" name="discord_id" value="{{ old('discord_id', request().query('discord_id')) }}">
 							<div class="text-center mb-4">
 								<h3 class="text-3xl font-bold mb-2" style="color: var(--text-main);">{{sprintf(request().__('welcome.join'), env('GUILD_NAME'))}}! 🚀</h3>
 								<p style="color: var(--text-soft);">{{ request().__('fill_form_desc') }}</p>
@@ -176,7 +177,7 @@
 							</div>
 							<div>
 								<label class="block font-semibold mb-2" style="color: var(--text-main);">{{ request().__('discord_username') }}</label>
-								<input type="text" placeholder="{{ request().__('enter_discord_placeholder') }}" name="discord" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('discord') }}">
+								<input type="text" placeholder="{{ request().__('enter_discord_placeholder') }}" name="discord" class="w-full px-4 py-3 rounded-lg border-2 outline-none transition focus:ring-2 focus:ring-gray-500" style="background: var(--panel-2); border-color: var(--border); color: var(--text-main);" required value="{{ old('discord', request().query('discord')) }}" {{ request().query('discord_id') ? 'readonly' : '' }}>
 								@if(errors.has('discord'))
 									<div class="text-red-500 text-sm">
 										{{ errors.first('discord') }}

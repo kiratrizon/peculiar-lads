@@ -68,6 +68,8 @@ class UserController extends Controller {
         api_token: (recruit.id + "-" + Str.random(32)) as string,
         // @ts-ignore //
         discord: recruit.discord,
+        // @ts-ignore //
+        discord_id: recruit.discord_id,
       };
 
       const user = await User.create(userData);
