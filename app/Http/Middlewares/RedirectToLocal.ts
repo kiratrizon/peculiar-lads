@@ -6,7 +6,7 @@ export default class RedirectToLocal {
       "peculiarlads--local.kiratrizon.deno.net"
     ) {
       return redirect(
-        `peculiarlads--local.kiratrizon.deno.net${request.fullPath()}`,
+        `https://peculiarlads--local.kiratrizon.deno.net${request.fullPath()}`,
       );
     }
     return next();
