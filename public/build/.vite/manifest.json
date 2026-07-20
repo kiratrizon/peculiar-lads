@@ -53,7 +53,7 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-CecQn-Ar.js",
+    "file": "assets/app-BVK8wXhn.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
@@ -69,6 +69,15 @@
     "imports": [
       "_jquery.module-gzd0YkcT.js",
       "_sweetalert2.esm.all-DE6NlnlT.js"
+    ]
+  },
+  "resources/ts/shared/characters.ts": {
+    "file": "assets/characters-Bc58hDcN.js",
+    "name": "characters",
+    "src": "resources/ts/shared/characters.ts",
+    "isEntry": true,
+    "imports": [
+      "_jquery.module-gzd0YkcT.js"
     ]
   },
   "resources/ts/shared/lang-select.ts": {

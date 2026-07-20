@@ -49,13 +49,14 @@ const input: string[] = [
   "resources/ts/shared/members.ts",
   "resources/ts/shared/member-show.ts",
   "resources/ts/shared/lang-select.ts",
+  "resources/ts/shared/characters.ts",
 ];
 
 export default <ViteConfig>{
   server: {
     cors: true,
     strictPort: true,
-    port: 5173, // keep default unless you REALLY need 9000
+    port: 5173,
     watch: {
       ignored: ["**/.env", "**/.env.*", "**/node_modules/**"],
     },
@@ -66,6 +67,7 @@ export default <ViteConfig>{
     origin: [
       "https://peculiarlads.com",
       "http://peculiarlads.com",
+      "https://peculiarlads--local.kiratrizon.deno.net",
       "http://127.0.0.1",
       "https://127.0.0.1",
     ],

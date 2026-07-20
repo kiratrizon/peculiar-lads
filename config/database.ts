@@ -1,5 +1,14 @@
 import { DatabaseConfig } from "configs/@types/index.d.ts";
 
+const mySqlOptions = {
+  dateStrings: true,
+};
+
+if (env("APP_ENV") == "production") {
+  // @ts-ignore //
+  mySqlOptions.maxConnection = 5;
+}
+
 const constant: DatabaseConfig = {
   default: env("DB_CONNECTION", "sqlite"),
 
@@ -12,10 +21,8 @@ const constant: DatabaseConfig = {
       password: env("DB_PASSWORD", ""),
       database: env("DB_DATABASE", "honovel"),
       charset: "utf8mb4",
-      options: {
-        maxConnection: !isset(env("DENO_DEPLOYMENT_ID")) ? 1 : 3,
-        dateStrings: true,
-      },
+      // @ts-ignore //
+      options: mySqlOptions,
     },
     sqlite: {
       driver: "sqlite",
