@@ -2,6 +2,7 @@
   "imports": {
     "@avroit/memcached": "jsr:@avroit/memcached@^0.0.4",
     "@db/pgsql": "https://deno.land/x/postgres@v0.17.0/mod.ts",
+    "@deno/sandbox": "jsr:@deno/sandbox@^0.13.2",
     "@denosaurs/plug": "jsr:@denosaurs/plug@1.1.0",
     "@cliffy/command": "jsr:@cliffy/command@^1.1.1",
     "@cliffy/prompt": "jsr:@cliffy/prompt@^1.1.1",
@@ -100,5 +101,8 @@
     "type": "git",
     "url": "https://github.com/kiratrizon/honovel.git"
   },
-  "allowScripts": ["npm:@openrouter/sdk@0.13.55", "npm:@openrouter/sdk@0.13.60", "npm:esbuild@0.27.7", "npm:esbuild@0.28.1", "npm:fsevents@2.3.3"]
+  "allowScripts": ["npm:@openrouter/sdk@0.13.55", "npm:@openrouter/sdk@0.13.60", "npm:esbuild@0.27.7", "npm:esbuild@0.28.1", "npm:fsevents@2.3.3"],
+  "deploy": {
+    "org": "kiratrizon"
+  }
 }

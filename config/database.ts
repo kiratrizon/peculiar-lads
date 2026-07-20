@@ -13,7 +13,7 @@ const constant: DatabaseConfig = {
       database: env("DB_DATABASE", "honovel"),
       charset: "utf8mb4",
       options: {
-        maxConnection: 4,
+        maxConnection: !isset(env("DENO_DEPLOYMENT_ID")) ? 1 : 3,
         dateStrings: true,
       },
     },
