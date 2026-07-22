@@ -31,15 +31,14 @@ const handleAdd = async (
     return;
   }
 
-  const existing = await BlockListedPlayer.whereRaw(
-    DB.raw(`lower(ign) = ?`),
-    [ign.toLowerCase()],
-  ).first();
+  const existing = await BlockListedPlayer.whereRaw(DB.raw(`lower(ign) = ?`), [
+    ign.toLowerCase(),
+  ]).first();
 
   if (existing) {
     await interaction.respond(
       { content: `**${ign}** is already on the scammer list.` },
-      { isPrivate: true },
+      { isPrivate: false },
     );
     return;
   }
@@ -74,9 +73,10 @@ const handleList = async (interaction: AppInteraction) => {
     return `**${ign}**${reason ? ` — ${reason}` : ""}`;
   });
 
-  const truncatedNotice = players.length > MAX_LISTED
-    ? `\n...and ${players.length - MAX_LISTED} more.`
-    : "";
+  const truncatedNotice =
+    players.length > MAX_LISTED
+      ? `\n...and ${players.length - MAX_LISTED} more.`
+      : "";
 
   await interaction.respond(
     {
