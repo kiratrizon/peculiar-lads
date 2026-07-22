@@ -942,7 +942,7 @@ export default class Model<T extends ModelAttributes = ModelAttributes> {
     const tableName = this.getTableName();
     const primaryKey = this.getKeyName();
     const isUsingTimestamps = this.usesTimestamps();
-    const now = this.serializeDate();
+    const now = Carbon.now();
     if (isUsingTimestamps) {
       data[(this.constructor as typeof Model).createdAtColumn] = now;
       data[(this.constructor as typeof Model).updatedAtColumn] = now;
@@ -1050,3 +1050,4 @@ export type ModelConstructor = new (...args: unknown[]) => Model;
 import AfterOn from "./AfterOn.ts";
 import WithBuilder from "./WithBuilder.ts";
 import Paginator from "../../Pagination/Paginator.ts";
+import { Carbon } from "helpers";

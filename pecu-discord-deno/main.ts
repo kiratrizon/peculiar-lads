@@ -2,6 +2,8 @@ type status = "online" | "idle" | "dnd" | "offline";
 
 const botStatus: status = "online";
 
+Carbon.setCarbonTimezone(config("app").timezone ?? "UTC");
+
 import {
   ActivityTypes,
   AllowedMentionsTypes,
@@ -16,6 +18,8 @@ import builtCommands from "./built-commands.ts";
 import type { AppInteraction, Command } from "./types.ts";
 import { buildByeImage, buildWelcomeImage } from "./welcome.ts";
 import { startScheduledMessagesCron } from "./scheduler.ts";
+import { logErrorToDiscord } from "./errorLog.ts";
+import { Carbon } from "helpers";
 
 const ordinal = (n: number) => {
   const rule = new Intl.PluralRules("en", { type: "ordinal" }).select(n);
@@ -60,6 +64,7 @@ const deployCommands = async () => {
     await bot.helpers.upsertGlobalApplicationCommands(payload);
   } catch (e) {
     console.error(`Error Deploying`, e);
+    logErrorToDiscord("deployCommands", e);
   }
 };
 
@@ -114,6 +119,22 @@ const replyError = async (interaction: AppInteraction) => {
 };
 
 bot.events.interactionCreate = async (interaction) => {
+  if (interaction.type === InteractionTypes.ApplicationCommandAutocomplete) {
+    const command = commands.get(interaction.data?.name ?? "");
+
+    if (!command?.handleAutocomplete) {
+      return;
+    }
+
+    try {
+      await command.handleAutocomplete(interaction);
+    } catch (e) {
+      console.error(e);
+      logErrorToDiscord(`autocomplete:${interaction.data?.name}`, e);
+    }
+    return;
+  }
+
   if (interaction.type === InteractionTypes.ModalSubmit) {
     const customId = interaction.data?.customId ?? "";
     const [commandName] = customId.split(":");
@@ -127,6 +148,7 @@ bot.events.interactionCreate = async (interaction) => {
       await command.handleModal(interaction);
     } catch (e) {
       console.error(e);
+      logErrorToDiscord(`modal:${commandName}`, e);
       await replyError(interaction);
     }
     return;
@@ -144,6 +166,7 @@ bot.events.interactionCreate = async (interaction) => {
     await command.execute(interaction);
   } catch (e) {
     console.error(e);
+    logErrorToDiscord(`command:${interaction.data?.name}`, e);
     await replyError(interaction);
   }
 };
@@ -186,6 +209,7 @@ bot.events.guildMemberAdd = async (member, user) => {
     });
   } catch (e) {
     console.error("Error sending welcome banner", e);
+    logErrorToDiscord("guildMemberAdd: welcome banner", e);
   }
 
   try {
@@ -198,11 +222,11 @@ bot.events.guildMemberAdd = async (member, user) => {
 
     const dmChannel = await bot.helpers.getDmChannel(user.id);
     await bot.helpers.sendMessage(dmChannel.id, {
-      content:
-        `Welcome to PeculiarLads! Please fill up your application here: ${joinUrl}`,
+      content: `Welcome to PeculiarLads! Please fill up your application here: ${joinUrl}`,
     });
   } catch (e) {
     console.error("Error sending application DM to new member", e);
+    logErrorToDiscord("guildMemberAdd: application DM", e);
   }
 
   try {
@@ -214,6 +238,7 @@ bot.events.guildMemberAdd = async (member, user) => {
     }
   } catch (e) {
     console.error("Error assigning auto role", e);
+    logErrorToDiscord("guildMemberAdd: auto role", e);
   }
 };
 
@@ -276,6 +301,7 @@ bot.events.messageCreate = async (message) => {
     );
   } catch (e) {
     console.error("Error swapping roles on message", e);
+    logErrorToDiscord("messageCreate: role swap", e);
   }
 };
 
@@ -309,6 +335,7 @@ bot.events.guildMemberRemove = async (user) => {
     });
   } catch (e) {
     console.error("Error sending bye banner", e);
+    logErrorToDiscord("guildMemberRemove: bye banner", e);
   }
 };
 

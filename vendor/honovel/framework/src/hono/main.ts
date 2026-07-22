@@ -331,6 +331,14 @@ class Server {
 
         const headers = new Headers(c.req.raw.headers);
 
+        headers.set("Host", new URL(targetUrl).host);
+        headers.set("X-Forwarded-Host", c.req.header("host") ?? "");
+        headers.set(
+          "X-Forwarded-Proto",
+          isFile(storagePath("ssl/cert.pem")) ? "https" : "http",
+        );
+        headers.set("X-Forwarded-Port", String(env("APP_PORT")));
+
         // Clone body safely (handle GET without body)
         let body: BodyInit | null = null;
         if (c.req.method !== "GET" && c.req.method !== "HEAD") {
@@ -342,13 +350,28 @@ class Server {
           method: c.req.method,
           headers,
           body,
+          redirect: "manual",
         });
 
-        // Clone response headers safely (some need to be removed)
         const responseHeaders = new Headers(response.headers);
-        responseHeaders.delete("content-encoding"); // remove problematic headers if needed
+
+        // Remove problematic headers
+        responseHeaders.delete("content-encoding");
+        responseHeaders.delete("content-length");
+
+        // Rewrite redirects to stay under /myadmin
+        const location = responseHeaders.get("location");
+        if (location) {
+          const url = new URL(location, env("PHPMYADMIN_HOST") as string);
+
+          responseHeaders.set(
+            "location",
+            `/myadmin${url.pathname}${url.search}${url.hash}`,
+          );
+        }
 
         const responseBody = await response.arrayBuffer();
+
         return new Response(responseBody, {
           status: response.status,
           headers: responseHeaders,

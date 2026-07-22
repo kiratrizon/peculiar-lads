@@ -21,6 +21,9 @@ class MemberController extends Controller {
     const userQuery = User.query();
     userQuery.select("id", "name", "discord", DB.raw("created_at as joined"));
     userQuery.where("deactivated", false);
+    // Pending/invited/rejected applicants are User rows too now - keep them
+    // out of the member directory.
+    userQuery.where("status", 3);
     if (isset(searchDiscord)) {
       // validate here
       const discordValidate = await Validator.make(
@@ -58,6 +61,10 @@ class MemberController extends Controller {
 
   // GET /resource/{member}
   public show: HttpDispatch = async ({ request }, { member }) => {
+    // @ts-ignore //
+    if (member.status !== 3) {
+      abort(404);
+    }
     const notif = await this.getUnreads({ request });
 
     const [characters, allClass, nstg] = await Promise.all([

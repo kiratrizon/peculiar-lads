@@ -1,5 +1,6 @@
 import Controller from "App/Http/Controllers/Controller.ts";
-import Recruit, { RecruitSchema } from "../../Models/Recruit.ts";
+import User, { UserSchema } from "../../Models/User.ts";
+import Character from "../../Models/Character.ts";
 import NSTGLevel from "../../Models/NSTGLevel.ts";
 import ThirdClass from "../../Models/ThirdClass.ts";
 import { Resend } from "resend";
@@ -7,6 +8,7 @@ import Admin from "../../Models/Admin.ts";
 import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
 import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
 import { discordRest } from "pecu-discord-deno/rest.ts";
+import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
 class RecruitController extends Controller {
 
@@ -24,17 +26,24 @@ class RecruitController extends Controller {
   };
 
   public getRecruits: HttpDispatch = async ({ request }) => {
-    const recruits = await Recruit.all();
+    const recruits = await User.where("status", "!=", 3).get();
     return response().json({
       recruits
     });
   };
 
   // GET /resource/{Recruit}
-  public show: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
-
-    const nstgID = recruit.getAttribute("nstg") as number;
-    const classID = recruit.getAttribute("class") as number;
+  public show: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
+    // @ts-ignore //
+    const recruitId = recruit.id as number;
+    const character = await Character.where("user_id", recruitId).first();
+    if (!character) {
+      return redirect().route("admin.recruits").with("message", "Application character not found");
+    }
+    // @ts-ignore //
+    const nstgID = character.nstg_level_id as number;
+    // @ts-ignore //
+    const classID = character.third_class_id as number;
     const nstg = await NSTGLevel.find(nstgID);
     const classJob = await ThirdClass.find(classID);
     if (!nstg) {
@@ -45,6 +54,8 @@ class RecruitController extends Controller {
     }
 
     recruit.forceFill({
+      // @ts-ignore //
+      ign: character.ign as string,
       myNstg: nstg.toObject(),
       myClass: classJob.toObject(),
     });
@@ -75,7 +86,7 @@ class RecruitController extends Controller {
       discord: "required|min:4|max:50",
       discord_id: "nullable|max:20",
       reason: "required|min:10|max:500",
-      email: "required|email|min:4|max:50",
+      email: "required|email|min:4|max:50|unique:users,email",
     });
 
     // check if class is a number and exist in ThirdClass
@@ -108,9 +119,25 @@ class RecruitController extends Controller {
         nstg: "NSTG is not valid",
       }).withInput(request.except(['nstg']));
     }
-    const recruit = await Recruit.create(credentials);
+    const recruit = await User.create({
+      email: credentials.email,
+      name: credentials.ign,
+      discord: credentials.discord,
+      discord_id: credentials.discord_id,
+      reason: credentials.reason,
+    });
 
     if (recruit) {
+      // @ts-ignore //
+      const recruitId = recruit.id as number;
+      await Character.create({
+        user_id: recruitId,
+        main: true,
+        third_class_id: classId,
+        nstg_level_id: nstgId,
+        ign: credentials.ign,
+      });
+
       const discordId = credentials.discord_id as string | undefined;
       if (discordId) {
         try {
@@ -138,6 +165,45 @@ class RecruitController extends Controller {
           }
         } catch (error) {
           console.error("Failed to update roles for recruit", error);
+          logErrorToDiscord("RecruitController.store: role sync", error);
+        }
+      }
+
+      // Automatic blocklist check + immediate invite link generation, so the
+      // applicant can go straight to signup instead of waiting for an admin
+      // to manually review and click "invite" (RecruitController.inviteRecruit
+      // and .verify still exist for admins to re-check/override afterward).
+      const isBlackListed = await BlockListedPlayer.whereRaw(
+        DB.raw(`lower(ign) = ?`),
+        [credentials.ign.toLowerCase()],
+      ).count();
+
+      let signupUrl: string | null = null;
+
+      if (isBlackListed > 0) {
+        recruit.fill({ verified: 2, status: 2 });
+      } else {
+        const timeNow = date("YmdHis");
+        const invitationLink = `${recruitId}-${timeNow}-${crypto.randomUUID()}`;
+        recruit.fill({
+          verified: 1,
+          status: 1,
+          invitation_link: invitationLink,
+        });
+        signupUrl = `${env("PECU_WEB")}signup/${invitationLink}`;
+      }
+      await recruit.save();
+
+      if (discordId && signupUrl) {
+        try {
+          const dmChannel = await discordRest.getDmChannel(discordId);
+          await discordRest.sendMessage(dmChannel.id, {
+            content:
+              `Your application looks good! Complete your signup here: ${signupUrl}`,
+          });
+        } catch (error) {
+          console.error("Failed to DM signup link to recruit", error);
+          logErrorToDiscord("RecruitController.store: signup DM", error);
         }
       }
 
@@ -150,7 +216,7 @@ class RecruitController extends Controller {
           const emails = adminEmails.map((admin) => admin.getAttribute("email") as string);
           if (to.length > 0) {
             const data = {
-              ign: recruit.getAttribute("ign") as string,
+              ign: credentials.ign as string,
               className: classExist.getAttribute("name") as string,
               nstgCode: nstgExist.getAttribute("code") as string,
               nstgName: nstgExist.getAttribute("name") as string,
@@ -162,16 +228,21 @@ class RecruitController extends Controller {
             await RecruitController.mailer.emails.send({
               from: "Eirazyn <onboarding@resend.dev>",
               to,
-              subject: "New Recruit Application - " + recruit.getAttribute("ign"),
+              subject: "New Recruit Application - " + credentials.ign,
               html: this.recruitApplicationTemplate(data),
             });
           }
         } catch (error) {
           console.error(error);
+          logErrorToDiscord("RecruitController.store: admin email", error);
         }
       }
 
-      return redirect().route("welcome").with("message", `Hello ${recruit.getAttribute("ign")}, your application has been submitted successfully. Please wait for review. And we'll send you a message via your provided email.`);
+      const successMessage = signupUrl
+        ? `Hello ${credentials.ign}, your application has been approved! Complete your signup here: ${signupUrl}`
+        : `Hello ${credentials.ign}, your application has been submitted. An admin will need to review it manually before you can sign up.`;
+
+      return redirect().route("welcome").with("message", successMessage);
     }
     return redirect().route("welcome").with("message", `Something went wrong. Please try again later.`).withInput();
   };
@@ -254,7 +325,7 @@ class RecruitController extends Controller {
   `;
   }
 
-  public inviteRecruit: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+  public inviteRecruit: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
 
     // @ts-ignore //
     const recruitId = recruit.id;
@@ -278,13 +349,13 @@ class RecruitController extends Controller {
     }, 500)
   };
 
-  public verify: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+  public verify: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
 
     // @ts-ignore //
-    const ign = recruit.ign as string;
+    const ign = recruit.name as string;
 
     const isBlackListed = await BlockListedPlayer.whereRaw(DB.raw(`lower(ign) = ?`), [ign.toLowerCase()]).count();
-    let verifyValue: RecruitSchema["verified"] = 0;
+    let verifyValue: UserSchema["verified"] = 0;
     if (isBlackListed > 0) {
       verifyValue = 2;
     } else {
@@ -303,7 +374,7 @@ class RecruitController extends Controller {
     })
   }
 
-  public decline: HttpDispatch<{ recruit: Recruit }> = async ({ request }, { recruit }) => {
+  public decline: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
     // @ts-ignore //
     recruit.fill({
       status: 2,

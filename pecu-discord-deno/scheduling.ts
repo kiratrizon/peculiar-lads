@@ -1,7 +1,11 @@
-// Asia/Manila is UTC+8 year-round (no DST), so "Manila wall-clock time" can
-// be computed with a flat 8-hour offset instead of needing a timezone
-// database. All functions here take/return UTC `Date` instants; callers
-// persist `next_run_at` as UTC.
+import { Carbon } from "helpers";
+
+// Asia/Manila is UTC+8 year-round (no DST). Carbon's default timezone is set
+// to config("app.timezone") (Asia/Manila) at boot (see main.ts / Boot.ts), so
+// the compute functions below build on Carbon.parse()/arithmetic directly
+// rather than hand-rolling the offset - Carbon already handles it correctly.
+// formatManilaDisplay below still does its own flat-offset math since it
+// works off a raw UTC Date/string, not a Carbon instance.
 const MANILA_OFFSET_MS = 8 * 60 * 60 * 1000;
 
 export type TimeOfDay = { hour: number; minute: number; second: number };
@@ -10,6 +14,11 @@ export const parseTimeOfDay = (time: string): TimeOfDay => {
   const [hour, minute, second] = time.split(":").map((part) => Number(part));
   return { hour, minute: minute ?? 0, second: second ?? 0 };
 };
+
+const formatTimeOfDay = (time: TimeOfDay): string =>
+  [time.hour, time.minute, time.second]
+    .map((n) => String(n).padStart(2, "0"))
+    .join(":");
 
 const WEEKDAY_NAMES = [
   "Sunday",
@@ -62,87 +71,56 @@ export const formatManilaDisplay = (utcInstant: string | Date): string => {
   } ${manila.getUTCDate()}, ${manila.getUTCFullYear()} ${hour12}:${minute} ${suffix}`;
 };
 
-const manilaWallClockToUtc = (
-  year: number,
-  month0: number,
-  day: number,
-  time: TimeOfDay,
-): Date =>
-  new Date(
-    Date.UTC(year, month0, day, time.hour, time.minute, time.second) -
-      MANILA_OFFSET_MS,
-  );
-
-const toManilaWallClock = (utcInstant: Date): Date =>
-  new Date(utcInstant.getTime() + MANILA_OFFSET_MS);
-
-const lastDayOfMonth = (year: number, month0: number): number =>
-  new Date(Date.UTC(year, month0 + 1, 0)).getUTCDate();
-
 export const computeSingleRun = (
   scheduledDate: string,
   time: TimeOfDay,
-): Date => {
-  const [year, month, day] = scheduledDate.split("-").map(Number);
-  return manilaWallClockToUtc(year, month - 1, day, time);
-};
+): Carbon => Carbon.parse(`${scheduledDate} ${formatTimeOfDay(time)}`);
 
-/** Next occurrence of `dayOfWeek` (0=Sun..6=Sat, Manila-local) at `time`, strictly after `fromUtc`. */
+/** Next occurrence of `dayOfWeek` (0=Sun..6=Sat, Manila-local) at `time`, strictly after `now`. */
 export const computeNextWeeklyRun = (
-  fromUtc: Date,
+  now: Carbon,
   dayOfWeek: number,
   time: TimeOfDay,
-): Date => {
-  const manilaNow = toManilaWallClock(fromUtc);
-  const year = manilaNow.getUTCFullYear();
-  const month0 = manilaNow.getUTCMonth();
-  const deltaDays = (dayOfWeek - manilaNow.getUTCDay() + 7) % 7;
+): Carbon => {
+  const todayAtTime = Carbon.parse(`${now.toDateString()} ${formatTimeOfDay(time)}`);
+  // Carbon/Luxon's weekday is ISO (1=Mon..7=Sun); this app's dayOfWeek is
+  // 0=Sun..6=Sat (matching JS Date.getDay()), hence the 0->7 remap.
+  const isoTargetWeekday = dayOfWeek === 0 ? 7 : dayOfWeek;
+  const deltaDays = (isoTargetWeekday - todayAtTime.weekday() + 7) % 7;
 
-  let candidate = manilaWallClockToUtc(
-    year,
-    month0,
-    manilaNow.getUTCDate() + deltaDays,
-    time,
-  );
-  if (candidate.getTime() <= fromUtc.getTime()) {
-    candidate = manilaWallClockToUtc(
-      year,
-      month0,
-      manilaNow.getUTCDate() + deltaDays + 7,
-      time,
-    );
+  let candidate = todayAtTime.addDays(deltaDays);
+  if (candidate.to("seconds") <= now.to("seconds")) {
+    candidate = candidate.addWeeks(1);
   }
   return candidate;
 };
 
-/** Next occurrence of `dayOfMonth` (clamped to the last day of short months) at `time`, strictly after `fromUtc`. */
+/** Next occurrence of `dayOfMonth` (clamped to the last day of short months) at `time`, strictly after `now`. */
 export const computeNextMonthlyRun = (
-  fromUtc: Date,
+  now: Carbon,
   dayOfMonth: number,
   time: TimeOfDay,
-): Date => {
-  const manilaNow = toManilaWallClock(fromUtc);
-  let year = manilaNow.getUTCFullYear();
-  let month0 = manilaNow.getUTCMonth();
+): Carbon => {
+  const clampedDay = (base: Carbon) => Math.min(dayOfMonth, base.daysInMonth());
 
-  let candidate = manilaWallClockToUtc(
-    year,
-    month0,
-    Math.min(dayOfMonth, lastDayOfMonth(year, month0)),
-    time,
+  let candidate = Carbon.create(
+    now.year(),
+    now.month(),
+    clampedDay(now),
+    time.hour,
+    time.minute,
+    time.second,
   );
 
-  if (candidate.getTime() <= fromUtc.getTime()) {
-    month0 += 1;
-    if (month0 > 11) {
-      month0 = 0;
-      year += 1;
-    }
-    candidate = manilaWallClockToUtc(
-      year,
-      month0,
-      Math.min(dayOfMonth, lastDayOfMonth(year, month0)),
-      time,
+  if (candidate.to("seconds") <= now.to("seconds")) {
+    const nextMonthBase = now.addMonths(1);
+    candidate = Carbon.create(
+      nextMonthBase.year(),
+      nextMonthBase.month(),
+      clampedDay(nextMonthBase),
+      time.hour,
+      time.minute,
+      time.second,
     );
   }
 

@@ -18,4 +18,5 @@ export type Command = {
   data: CommandData;
   execute: (interaction: AppInteraction) => Promise<unknown>;
   handleModal?: (interaction: AppInteraction) => Promise<unknown>;
+  handleAutocomplete?: (interaction: AppInteraction) => Promise<unknown>;
 };

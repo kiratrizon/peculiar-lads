@@ -5,6 +5,7 @@ import {
   TextStyles,
 } from "@discordeno/bot";
 import type { InteractionDataOption } from "@discordeno/bot";
+import { Carbon } from "helpers";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
 import ScheduledMessage from "App/Models/ScheduledMessage.ts";
 import type { AppInteraction, Command } from "../types.ts";
@@ -15,7 +16,6 @@ import {
   formatManilaDisplay,
   parseAppStoredDatetime,
   parseTimeOfDay,
-  toAppStoredDatetime,
 } from "../scheduling.ts";
 
 const CHANNEL_OPTION_NAME = "channel";
@@ -86,12 +86,12 @@ const computeNextRunAt = (
   recurrenceType: RecurrenceType,
   dateOrDay: string,
   time: ReturnType<typeof parseTimeOfDay>,
-): Date => {
+) => {
   if (recurrenceType === "single") return computeSingleRun(dateOrDay, time);
   if (recurrenceType === "weekly") {
-    return computeNextWeeklyRun(new Date(), Number(dateOrDay), time);
+    return computeNextWeeklyRun(Carbon.now(), Number(dateOrDay), time);
   }
-  return computeNextMonthlyRun(new Date(), Number(dateOrDay), time);
+  return computeNextMonthlyRun(Carbon.now(), Number(dateOrDay), time);
 };
 
 const resolveOrCreateChannel = async (
@@ -266,13 +266,22 @@ const handleModalSubmit = async (interaction: AppInteraction) => {
     scheduled_time: scheduledTime,
     day_of_week: recurrenceType === "weekly" ? Number(dateOrDay) : null,
     day_of_month: recurrenceType === "monthly" ? Number(dateOrDay) : null,
-    next_run_at: toAppStoredDatetime(nextRunAt),
+    next_run_at: nextRunAt,
     last_sent_at: null,
     is_active: true,
   });
 
   await interaction.respond(
-    { content: `Scheduled. Next run: ${formatManilaDisplay(nextRunAt)}` },
+    {
+      // nextRunAt is a Carbon instance already in Manila wall-clock terms
+      // (its toString()), unlike a stored DB string (which formatManilaDisplay
+      // expects, and re-derives via the strToTime round-trip) - going through
+      // parseAppStoredDatetime here keeps this on the same correct path.
+      content:
+        `Scheduled. Next run: ${
+          formatManilaDisplay(parseAppStoredDatetime(nextRunAt.toString()))
+        }`,
+    },
     { isPrivate: true },
   );
 };

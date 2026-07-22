@@ -2,7 +2,6 @@ import Controller from "App/Http/Controllers/Controller.ts";
 import User from "App/Models/User.ts";
 import Event from "App/Models/Event.ts";
 import Admin from "App/Models/Admin.ts";
-import Recruit from "../../Models/Recruit.ts";
 import {
   Cache,
   DB,
@@ -58,9 +57,9 @@ class AdminController extends Controller {
       recruits: 0,
     };
 
-    const members = await User.count();
+    const members = await User.where("status", 3).count();
     const events = await Event.where("status", "!=", 2).get();
-    const recruits = await Recruit.where("status", 0).get();
+    const recruits = await User.where("status", 0).get();
     stats.members = members;
     stats.events = events.length;
     stats.recruits = recruits.length;
@@ -145,29 +144,35 @@ class AdminController extends Controller {
       }
     }
 
-    const recruitQuery = Recruit.query();
-    recruitQuery.where("recruits.status", "!=", 3);
+    const recruitQuery = User.query();
+    recruitQuery.where("users.status", "!=", 3);
 
     if (statusFilter !== "all" && ["0", "1", "2"].includes(statusFilter)) {
-      recruitQuery.where("recruits.status", parseInt(statusFilter));
+      recruitQuery.where("users.status", parseInt(statusFilter));
     }
 
     const fields = [
-      "recruits.id",
-      "recruits.ign",
-      "recruits.discord",
-      "recruits.email",
-      "recruits.status",
-      "recruits.verified",
+      "users.id",
+      "characters.ign",
+      "users.discord",
+      "users.email",
+      "users.status",
+      "users.verified",
       "nstg_level.code as nstg",
       "third_classes.name as class",
     ];
 
     recruitQuery.select(...fields.map((e) => DB.raw(e)));
     recruitQuery
-      .join("nstg_level", "recruits.nstg", "=", "nstg_level.id")
-      .join("third_classes", "recruits.class", "=", "third_classes.id");
-    recruitQuery.orderBy("recruits.created_at", "desc");
+      .join("characters", "users.id", "=", "characters.user_id")
+      .join("nstg_level", "characters.nstg_level_id", "=", "nstg_level.id")
+      .join(
+        "third_classes",
+        "characters.third_class_id",
+        "=",
+        "third_classes.id",
+      );
+    recruitQuery.orderBy("users.created_at", "desc");
 
     const recruits = await recruitQuery.paginate(page, perPage, urlInstance);
 
@@ -307,6 +312,10 @@ class AdminController extends Controller {
         "third_classes.id",
       )
       .leftJoin("users", "characters.user_id", "=", "users.id");
+    // Characters now exist from application time onward (not just once
+    // accepted) - exclude pending/invited/rejected applicants from the
+    // member roster.
+    characterQuery.where("users.status", 3);
     const search_ign = request.query("search_ign");
     if (isset(search_ign)) {
       const validator = await Validator.make(request.query(), {

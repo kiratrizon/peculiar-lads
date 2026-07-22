@@ -88,6 +88,10 @@ class CharacterController extends Controller {
     if (!isAdmin && member.id !== request.user()?.id) {
       return response().json({ message: "Forbidden" }, 403);
     }
+    // @ts-ignore //
+    if (member.status !== 3) {
+      return response().json({ message: "Member not found" }, 404);
+    }
 
     const validator = await Validator.make(request.all(), {
       ign: "required|max:10|alpha_num",

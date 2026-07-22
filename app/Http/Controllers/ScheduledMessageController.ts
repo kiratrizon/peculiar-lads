@@ -1,3 +1,4 @@
+import { Carbon } from "helpers";
 import Controller from "App/Http/Controllers/Controller.ts";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
 import ScheduledMessage from "App/Models/ScheduledMessage.ts";
@@ -9,7 +10,6 @@ import {
   formatManilaDisplay,
   parseAppStoredDatetime,
   parseTimeOfDay,
-  toAppStoredDatetime,
 } from "pecu-discord-deno/scheduling.ts";
 
 // deno-lint-ignore no-explicit-any
@@ -43,22 +43,24 @@ const fetchRoles = async (guildId: string) => {
     .sort((a, b) => a.name.localeCompare(b.name));
 };
 
-// MySQL's DATETIME columns want "YYYY-MM-DD HH:MM:SS", not the ISO 8601
-// ("...T...Z") string a raw JS Date serializes to - toAppStoredDatetime gives
-// the former, via the global date() helper.
-const computeNextRunAt = (input: Record<string, unknown>): string => {
+// Returns a Carbon instance rather than a plain string - Carbon extends
+// String, so the ORM stringifies it (in its own "yyyy-MM-dd HH:mm:ss"
+// format, matching this column's shape) automatically when building the
+// query, no manual conversion needed.
+const computeNextRunAt = (input: Record<string, unknown>) => {
   const time = parseTimeOfDay(String(input.scheduled_time));
 
-  let next: Date;
   if (input.recurrence_type === "single") {
-    next = computeSingleRun(String(input.scheduled_date), time);
-  } else if (input.recurrence_type === "weekly") {
-    next = computeNextWeeklyRun(new Date(), Number(input.day_of_week), time);
-  } else {
-    next = computeNextMonthlyRun(new Date(), Number(input.day_of_month), time);
+    return computeSingleRun(String(input.scheduled_date), time);
   }
-
-  return toAppStoredDatetime(next);
+  if (input.recurrence_type === "weekly") {
+    return computeNextWeeklyRun(Carbon.now(), Number(input.day_of_week), time);
+  }
+  return computeNextMonthlyRun(
+    Carbon.now(),
+    Number(input.day_of_month),
+    time,
+  );
 };
 
 class ScheduledMessageController extends Controller {

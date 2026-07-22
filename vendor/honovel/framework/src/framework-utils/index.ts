@@ -146,6 +146,37 @@ export class Carbon extends String {
     return new Carbon(newDate);
   }
 
+  /** Returns a new Carbon instance with the given number of weeks added. */
+  public addWeeks(weeks: number): Carbon {
+    const newDate = this.#currentDate.plus({ weeks });
+    return new Carbon(newDate);
+  }
+
+  /** Returns the ISO weekday of this instance (1=Monday..7=Sunday). */
+  public weekday(): number {
+    return this.#currentDate.weekday;
+  }
+
+  /** Returns the four-digit year of this instance. */
+  public year(): number {
+    return this.#currentDate.year;
+  }
+
+  /** Returns the month of this instance (1-12). */
+  public month(): number {
+    return this.#currentDate.month;
+  }
+
+  /** Returns the day of the month of this instance (1-31). */
+  public day(): number {
+    return this.#currentDate.day;
+  }
+
+  /** Returns the number of days in this instance's month (28-31). */
+  public daysInMonth(): number {
+    return this.#currentDate.daysInMonth as number;
+  }
+
   /** Returns a new Carbon instance with the given number of years subtracted. */
   public subYears(years: number): Carbon {
     const newDate = this.#currentDate.minus({ years });

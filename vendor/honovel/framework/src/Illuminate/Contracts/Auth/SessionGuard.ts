@@ -84,6 +84,9 @@ export default class SessionGuard extends BaseGuard {
     if (!user) {
       return false;
     }
+    if (!user.getAuthPassword()) {
+      return false;
+    }
     if (!Hash.check(credentials[passwordKey], user.getAuthPassword())) {
       return false;
     }

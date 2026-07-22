@@ -1266,7 +1266,7 @@ export async function handleAction(
             string,
             unknown
           >;
-          return oldInput[key] ?? defaultValue;
+          return oldInput[key] ?? defaultValue ?? "";
         },
         csrf: (id: string = "_token") => {
           return `<input type="hidden" id="${id}" name="${id}" value="${

@@ -1,9 +1,7 @@
 import Controller from "App/Http/Controllers/Controller.ts";
-import Recruit from "../../Models/Recruit.ts";
 import { Hash } from "Illuminate/Support/Facades/index.ts";
-import User, { UserSchema } from "App/Models/User.ts";
+import User from "App/Models/User.ts";
 import { Str } from "Illuminate/Support/index.ts";
-import Character, { CharacterSchema } from "App/Models/Character.ts";
 
 class UserController extends Controller {
   public login: HttpDispatch = async ({ request, Auth }) => {
@@ -30,10 +28,10 @@ class UserController extends Controller {
   };
 
   public signup: HttpDispatch = async ({ request, Auth }, { inviteLink }) => {
-    // your logic here
-
-    // verify the invite link
-    const recruit = await Recruit.where("invitation_link", inviteLink)
+    // Applying (RecruitController.store) already created this row - status
+    // 1 means an admin has invited it, so this just fills in the
+    // credentials on that SAME row rather than creating a new one.
+    const recruit = await User.where("invitation_link", inviteLink)
       .where("status", 1)
       .first();
     if (!recruit) {
@@ -45,7 +43,7 @@ class UserController extends Controller {
     if (request.method === "POST") {
       const credentials = await request.validate(
         {
-          email: "required|email|unique:users,email",
+          email: "required|email",
           // password regex must be at least 8 characters long, contain at least one uppercase letter, one lowercase letter, one number, and one special character
           // Note: use `regex:pattern` with no /slashes/ — Validator uses `new RegExp(val)` (slashes would be literal).
           // Use \\d in the string so the regex receives \d (digit), not a plain "d".
@@ -55,54 +53,42 @@ class UserController extends Controller {
         {
           "password.regex":
             "Password must contain at least one uppercase letter, one lowercase letter, one number, and one special character.",
-          "email.unique": "Email already exists",
         },
       );
 
-      const userData: UserSchema = {
+      // The row already occupies `credentials.email` (it was captured at
+      // apply time), so a plain `unique:users,email` rule would always
+      // spuriously fail here - this framework's unique rule has no "except
+      // this row's id" option, so the exclusion is done manually instead.
+      // @ts-ignore //
+      const recruitId = recruit.id as number;
+      // @ts-ignore //
+      const currentEmail = recruit.email as string | null;
+      if (credentials.email !== currentEmail) {
+        const duplicate = await User.where("email", credentials.email)
+          .first();
+        if (duplicate) {
+          return redirect()
+            .back()
+            .withErrors({ email: "Email already exists" })
+            .withInput(request.except(["password"]));
+        }
+      }
+
+      recruit.fill({
         email: credentials.email,
         password: Hash.make(credentials.password),
-        // @ts-ignore //
-        name: recruit.ign as string,
-        // @ts-ignore //
-        api_token: (recruit.id + "-" + Str.random(32)) as string,
-        // @ts-ignore //
-        discord: recruit.discord,
-        // @ts-ignore //
-        discord_id: recruit.discord_id,
-      };
+        api_token: `${recruitId}-${Str.random(32)}`,
+        status: 3,
+      });
+      await recruit.save();
 
-      const user = await User.create(userData);
+      const attempt = await Auth.attempt(credentials);
 
-      if (user) {
-        recruit.fill({
-          status: 3,
-        });
-        await recruit.save();
-        // create user character
-        const character: CharacterSchema = {
-          user_id: user.id,
-          main: true,
-          third_class_id: recruit.class,
-          nstg_level_id: recruit.nstg,
-          ign: recruit.ign,
-        };
-        await Character.create(character);
-
-        const attempt = await Auth.attempt(credentials);
-
-        if (attempt) {
-          return redirect().route("user.promptStayLogin");
-        }
-        return redirect().route("login");
-      } else {
-        return redirect()
-          .route("signup")
-          .withInput(request.except(["password"]))
-          .withErrors({
-            globalError: "Failed to create user",
-          });
+      if (attempt) {
+        return redirect().route("user.promptStayLogin");
       }
+      return redirect().route("login");
     }
 
     return view("user.signup", {

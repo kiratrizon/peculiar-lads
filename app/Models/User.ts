@@ -7,13 +7,19 @@ import Character from "./Character.ts";
 
 export type UserSchema = {
   id?: number;
-  email: string;
-  password: string;
+  email: string | null;
+  password: string | null;
   name: string;
-  api_token?: string;
+  api_token?: string | null;
   discord: string;
   discord_id: string | null;
   deactivated: boolean;
+  reason: string | null;
+  // 0: pending, 1: invited, 2: rejected, 3: accepted
+  status: 0 | 1 | 2 | 3;
+  invitation_link: string | null;
+  // 0: not verified, 1: verified, 2: blocklisted
+  verified: 0 | 1 | 2;
 };
 
 class User extends Authenticatable<UserSchema> implements JWTSubject {
@@ -26,6 +32,10 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     "discord",
     "discord_id",
     "deactivated",
+    "reason",
+    "status",
+    "invitation_link",
+    "verified",
   ];
   protected static override _guarded: string[] = [];
 
