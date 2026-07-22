@@ -38,7 +38,7 @@ const handleAdd = async (
   if (existing) {
     await interaction.respond(
       { content: `**${ign}** is already on the scammer list.` },
-      { isPrivate: false },
+      { isPrivate: true },
     );
     return;
   }
@@ -60,7 +60,7 @@ const handleList = async (interaction: AppInteraction) => {
   if (players.length === 0) {
     await interaction.respond(
       { content: "The scammer list is empty." },
-      { isPrivate: true },
+      { isPrivate: false },
     );
     return;
   }
@@ -88,7 +88,7 @@ const handleList = async (interaction: AppInteraction) => {
         },
       ],
     },
-    { isPrivate: true },
+    { isPrivate: false },
   );
 };
 
