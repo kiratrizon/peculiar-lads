@@ -20,9 +20,11 @@ import {
   toMiddleware,
   URLArranger,
   toFallback,
+  toNotfound,
   returnResponse,
   exceptionToResponse,
 } from "./Support/FunctionRoute.ts";
+import type HttpHono from "HttpHono";
 import { IMyConfig } from "./Support/MethodRoute.ts";
 import { honoSession } from "HonoHttp/HonoSession.ts";
 import { Route as Router } from "Illuminate/Support/Facades/index.ts";
@@ -236,6 +238,10 @@ class Server {
 
   private static console: RouterLoader;
 
+  private static routeFallbacks: Record<
+    string,
+    ((param: HttpHono) => Promise<void>) | null
+  > = {};
   public static routes: Record<
     string,
     {
@@ -495,7 +501,11 @@ class Server {
           defaultRoute,
           defaultResource,
           resourceReferrence,
+          fallback,
         } = allGroup;
+        if (isset(fallback)) {
+          this.routeFallbacks[key] = fallback;
+        }
         if (isset(methods) && !empty(methods)) {
           if (!empty(defaultResource)) {
             for (const di of defaultResource) {
@@ -836,23 +846,6 @@ class Server {
               }
             }
           }
-          // @ts-ignore //
-          // if (Route.fallbackFn) {
-          //   byEndpointsRouter.use(
-          //     // @ts-ignore //
-          //     toNotfound(
-          //       {
-          //         // @ts-ignore //
-          //         args: Route.fallbackFn,
-          //         // @ts-ignore //
-          //         debugString: Route.fallbackFn.toString(),
-          //       },
-          //       []
-          //     )
-          //   );
-          //   // @ts-ignore //
-          //   Route.fallbackFn = null; // reset after applying
-          // }
           this.app.route(routePrefix, byEndpointsRouter);
         } else {
           console.error("No routes found");
@@ -862,10 +855,47 @@ class Server {
   }
 
   private static async endInit() {
-    this.app.notFound(async function (c: MyContext) {
-      const notFoundInstance = new NotFoundHttpException();
-      return await exceptionToResponse(c, notFoundInstance);
-    });
+    if (!empty(this.routeFallbacks)) {
+      // @ts-ignore //
+      const groupRoutesMain = GroupRoute.groupRouteMain as Record<
+        string,
+        { middleware: string[]; prefix?: string }
+      >;
+      const fallbackEntries = Object.entries(this.routeFallbacks)
+        .filter(([, fn]) => isset(fn))
+        .map(([key, fn]) => ({
+          prefix: groupRoutesMain[key]?.prefix || "/",
+          fn: fn as (param: HttpHono) => Promise<void>,
+        }))
+        .sort((a, b) => b.prefix.length - a.prefix.length);
+
+      this.app.notFound(async (c: MyContext) => {
+        const path = c.req.path;
+        const matched = fallbackEntries.find(
+          ({ prefix }) =>
+            prefix === "/" || path === prefix || path.startsWith(`${prefix}/`),
+        );
+
+        if (!matched) {
+          const notFoundInstance = new NotFoundHttpException();
+          return await exceptionToResponse(c, notFoundInstance);
+        }
+        const handler = toNotfound(
+          {
+            debugString: "Route::fallback",
+            // @ts-ignore //
+            args: matched.fn,
+          },
+          [],
+        );
+        return (await handler(c, async () => {})) as Response;
+      });
+    } else {
+      this.app.notFound(async function (c: MyContext) {
+        const notFoundInstance = new NotFoundHttpException();
+        return await exceptionToResponse(c, notFoundInstance);
+      });
+    }
 
     const ServerDomainKeys = Object.keys(this.domainPattern); // ["web", "api"]
     ServerDomainKeys.forEach((key) => {

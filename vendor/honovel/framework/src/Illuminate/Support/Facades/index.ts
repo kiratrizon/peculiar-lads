@@ -1596,6 +1596,7 @@ class MyRoute {
       defaultRoute: MyRoute.defaultRoute,
       defaultResource: MyRoute.defaultResource,
       resourceReferrence: MyRoute.resourceReferrence,
+      fallback: MyRoute.fallbackFn,
     };
 
     // Reset the static properties after fetching
@@ -1604,6 +1605,7 @@ class MyRoute {
     MyRoute.defaultRoute = {};
     MyRoute.defaultResource = [];
     MyRoute.resourceReferrence = {};
+    MyRoute.fallbackFn = null;
     return myData;
   }
 
@@ -1616,9 +1618,11 @@ class MyRoute {
 
   private static fallbackFn: ((param: HttpHono) => Promise<void>) | null = null;
   public static fallback(fn: (param: HttpHono) => Promise<void>): void {
-    if (!this.fallbackFn && isFunction(fn) && empty(this.groupPreference)) {
+    if (!this.fallbackFn && isFunction(fn) && empty(GroupRoute.currGrp)) {
       this.fallbackFn = fn;
+      return;
     }
+    throw new Error(`Route.fallback should be called outside of Route.group`);
   }
 }
 
