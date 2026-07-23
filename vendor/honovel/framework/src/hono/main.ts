@@ -319,6 +319,9 @@ class Server {
       await providerInstance.boot();
     }
     await Boot.finalInit();
+
+    // phpmyadmin logic
+    // put PHPMYADMIN_HOST in env in order to embed phpmyadmin in the app
     if (isset(env("PHPMYADMIN_HOST"))) {
       this.app.get("/myadmin", async (c: MyContext) => {
         return c.redirect("/myadmin/", 301);
