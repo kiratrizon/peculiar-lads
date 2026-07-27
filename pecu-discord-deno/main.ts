@@ -162,6 +162,26 @@ bot.events.interactionCreate = async (interaction) => {
     return;
   }
 
+  // AUTO_ROLE_ID is the on-join probation role (guildMemberAdd) - members
+  // only lose it by posting the application in the onboarding channel or
+  // submitting the website form (see messageCreate / RecruitController).
+  // Members who joined before AUTO_ROLE_ID existed never got it, so they're
+  // unaffected by this check.
+  const autoRoleId = env("AUTO_ROLE_ID") as string | null;
+  if (
+    autoRoleId &&
+    interaction.member?.roles.some((roleId) => roleId.toString() === autoRoleId)
+  ) {
+    await interaction.respond(
+      {
+        content:
+          "You need to finish onboarding before using bot commands - post your application in the onboarding channel, or register on the website.",
+      },
+      { isPrivate: true },
+    );
+    return;
+  }
+
   try {
     await command.execute(interaction);
   } catch (e) {

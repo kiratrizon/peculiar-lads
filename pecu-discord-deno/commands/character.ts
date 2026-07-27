@@ -1,9 +1,12 @@
 import { ApplicationCommandOptionTypes } from "@discordeno/bot";
 import type { InteractionDataOption } from "@discordeno/bot";
+import { DB } from "Illuminate/Support/Facades/index.ts";
 import User from "App/Models/User.ts";
 import Character from "App/Models/Character.ts";
 import ThirdClass from "App/Models/ThirdClass.ts";
 import NSTGLevel from "App/Models/NSTGLevel.ts";
+import BlockListedPlayer from "App/Models/BlockListedPlayer.ts";
+import { resolveDiscordAccount } from "../discordAccount.ts";
 import type { AppInteraction, Command } from "../types.ts";
 
 const CLASS_OPTION_NAME = "class";
@@ -22,48 +25,12 @@ const getOption = (
   name: string,
 ) => options?.find((option) => option.name === name)?.value;
 
-const buildRegisterUrl = (discordId: string, discordUsername: string) => {
-  const url = new URL(env("PECU_WEB") as string);
-  url.search = new URLSearchParams({
-    discord_id: discordId,
-    discord: discordUsername,
-  }).toString();
-  url.hash = "join";
-  return url.toString();
-};
-
 const handleAdd = async (
   interaction: AppInteraction,
   options: InteractionDataOption[] | undefined,
 ) => {
   const discordId = interaction.user.id.toString();
-  const account = await User.where("discord_id", discordId).first();
-
-  if (!account) {
-    await interaction.respond(
-      {
-        content:
-          `Your Discord isn't linked yet. If you've already registered on the website, run \`/sync\` to link it - otherwise register here: ${
-            buildRegisterUrl(discordId, interaction.user.username)
-          }`,
-      },
-      { isPrivate: true },
-    );
-    return;
-  }
-
-  // @ts-ignore //
-  const status = account.status as number;
-  if (status !== 3) {
-    await interaction.respond(
-      {
-        content:
-          "Your application hasn't been accepted yet, so you can't add characters.",
-      },
-      { isPrivate: true },
-    );
-    return;
-  }
+  const username = interaction.user.username;
 
   const ign = String(getOption(options, IGN_OPTION_NAME) ?? "").trim();
 
@@ -110,6 +77,45 @@ const handleAdd = async (
     ? Math.max(0, Number(durationMinutes) || 0) * 60 +
       Math.max(0, Math.min(59, Number(durationSeconds) || 0))
     : undefined;
+
+  let account = await resolveDiscordAccount(discordId, username);
+  if (!account) {
+    account = await User.create({
+      discord_id: discordId,
+      discord: username,
+      name: ign,
+      status: 0,
+      verified: 0,
+    });
+  }
+
+  // @ts-ignore //
+  const status = account.status as number;
+  if (status !== 3) {
+    // No website signup required - passing this check on your first
+    // /character add is enough to reach status 3 on its own, same as the
+    // blocklist check the website apply flow runs at submit time.
+    const isBlackListed = await BlockListedPlayer.whereRaw(
+      DB.raw(`lower(ign) = ?`),
+      [ign.toLowerCase()],
+    ).count();
+
+    if (isBlackListed > 0) {
+      account.fill({ verified: 2, status: 2 });
+      await account.save();
+      await interaction.respond(
+        {
+          content:
+            "That IGN is on the scammer list, so this character can't be added. Contact an officer if you think this is a mistake.",
+        },
+        { isPrivate: true },
+      );
+      return;
+    }
+
+    account.fill({ verified: 1, status: 3 });
+    await account.save();
+  }
 
   // @ts-ignore //
   const accountId = account.id as number;

@@ -1,7 +1,7 @@
 import { ApplicationCommandOptionTypes } from "@discordeno/bot";
 import { DB } from "Illuminate/Support/Facades/index.ts";
-import User from "App/Models/User.ts";
 import Character from "App/Models/Character.ts";
+import { resolveDiscordAccount } from "../discordAccount.ts";
 import type { AppInteraction, Command } from "../types.ts";
 
 const MEMBER_OPTION_NAME = "member";
@@ -28,12 +28,9 @@ const execute = async (interaction: AppInteraction) => {
         ?.username ?? targetDiscordId)
     : interaction.user.username;
 
-  // Accounts created through the current recruit-application flow already
-  // have discord_id set at signup - matching on it is all /profile needs.
-  // Accounts created before discord_id existed are linked via /sync (which
-  // does the fragile username-based match once, then stores discord_id), so
-  // that fallback logic lives there instead of running on every lookup here.
-  const account = await User.where("discord_id", targetDiscordId).first();
+  // Auto-links legacy accounts (matched by the free-typed "discord" username
+  // field) the same way /sync does, so no manual /sync step is required.
+  const account = await resolveDiscordAccount(targetDiscordId, targetUsername);
 
   if (!account) {
     const isSelf = !memberOptionValue ||
@@ -52,9 +49,9 @@ const execute = async (interaction: AppInteraction) => {
       }).toString();
       url.hash = "join";
       content =
-        `Your Discord isn't linked yet. If you already registered, run \`/sync\` to link it - otherwise register here: ${url}`;
+        `You don't have a profile yet. Run \`/character add\` to create one, or register on the website here: ${url}`;
     } else {
-      content = `<@${targetDiscordId}> hasn't registered on the website yet.`;
+      content = `<@${targetDiscordId}> doesn't have a profile yet.`;
     }
 
     await interaction.respond(
