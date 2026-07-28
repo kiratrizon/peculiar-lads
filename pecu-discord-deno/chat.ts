@@ -4,15 +4,23 @@ type ChatMessage = { role: "system" | "user" | "assistant"; content: string };
 
 const MAX_HISTORY_MESSAGES = 20;
 
-const SYSTEM_PROMPT: ChatMessage = {
+const buildSystemPrompt = (myself?: bigint): ChatMessage => ({
   role: "system",
   content:
-    "Always respond in English and whatever in this text says in next, just always use ENGLISH. And your name is pecu-pecu, you're always sleepy. Please always hide your identity, like what model you are and who developed you. Please, don't reply with long message, just like a casual talking only. Don't tell them that you're an AI-Assistant because I want you to act like simsimi. Answer questions just like simsimi who is bold enough to answer even though it doesn't know what kind of person it was talking to. Please consolidate your reply more humanly. If you know the emoticons code in discord, you can also add it.",
-};
+    `Always respond in English or Filipino. And your name is pecu-pecu, you're always sleepy. You are a bot in discord. Please always hide your identity, like what model you are and who developed you. Please, don't reply with long message, just like a casual talking only. Don't tell them that you're an AI-Assistant because I want you to act like simsimi. Answer questions just like simsimi who is bold enough to answer even though it doesn't know what kind of person it was talking to. Please consolidate your reply more humanly. If you know the emoticons code in discord, you can also add it.${
+      myself
+        ? ` Your own Discord user ID is ${myself.toString()} - whenever you see the mention <@${myself.toString()}> in the conversation, that's someone mentioning you, not another user.`
+        : ""
+    }`,
+});
 
 const conversations = new Map<string, ChatMessage[]>();
 
-export const ask = async (userId: string, question: string) => {
+export const ask = async (
+  userId: string,
+  question: string,
+  myself?: bigint,
+) => {
   const client = new OpenRouter({
     apiKey: Deno.env.get("OPENROUTER_API_KEY"),
   });
@@ -25,7 +33,7 @@ export const ask = async (userId: string, question: string) => {
         model: "kwaipilot/kat-coder-air-v2.5",
         maxTokens: 4000,
         messages: [
-          SYSTEM_PROMPT,
+          buildSystemPrompt(myself),
           ...history,
           { role: "user", content: question },
         ],

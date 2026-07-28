@@ -1,6 +1,6 @@
 type status = "online" | "idle" | "dnd" | "offline";
 
-const botStatus: status = "online";
+const botStatus: status = "idle";
 
 Carbon.setCarbonTimezone(config("app").timezone ?? "UTC");
 
@@ -19,6 +19,7 @@ import type { AppInteraction, Command } from "./types.ts";
 import { buildByeImage, buildWelcomeImage } from "./welcome.ts";
 import { startScheduledMessagesCron } from "./scheduler.ts";
 import { logErrorToDiscord } from "./errorLog.ts";
+import { ask } from "./chat.ts";
 import { Carbon } from "helpers";
 
 const ordinal = (n: number) => {
@@ -277,10 +278,36 @@ const hasApplicationFields = (content: string) =>
     new RegExp(`${field}\\s*:`, "i").test(content),
   );
 
-bot.events.messageCreate = async (message) => {
-  try {
-    if (message.author.bot || !message.guildId) return;
+const MENTION_PATTERN = (botId: bigint) => new RegExp(`<@!?${botId}>`, "g");
 
+bot.events.messageCreate = async (message) => {
+  if (message.author.bot || !message.guildId) return;
+
+  try {
+    if (message.mentionedUserIds.includes(bot.id)) {
+      const question = message.content
+        .replace(MENTION_PATTERN(bot.id), "")
+        .trim() || "hi";
+
+      const answer = await ask(message.author.id.toString(), question, bot.id);
+      if (answer) {
+        await bot.helpers.sendMessage(message.channelId, {
+          content: answer,
+          messageReference: {
+            messageId: message.id,
+            channelId: message.channelId,
+            failIfNotExists: false,
+          },
+          allowedMentions: { repliedUser: false },
+        });
+      }
+    }
+  } catch (e) {
+    console.error("Error replying to mention", e);
+    logErrorToDiscord("messageCreate: mention reply", e);
+  }
+
+  try {
     const onboardingChannelId = env("ONBOARDING_CHANNEL_ID") as string | null;
     if (
       !onboardingChannelId ||

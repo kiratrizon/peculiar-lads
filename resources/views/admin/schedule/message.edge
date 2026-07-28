@@ -29,9 +29,10 @@
 
     <div>
       <label class="block text-sm mb-1" style="color: var(--text-soft);">Message</label>
-      <textarea id="messageContent" name="content" rows="5" required
+      <textarea id="messageContent" name="content" rows="5" required maxlength="2000"
                 class="w-full px-4 py-2 rounded-lg border" style="background: transparent; border-color: var(--border); color: var(--text-main);"
       >{{ old('content', $editing ? $editing.content : '') }}</textarea>
+      <p class="text-xs mt-1" style="color: var(--text-soft);"><span id="messageCharCount"></span> / 2000</p>
       @if(errors.has('content'))
         <p class="text-red-500 text-sm mt-1">{{ errors.first('content') }}</p>
       @endif
@@ -187,12 +188,14 @@
   const roleSelect = document.getElementById('mentionRoleSelect');
   const insertBtn = document.getElementById('insertMentionBtn');
   const preview = document.getElementById('messagePreview');
+  const charCount = document.getElementById('messageCharCount');
 
   const roleMentionPattern = /\{\{role:(\d+):([^}]*)\}\}/g;
 
   const renderPreview = () => {
     if (!preview || !textarea) return;
     preview.textContent = textarea.value.replace(roleMentionPattern, (_match, _id, label) => `@${label}`);
+    if (charCount) charCount.textContent = String(textarea.value.length);
   };
 
   insertBtn?.addEventListener('click', () => {

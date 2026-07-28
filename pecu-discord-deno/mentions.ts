@@ -17,3 +17,41 @@ export const extractRoleMentionIds = (content: string): bigint[] => {
 
 export const renderMentions = (content: string): string =>
   content.replace(ROLE_MENTION_PATTERN, (_match, roleId: string) => `<@&${roleId}>`);
+
+// Discord hard-caps a single message's content at 2000 chars. Splits on
+// paragraph breaks (never mid-sentence/mid-list) so a long scheduled
+// announcement sends as several messages instead of erroring outright.
+const DISCORD_MESSAGE_MAX_LENGTH = 2000;
+
+export const splitMessage = (
+  content: string,
+  maxLength = DISCORD_MESSAGE_MAX_LENGTH,
+): string[] => {
+  if (content.length <= maxLength) return [content];
+
+  const chunks: string[] = [];
+  let current = "";
+
+  for (const block of content.split("\n\n")) {
+    const candidate = current ? `${current}\n\n${block}` : block;
+    if (candidate.length <= maxLength) {
+      current = candidate;
+      continue;
+    }
+
+    if (current) chunks.push(current);
+
+    if (block.length <= maxLength) {
+      current = block;
+    } else {
+      // A single paragraph is itself too long (rare) - hard-slice it.
+      for (let i = 0; i < block.length; i += maxLength) {
+        chunks.push(block.slice(i, i + maxLength));
+      }
+      current = "";
+    }
+  }
+
+  if (current) chunks.push(current);
+  return chunks;
+};

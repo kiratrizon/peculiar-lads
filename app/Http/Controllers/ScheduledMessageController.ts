@@ -98,7 +98,7 @@ class ScheduledMessageController extends Controller {
     const channelRowId = channel.id as number;
 
     const data = await request.validate({
-      content: "required",
+      content: "required|max:2000",
       recurrence_type: "required|in:single,weekly,monthly",
       scheduled_time: "required",
       scheduled_date: "required_if:recurrence_type,single",
@@ -181,7 +181,7 @@ class ScheduledMessageController extends Controller {
     }
 
     const data = await request.validate({
-      content: "required",
+      content: "required|max:2000",
       recurrence_type: "required|in:single,weekly,monthly",
       scheduled_time: "required",
       scheduled_date: "required_if:recurrence_type,single",

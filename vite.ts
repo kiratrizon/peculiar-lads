@@ -38,6 +38,7 @@ type ViteConfig = {
 
 const input: string[] = [
   "resources/css/guest.css",
+  "resources/css/announcement.css",
   "resources/ts/app.ts",
   "resources/ts/welcome.ts",
   "resources/ts/admin/members.ts",

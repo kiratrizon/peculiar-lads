@@ -7,6 +7,15 @@
     "file": "assets/sweetalert2.esm.all-DE6NlnlT.js",
     "name": "sweetalert2.esm.all"
   },
+  "resources/css/announcement.css": {
+    "file": "assets/announcement-DCB2w6kL.css",
+    "src": "resources/css/announcement.css",
+    "isEntry": true,
+    "name": "announcement",
+    "names": [
+      "announcement.css"
+    ]
+  },
   "resources/css/dark.css": {
     "file": "assets/dark-Dt52rkeL.css",
     "src": "resources/css/dark.css",
@@ -53,12 +62,12 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-BVK8wXhn.js",
+    "file": "assets/app-imr_sIXn.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-D-lavbld.css"
+      "assets/app-CYIOBH1t.css"
     ]
   },
   "resources/ts/recruit/view.ts": {

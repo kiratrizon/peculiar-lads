@@ -2,7 +2,7 @@ import { Carbon } from "helpers";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
 import ScheduledMessage from "App/Models/ScheduledMessage.ts";
 import type { AppBot } from "./types.ts";
-import { extractRoleMentionIds, renderMentions } from "./mentions.ts";
+import { extractRoleMentionIds, renderMentions, splitMessage } from "./mentions.ts";
 
 const arrangeByOnlyDate = (now: Carbon): string => {
   return now.toString().split(" ")[0];
@@ -52,10 +52,13 @@ export const startScheduledMessagesCron = (bot: AppBot) => {
         // @ts-ignore //
         const channelId = channel.channel_id as string;
 
-        await bot.helpers.sendMessage(channelId, {
-          content: renderMentions(content),
-          allowedMentions: { roles: extractRoleMentionIds(content) },
-        });
+        const allowedRoles = extractRoleMentionIds(content);
+        for (const chunk of splitMessage(renderMentions(content))) {
+          await bot.helpers.sendMessage(channelId, {
+            content: chunk,
+            allowedMentions: { roles: allowedRoles },
+          });
+        }
 
         const updates: Record<string, unknown> = {
           last_sent_at: `${nowOnlyDate} ${scheduledTime}`,

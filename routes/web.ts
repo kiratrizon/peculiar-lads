@@ -12,6 +12,7 @@ import MemberController from "App/Http/Controllers/MemberController.ts";
 import CharacterController from "App/Http/Controllers/CharacterController.ts";
 import DiscordChannelController from "App/Http/Controllers/DiscordChannelController.ts";
 import ScheduledMessageController from "App/Http/Controllers/ScheduledMessageController.ts";
+import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
 
 Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
@@ -242,3 +243,26 @@ Route.prefix("/{lang?}")
       Route.get("/", [PecuRecordsController, "index"]);
     });
   });
+
+import { marked } from "marked";
+Route.get(
+  "/announcement/{context}/{version}",
+  async ({ request }, { context, version }) => {
+    if (
+      (await pathExistsAsync(
+        basePath(`announcement/${context}/${version}.md`),
+      )) &&
+      isFile(basePath(`announcement/${context}/${version}.md`))
+    ) {
+      const markDown = getFileContents(
+        basePath(`announcement/${context}/${version}.md`),
+      );
+
+      const html = marked.parse(markDown);
+
+      return view(`announcement`, { html });
+    }
+
+    throw new NotFoundHttpException();
+  },
+);

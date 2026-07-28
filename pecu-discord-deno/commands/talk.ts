@@ -16,7 +16,11 @@ const execute = async (interaction: AppInteraction) => {
     content: `Calculating answer to "${question}"...`,
   });
 
-  const answer = await ask(interaction.user.id.toString(), question);
+  const answer = await ask(
+    interaction.user.id.toString(),
+    question,
+    interaction.applicationId,
+  );
 
   if (answer === null) {
     await interaction.edit("Internal Server Error");
