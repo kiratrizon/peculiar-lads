@@ -69,8 +69,11 @@ const resolveAvatarUrl = (subject: Subject): string => {
   });
 };
 
-const buildMemberCard = async (subject: Subject, label: string) => {
-  const variant = "ice";
+const buildMemberCard = async (
+  subject: Subject,
+  text: string,
+  variant = "ice",
+) => {
   const palette = paletteFor(variant);
   const icon = await loadImage(pickByVariant(variant));
 
@@ -108,7 +111,6 @@ const buildMemberCard = async (subject: Subject, label: string) => {
   ctx.arc(centerX, centerY, avatarSize / 2, 0, Math.PI * 2);
   ctx.stroke();
 
-  const text = `${label}, ${subject.username}!`;
   const maxTextWidth = canvas.width * 0.86;
 
   ctx.textAlign = "center";
@@ -140,7 +142,7 @@ export const buildWelcomeImage = (member: AppMember) =>
       guildId: member.guildId,
       guildAvatar: member.avatar,
     },
-    "Welcome",
+    `Welcome, ${member.user?.username ?? member.nick ?? "there"}!`,
   );
 
 // guildMemberRemove only gives us a bare User (the member has already left,
@@ -153,5 +155,22 @@ export const buildByeImage = (user: AppUser) =>
       discriminator: user.discriminator,
       avatar: user.avatar,
     },
-    "Bye",
+    `Bye, ${user.username}!`,
+  );
+
+// QA-channel leveling card - no guild-avatar data available here (built from
+// a plain message author, not a full member), same as buildByeImage.
+export const buildLevelUpImage = (
+  author: { id: bigint; username: string; discriminator: string; avatar?: bigint },
+  level: number,
+) =>
+  buildMemberCard(
+    {
+      id: author.id,
+      username: author.username,
+      discriminator: author.discriminator,
+      avatar: author.avatar,
+    },
+    `${author.username} reached Level ${level}!`,
+    "light",
   );

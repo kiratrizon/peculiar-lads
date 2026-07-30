@@ -20,6 +20,7 @@ import { buildByeImage, buildWelcomeImage } from "./welcome.ts";
 import { startScheduledMessagesCron } from "./scheduler.ts";
 import { logErrorToDiscord } from "./errorLog.ts";
 import { ask } from "./chat.ts";
+import { handleQaMessage } from "./qaPoints.ts";
 import { Carbon } from "helpers";
 
 const ordinal = (n: number) => {
@@ -305,6 +306,16 @@ bot.events.messageCreate = async (message) => {
   } catch (e) {
     console.error("Error replying to mention", e);
     logErrorToDiscord("messageCreate: mention reply", e);
+  }
+
+  try {
+    const qaChannelId = env("QA_CHANNEL_ID") as string | null;
+    if (qaChannelId && message.channelId.toString() === qaChannelId) {
+      await handleQaMessage(bot, message);
+    }
+  } catch (e) {
+    console.error("Error handling QA points", e);
+    logErrorToDiscord("messageCreate: qa points", e);
   }
 
   try {

@@ -11,6 +11,7 @@ export type AppBot = InternalBot;
 export type AppInteraction = Inferred["interaction"];
 export type AppMember = Inferred["member"];
 export type AppUser = Inferred["user"];
+export type AppMessage = Inferred["message"];
 
 export type CommandData = CreateApplicationCommand;
 
