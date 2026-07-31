@@ -167,14 +167,13 @@ honovel/
 
 ## Documentation
 
-Full documentation is available at [honovel.deno.dev/docs](https://honovel.deno.dev/docs/1).
+Full documentation is available at [honovel.kiratrizon.deno.net/docs](https://honovel.kiratrizon.deno.net/docs/1).
 
 ## Roadmap
 
-- [ ] Finalize license
+- [x] Finalize license
 - [ ] Expand documentation and examples
-- [ ] Add automated tests
-- [ ] (add your own upcoming goals here)
+- [ ] Add more projects
 
 ## Contributing
 
@@ -182,7 +181,7 @@ Honovel is under active development. Issues, feedback, and pull requests are wel
 
 ## License
 
-This project intends to use the [MIT License](https://opensource.org/licenses/MIT). *(License file pending — add `LICENSE` to the repo root once finalized.)*
+This project is licensed under the [MIT License](LICENSE).
 
 ## Author
 
