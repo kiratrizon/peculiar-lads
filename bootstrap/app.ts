@@ -4,12 +4,12 @@ import BindRecruit from "App/Http/Middlewares/BindRecruit.ts";
 import AllowedUser from "App/Http/Middlewares/AllowedUser.ts";
 import IsUser from "App/Http/Middlewares/IsUser.ts";
 import SavePath from "App/Http/Middlewares/SavePath.ts";
-import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
 import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
 import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 import RedirectToLocal from "App/Http/Middlewares/RedirectToLocal.ts";
+import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -31,10 +31,14 @@ export default Application.withRouting({
     middleware.append(SetupLangVar);
   })
   .withExceptions((exceptions) => {
-    exceptions.render(NotFoundHttpException, async ({ request }, _e) => {
-      if (request.expectsJson() || request.is("api/*") || request.ajax()) {
-        return response().json({ message: "Not Found" }, 404);
-      }
-    });
+    exceptions.render<typeof NotFoundHttpException>(
+      NotFoundHttpException,
+      async ({ request }, e) => {
+        if (request.expectsJson() || request.ajax()) {
+          return response().json({ message: "Not Found" }, 404);
+        }
+        return "Not Found";
+      },
+    );
   })
   .create();
