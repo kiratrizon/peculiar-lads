@@ -12,7 +12,7 @@ import MemberController from "App/Http/Controllers/MemberController.ts";
 import CharacterController from "App/Http/Controllers/CharacterController.ts";
 import DiscordChannelController from "App/Http/Controllers/DiscordChannelController.ts";
 import ScheduledMessageController from "App/Http/Controllers/ScheduledMessageController.ts";
-import NotFoundHttpException from "Illuminate/Foundation/HttpExecptions/NotFoundHttpException.ts";
+import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 
 Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
