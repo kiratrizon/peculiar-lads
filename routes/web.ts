@@ -269,7 +269,7 @@ Route.get(
 
       const html = marked.parse(markDown);
 
-      return view(`announcement`, { html });
+      return view(`announcement`, { html, version });
     }
 
     throw new NotFoundHttpException();

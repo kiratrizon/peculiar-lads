@@ -30,7 +30,7 @@
                         required
                         class="w-full px-4 py-2 rounded-lg bg-black/60 border border-gray-700 focus:border-gray-400 focus:ring-2 focus:ring-gray-400 outline-none text-gray-100"
                         placeholder="adventurer@email.com"
-                        value="{{ $recruit.email }}"
+                        value="{{ $recruit.email ?? '' }}"
                     >
                 </div>
                 @if(errors.has('email'))

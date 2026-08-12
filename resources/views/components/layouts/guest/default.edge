@@ -18,8 +18,7 @@
 	<meta name="author" content="Kiratrizon">
 	<title>{{ env('GUILD_NAME') }} Guild | Dragon Nest SEA</title>
 	@icon('assets/peculiarlads-icon-dark.png')
-	@vite('resources/ts/app.ts')
-	<meta name="description" content="{{ env('GUILD_NAME') }} is a Dragon Nest SEA guild for unique adventurers and friends. Join our Philippines-based community!">
+	@vite('resources/ts/app.ts')`
 	<!-- csrf -->
     {{{ csrfMeta() }}}
 	    <meta name="language" content="{{ request().route('lang') ? "on" : "off" }}">
