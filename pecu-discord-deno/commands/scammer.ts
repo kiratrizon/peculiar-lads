@@ -54,6 +54,43 @@ const handleAdd = async (
   );
 };
 
+const handleScan = async (
+  interaction: AppInteraction,
+  options: InteractionDataOption[] | undefined,
+) => {
+  const ign = String(getOption(options, IGN_OPTION_NAME) ?? "").trim();
+
+  if (!IGN_PATTERN.test(ign)) {
+    await interaction.respond(
+      { content: "IGN must be 1-10 alphanumeric characters." },
+      { isPrivate: true },
+    );
+    return;
+  }
+
+  const existing = await BlockListedPlayer.whereRaw(DB.raw(`lower(ign) = ?`), [
+    ign.toLowerCase(),
+  ]).first();
+
+  if (!existing) {
+    await interaction.respond(
+      { content: `✅ **${ign}** is not on the scammer list.` },
+      { isPrivate: true },
+    );
+    return;
+  }
+
+  // @ts-ignore //
+  const reason = existing.reason as string | null;
+  await interaction.respond(
+    {
+      content:
+        `⚠️ **${ign}** is on the scammer list.${reason ? ` Reason: ${reason}` : ""}`,
+    },
+    { isPrivate: true },
+  );
+};
+
 const handleList = async (interaction: AppInteraction) => {
   const players = await BlockListedPlayer.all();
 
@@ -101,6 +138,9 @@ const execute = async (interaction: AppInteraction) => {
     case "list":
       await handleList(interaction);
       break;
+    case "scan":
+      await handleScan(interaction, subcommand.options);
+      break;
   }
 };
 
@@ -132,6 +172,19 @@ export default {
         name: "list",
         description: "List everyone on the scammer list.",
         type: ApplicationCommandOptionTypes.SubCommand,
+      },
+      {
+        name: "scan",
+        description: "Check if a specific IGN is on the scammer list.",
+        type: ApplicationCommandOptionTypes.SubCommand,
+        options: [
+          {
+            name: IGN_OPTION_NAME,
+            description: "The IGN to check.",
+            type: ApplicationCommandOptionTypes.String,
+            required: true,
+          },
+        ],
       },
     ],
   },
