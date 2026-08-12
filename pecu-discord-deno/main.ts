@@ -97,6 +97,7 @@ bot.events.ready = async (payload) => {
       {
         name: activityName,
         type: activityTypeMap[activityType] ?? ActivityTypes.Playing,
+        applicationId: "496577285466357760",
       },
     ],
   });
@@ -286,9 +287,8 @@ bot.events.messageCreate = async (message) => {
 
   try {
     if (message.mentionedUserIds.includes(bot.id)) {
-      const question = message.content
-        .replace(MENTION_PATTERN(bot.id), "")
-        .trim() || "hi";
+      const question =
+        message.content.replace(MENTION_PATTERN(bot.id), "").trim() || "hi";
 
       const answer = await ask(message.author.id.toString(), question, bot.id);
       if (answer) {
