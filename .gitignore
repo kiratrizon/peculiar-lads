@@ -12,7 +12,6 @@ mydocker
 !/storage/logs/.gitignore
 node_modules
 /deno.lock
-/storage/honovel/warmup.json
 /package-lock.json
 /.vite
 /deno.jsonc
