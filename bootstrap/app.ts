@@ -34,7 +34,6 @@ export default Application.withRouting({
     exceptions.render<typeof NotFoundHttpException>(
       NotFoundHttpException,
       async ({ request }, e) => {
-        console.log("hello");
         if (request.expectsJson() || request.ajax()) {
           return response().json({ message: "Not Found" }, 404);
         }
