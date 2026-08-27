@@ -1,25 +1,15 @@
 import { Hash } from "../../Support/Facades/index.ts";
 import { JWTAuth } from "../../Auth/index.ts";
-import BaseGuard from "./BaseGuard.ts";
-import Authenticatable from "./Authenticatable.ts";
+import BaseGuard, { AuthUser } from "./BaseGuard.ts";
 import { JWTSubject } from "./JWTSubject.ts";
 
 export default class JwtGuard extends BaseGuard {
   async check(): Promise<boolean> {
     // Implement JWT check logic
-    if (this.authUser) {
-      // If user is already set in context, return true
-      return true;
-    }
-    const { request } = this.c.get("myHono");
-    if (request.user()) {
-      this.authUser = request.user();
-      return true;
-    }
-    const key = `auth_user`;
+    if (this.defaultChecker()) return true;
 
     // Check if JWT token exists in headers
-    const token = request.header("Authorization")?.replace("Bearer ", "");
+    const token = this.request.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
       return false; // No token provided
     }
@@ -30,7 +20,7 @@ export default class JwtGuard extends BaseGuard {
     }
     // Check if the user exists in the database
     const id = user.sub as string | number;
-    const instanceUser = (await this.model.find(id)) as Authenticatable | null;
+    const instanceUser = (await this.model.find(id)) as AuthUser | null;
     if (!instanceUser) {
       return false; // User not found
     }
@@ -38,13 +28,9 @@ export default class JwtGuard extends BaseGuard {
       // If the user has a "remember me" token, set it
       this.rememberUser = user.remember as boolean;
     }
-    // Set the authenticated user
-    this.authUser = instanceUser;
+    this.setAuth(instanceUser);
 
-    // Store the user in the context for later use
-    this.c.set(key, instanceUser);
-
-    return true; // Placeholder
+    return true;
   }
 
   async attempt(
@@ -68,7 +54,7 @@ export default class JwtGuard extends BaseGuard {
     }
     const user = (await this.model
       .where(credentialKey, credentials[credentialKey])
-      .first()) as Authenticatable | null;
+      .first()) as AuthUser | null;
     if (!user) {
       return false;
     }
@@ -83,7 +69,7 @@ export default class JwtGuard extends BaseGuard {
   }
 
   async login(
-    user: Authenticatable | JWTSubject,
+    user: AuthUser,
     remember: boolean = false,
   ): Promise<string | false> {
     // check if it has a method of JWTSubject
@@ -94,26 +80,21 @@ export default class JwtGuard extends BaseGuard {
       abort(400, "User model is not JWTSubject");
     }
 
+    this.beforeLogin(user);
+
     const token = JWTAuth.fromUser(user as unknown as JWTSubject, remember);
 
     this.rememberUser = remember;
-    this.authUser = user as Authenticatable;
-    const key = `auth_user`;
-    this.c.set(key, this.authUser);
+    this.setAuth(user);
     return token; // Return the generated JWT token
   }
 
-  user(): Authenticatable | null {
-    // Implement JWT user retrieval logic
+  user(): AuthUser | null {
     return this.authUser;
   }
 
   logout(): void {
-    // No logout logic for JWT, but you can clear the user from context
-    const key = `auth_${this.guardName}_user`;
-    // @ts-ignore //
-    this.c.set(key, null);
-    this.authUser = null;
+    this.reset();
   }
 
   viaRemember(): boolean {

@@ -123,8 +123,7 @@ export default class Model<T extends ModelAttributes = ModelAttributes> {
    */
   public getKey(): string | number {
     return this._attributes[(this.constructor as typeof Model)._primaryKey] as
-      | string
-      | number;
+      string | number;
   }
 
   /**
