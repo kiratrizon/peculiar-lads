@@ -213,6 +213,15 @@ Route.prefix("/{lang?}")
 
           // Logout Admin
           Route.get("/logout", [AdminController, "logout"]).name("logout");
+
+          if (config("app").env == "local") {
+            // expose env
+            Route.get("/my-env", async () => {
+              const contents = getFileContents(basePath(".env"));
+
+              return response().text(contents);
+            });
+          }
         });
         Route.match(["get", "post"], "/login", [AdminController, "login"])
           .name("login")
@@ -260,7 +269,7 @@ Route.get(
 
       const html = marked.parse(markDown);
 
-      return view(`announcement`, { html });
+      return view(`announcement`, { html, version });
     }
 
     throw new NotFoundHttpException();

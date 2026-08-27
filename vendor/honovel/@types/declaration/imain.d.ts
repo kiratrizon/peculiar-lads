@@ -9,6 +9,7 @@ import { SessionModifier } from "HonoHttp/HonoSession.ts";
 import { SERVER } from "HonoHttp/HonoRequest.d.ts";
 import { ModelAttributes } from "./Base/IBaseModel.d.ts";
 import Model from "Illuminate/Database/Eloquent/Model.ts";
+import { AuthUser } from "Illuminate/Contracts/Auth/BaseGuard.ts";
 
 type ErrorAndData = {
   error: Record<string, unknown>;
@@ -29,7 +30,7 @@ export type Variables = {
   subdomain: Record<string, string | null>;
   session: Session<SessionDataTypes>;
   logged_out: boolean;
-  auth_user: Authenticatable | null;
+  auth_user: AuthUser | null;
   // HonoRequest context storage
   _calibrated: boolean;
   _files: Record<string, HonoFile[]>;

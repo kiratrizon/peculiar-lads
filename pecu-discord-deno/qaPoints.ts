@@ -5,7 +5,7 @@ import type { AppBot, AppMessage } from "./types.ts";
 
 // 5 points per level, starting at level 1 - change POINTS_PER_LEVEL to retune.
 const POINTS_PER_LEVEL = 5;
-const MIN_ANSWER_LENGTH = 10;
+const MIN_ANSWER_LENGTH = 1;
 
 export const levelForPoints = (points: number): number =>
   Math.floor(points / POINTS_PER_LEVEL) + 1;
