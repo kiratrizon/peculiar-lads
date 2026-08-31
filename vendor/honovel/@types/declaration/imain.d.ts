@@ -1,11 +1,10 @@
 import { Hono } from "hono";
 import HttpHono from "HttpHono";
-import { Session } from "Illuminate/Session/index.ts";
 import { ImportSession } from "../../../../environment.ts";
 import { Authenticatable } from "Illuminate/Contracts/Auth/index.ts";
 import HonoHeader from "HonoHttp/HonoHeader.ts";
 import HonoFile from "HonoHttp/HonoFile.ts";
-import { SessionModifier } from "HonoHttp/HonoSession.ts";
+import { SessionStore } from "Illuminate/Session/Store.ts";
 import { SERVER } from "HonoHttp/HonoRequest.d.ts";
 import { ModelAttributes } from "./Base/IBaseModel.d.ts";
 import Model from "Illuminate/Database/Eloquent/Model.ts";
@@ -28,7 +27,7 @@ export type SessionDataTypes = {
 export type Variables = {
   myHono: HttpHono;
   subdomain: Record<string, string | null>;
-  session: Session<SessionDataTypes>;
+  session: SessionStore;
   logged_out: boolean;
   auth_user: AuthUser | null;
   // HonoRequest context storage
@@ -38,7 +37,6 @@ export type Variables = {
   _myHeader: HonoHeader;
   _routeParams: Record<string, string | null>;
   _built: boolean;
-  _sessionMod: SessionModifier;
   _bindedModels: Record<string, typeof Model<ModelAttributes>>;
   _server: SERVER;
   _variables: Record<string, unknown>;

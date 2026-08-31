@@ -70,7 +70,7 @@ export default abstract class BaseGuard {
   /**
    * Logs out the currently authenticated user.
    */
-  abstract logout(): void;
+  abstract logout(): Promise<void>;
 
   /**
    * Returns the authenticated user's primary key.

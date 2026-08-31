@@ -18,6 +18,9 @@ const constant: CacheConfig = {
       driver: "redis",
       connection: "cache",
     },
+    jwt: {
+      driver: "memory",
+    },
   },
 };
 

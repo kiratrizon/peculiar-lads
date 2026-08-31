@@ -89,11 +89,7 @@ const constant: JWTConfig = {
   issuer: env("JWT_ISSUER", ""), // Optional, can be set to your application name or URL
   audience: env("JWT_AUDIENCE", ["*"]), // Optional, can be set to your application's audience most likely from your allowed ORIGINS
 
-  providers: {
-    jwt: "Tymon.JWTAuth.Providers.JWT.Namshi", // Replace with your JS equivalents if any
-    auth: "Tymon.JWTAuth.Providers.Auth.Illuminate", // or your own provider classes/modules
-    storage: "Tymon.JWTAuth.Providers.Storage.Illuminate",
-  },
+  blacklist_store: "jwt",
 };
 
 export default constant;

@@ -1,3 +1,4 @@
+import { SessionStore } from "Illuminate/Session/Store.ts";
 export type RequestMethod =
   | "GET"
   | "POST"
@@ -283,6 +284,9 @@ declare class HonoRequest {
 
   /** Access session instance */
   readonly session: ISession;
+
+  /** Bind a started session Store to this request (Laravel's setLaravelSession). */
+  setSession(session: SessionStore): void;
 
   /** Flash data to session */
   public flash(): void;

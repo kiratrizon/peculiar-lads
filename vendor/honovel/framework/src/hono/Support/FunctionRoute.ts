@@ -1187,16 +1187,11 @@ export async function handleAction(
         session: function () {
           return request.session;
         },
-        env: env,
         route: function (name: string, params: Record<string, unknown> = {}) {
-          console.log(request.getHost());
           return request.getHost() + route(name, params);
         },
         request: function () {
           return request;
-        },
-        config: function (key: string, defaultValue: unknown = null) {
-          return config(key, defaultValue);
         },
         auth: function () {
           return c.get("myHono").Auth;
@@ -1227,7 +1222,6 @@ export async function handleAction(
             request.session.get("_token") || ""
           }">`,
         errors: new MessageBag((errors || {}) as ErrorsShape),
-        console: console,
       };
       // @ts-ignore /
       data.addGlobal(edgeGlobals);
@@ -1288,9 +1282,7 @@ export async function handleAction(
             if (args.length && isArray(args)) {
               if (
                 config("app").env === "local" &&
-                // @ts-ignore //
                 typeof viteServer !== "undefined" &&
-                // @ts-ignore //
                 viteServer
               ) {
                 const port = viteConfig?.server?.port || 5173;

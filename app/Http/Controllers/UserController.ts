@@ -65,8 +65,7 @@ class UserController extends Controller {
       // @ts-ignore //
       const currentEmail = recruit.email as string | null;
       if (credentials.email !== currentEmail) {
-        const duplicate = await User.where("email", credentials.email)
-          .first();
+        const duplicate = await User.where("email", credentials.email).first();
         if (duplicate) {
           return redirect()
             .back()
@@ -102,7 +101,7 @@ class UserController extends Controller {
   };
 
   public logout: HttpDispatch = async ({ request, Auth }) => {
-    Auth.guard("web").logout();
+    await Auth.guard("web").logout();
     return redirect().route("login");
   };
 

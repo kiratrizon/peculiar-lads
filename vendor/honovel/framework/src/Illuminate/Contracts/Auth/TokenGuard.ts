@@ -73,7 +73,7 @@ export default class TokenGuard extends BaseGuard {
     return this.authUser;
   }
 
-  logout() {
+  async logout(): Promise<void> {
     this.reset();
     // Optionally, you can also delete the token from the database
   }

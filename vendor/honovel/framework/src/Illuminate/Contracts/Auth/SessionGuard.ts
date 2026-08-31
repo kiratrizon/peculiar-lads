@@ -112,7 +112,7 @@ export default class SessionGuard extends BaseGuard {
     return true; // Login successful
   }
 
-  logout(): void {
+  async logout(): Promise<void> {
     const sessguardKey = `auth_${this.guardName}_user`;
     this.request.session.forget(sessguardKey);
     this.#cookie.queue(sessguardKey, "", {

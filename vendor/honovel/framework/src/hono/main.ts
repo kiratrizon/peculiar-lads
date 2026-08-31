@@ -23,7 +23,6 @@ import {
 } from "./Support/FunctionRoute.ts";
 import type HttpHono from "HttpHono";
 import { IMyConfig } from "./Support/MethodRoute.ts";
-import { honoSession } from "HonoHttp/HonoSession.ts";
 import { Route as Router } from "Illuminate/Support/Facades/index.ts";
 const Route = Router as typeof INRoute;
 
@@ -415,7 +414,6 @@ class Server {
     const asterisk = "*";
     app.use(
       asterisk,
-      honoSession(),
       buildRequestInit(),
       ...globalMiddleware,
       ...toMiddleware(mainMiddleware),

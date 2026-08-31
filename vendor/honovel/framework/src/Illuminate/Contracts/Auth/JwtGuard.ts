@@ -1,9 +1,11 @@
 import { Hash } from "../../Support/Facades/index.ts";
-import { JWTAuth } from "../../Auth/index.ts";
+import { JWTAuth, Blacklist } from "../../Auth/index.ts";
 import BaseGuard, { AuthUser } from "./BaseGuard.ts";
 import { JWTSubject } from "./JWTSubject.ts";
 
 export default class JwtGuard extends BaseGuard {
+  #token: string | null = null;
+
   async check(): Promise<boolean> {
     // Implement JWT check logic
     if (this.defaultChecker()) return true;
@@ -13,10 +15,13 @@ export default class JwtGuard extends BaseGuard {
     if (!token) {
       return false; // No token provided
     }
-    // Verify the JWT token
-    const user = JWTAuth.verify(token) as Record<string, unknown> | null;
+    // Verify the JWT token, rejecting anything that has been blacklisted
+    const user = (await JWTAuth.verify(token)) as Record<
+      string,
+      unknown
+    > | null;
     if (!user) {
-      return false; // Invalid token
+      return false; // Invalid, expired or revoked token
     }
     // Check if the user exists in the database
     const id = user.sub as string | number;
@@ -28,6 +33,7 @@ export default class JwtGuard extends BaseGuard {
       // If the user has a "remember me" token, set it
       this.rememberUser = user.remember as boolean;
     }
+    this.#token = token;
     this.setAuth(instanceUser);
 
     return true;
@@ -85,6 +91,7 @@ export default class JwtGuard extends BaseGuard {
     const token = JWTAuth.fromUser(user as unknown as JWTSubject, remember);
 
     this.rememberUser = remember;
+    this.#token = token;
     this.setAuth(user);
     return token; // Return the generated JWT token
   }
@@ -93,8 +100,31 @@ export default class JwtGuard extends BaseGuard {
     return this.authUser;
   }
 
-  logout(): void {
+  get token(): string | null {
+    return this.#token;
+  }
+
+  // make logout async to implement blacklisting
+  async logout(): Promise<void> {
+    // trap first
+    if (this.#token && Blacklist.enabled()) {
+      await JWTAuth.invalidate(this.#token);
+    }
+    this.#token = null;
     this.reset();
+  }
+
+  // refresh token
+  async refresh(): Promise<string> {
+    if (!this.#token) {
+      throw new Error(
+        "There is no token to refresh. Call check() or login() first.",
+      );
+    }
+
+    const token = await JWTAuth.refresh(this.#token);
+    this.#token = token;
+    return token;
   }
 
   viaRemember(): boolean {

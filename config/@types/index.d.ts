@@ -55,22 +55,10 @@ export interface AppConfig {
   fallback_locale: string;
 
   /**
-   * Supported Locales
-   * Example: ["en", "ja"]
-   */
-  supported_locales: string[];
-
-  /**
    * Faker Locale
    * Example: "en_US"
    */
   faker_locale: string;
-
-  /**
-   * Enable Locale
-   * Example: true
-   */
-  enable_locale: boolean;
 
   /**
    * Encryption Cipher
@@ -467,11 +455,7 @@ interface ConsoleChannel extends ChannelBase {
 }
 
 type Channel =
-  | SingleChannel
-  | DailyChannel
-  | StackChannel
-  | StderrChannel
-  | ConsoleChannel;
+  SingleChannel | DailyChannel | StackChannel | StderrChannel | ConsoleChannel;
 
 type Channels = Record<string, Channel>;
 
@@ -679,12 +663,6 @@ export interface CacheConfig {
 //  console.log(dbConfig.default); // "mysql", "pgsql", "sqlite", or "sqlsrv"
 // })
 
-export interface JWTProviders {
-  jwt: string;
-  auth: string;
-  storage: string;
-}
-
 export type JWTRequiredClaims = "iss" | "iat" | "exp" | "nbf" | "sub" | "jti";
 
 export interface JWTConfig {
@@ -697,7 +675,7 @@ export interface JWTConfig {
   blacklist_grace_period: number; // grace period in seconds
   issuer: string; // token issuer
   audience: string[]; // token audience
-  providers: JWTProviders;
+  blacklist_store?: string | null; // cache store holding the blacklist; null => default store
 }
 interface DiskConfig {
   root: string;
@@ -735,14 +713,6 @@ export interface FileSystemConfig {
     LocalDiskConfig | PublicDiskConfig | S3DiskConfig | CustomDiskConfig
   >;
 }
-export interface DiscordConfig {
-  /**
-   * The Discord guild (server) ID the admin panel manages.
-   * Example: "1344255172062478378"
-   */
-  guild_id: string;
-}
-
 export interface ConfigItems {
   app: AppConfig;
   auth: AuthConfig;
@@ -753,5 +723,4 @@ export interface ConfigItems {
   logging: LogConfig;
   cors: CorsConfig;
   session: SessionConfig;
-  discord: DiscordConfig;
 }

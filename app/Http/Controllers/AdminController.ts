@@ -14,7 +14,7 @@ import Character from "App/Models/Character.ts";
 
 class AdminController extends Controller {
   public logout: HttpDispatch = async ({ request, Auth }) => {
-    Auth.guard("admin").logout();
+    await Auth.guard("admin").logout();
     return redirect().route("admin.login");
   };
 
