@@ -27,7 +27,7 @@ export default Application.withRouting({
       bind_member: BindUser,
       bind_character: BindCharacter,
     });
-    middleware.append(RedirectToLocal);
+    // middleware.append(RedirectToLocal);
     middleware.append(SetupLangVar);
   })
   .withExceptions((exceptions) => {
