@@ -6,7 +6,7 @@ const mySqlOptions = {
 
 if (env("APP_ENV") == "production") {
   // @ts-ignore //
-  mySqlOptions.maxConnection = 5;
+  mySqlOptions.maxConnection = 3;
 }
 
 const constant: DatabaseConfig = {
