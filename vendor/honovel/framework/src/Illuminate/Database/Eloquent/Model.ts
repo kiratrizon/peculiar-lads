@@ -382,7 +382,7 @@ export default class Model<T extends ModelAttributes = ModelAttributes> {
       throw new Error("Soft delete is not enabled for this model.");
     }
     // @ts-ignore //
-    this.setAttribute("_deletedAtColumn", date("Y-m-d H:i:s"));
+    this.setAttribute(this.getDeletedAtColumn(), date("Y-m-d H:i:s"));
     return this;
   }
 

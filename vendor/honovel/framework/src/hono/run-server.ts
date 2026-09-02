@@ -127,6 +127,6 @@ try {
   handleStartupFailure(error);
 }
 
-import { dbCloser } from "Database";
+// import { dbCloser } from "Database";
 
-Deno.addSignalListener("SIGINT", dbCloser);
+// Deno.addSignalListener("SIGINT", dbCloser);

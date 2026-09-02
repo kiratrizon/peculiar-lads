@@ -1,6 +1,6 @@
 type status = "online" | "idle" | "dnd" | "offline";
 
-const botStatus: status = "idle";
+const botStatus: status = "online";
 
 Carbon.setCarbonTimezone(config("app").timezone ?? "UTC");
 
@@ -22,6 +22,7 @@ import { logErrorToDiscord } from "./errorLog.ts";
 import { ask } from "./chat.ts";
 import { handleQaMessage } from "./qaPoints.ts";
 import { Carbon } from "helpers";
+import User from "App/Models/User.ts";
 
 const ordinal = (n: number) => {
   const rule = new Intl.PluralRules("en", { type: "ordinal" }).select(n);
@@ -290,7 +291,9 @@ bot.events.messageCreate = async (message) => {
       const question =
         message.content.replace(MENTION_PATTERN(bot.id), "").trim() || "hi";
 
-      const answer = await ask(message.author.id.toString(), question, bot.id);
+      const answer =
+        (await ask(message.author.id.toString(), question, bot.id)) ??
+        "Internal Server Error";
       if (answer) {
         await bot.helpers.sendMessage(message.channelId, {
           content: answer,
@@ -391,6 +394,8 @@ bot.events.guildMemberRemove = async (user) => {
       ],
       content: "Salamat, wag ka ng bumalik!",
     });
+
+    await User.where("discord_id", user.id.toString()).delete();
   } catch (e) {
     console.error("Error sending bye banner", e);
     logErrorToDiscord("guildMemberRemove: bye banner", e);
