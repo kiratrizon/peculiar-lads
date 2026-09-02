@@ -720,8 +720,8 @@ export class Blueprint {
    * Drop the `deleted_at` column, effectively removing soft delete support.
    * Equivalent to Laravel's `dropSoftDeletes()` method.
    */
-  dropSoftDeletes() {
-    this.drops.push("deleted_at");
+  dropSoftDeletes(columnName: string = "deleted_at") {
+    this.drops.push(columnName);
   }
 
   /**
