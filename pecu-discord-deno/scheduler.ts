@@ -1,12 +1,20 @@
 import { Carbon } from "helpers";
 import DiscordChannel from "App/Models/DiscordChannel.ts";
-import ScheduledMessage from "App/Models/ScheduledMessage.ts";
+import ScheduledMessage, {
+  ScheduledMessageSchema,
+} from "App/Models/ScheduledMessage.ts";
 import type { AppBot } from "./types.ts";
-import { extractRoleMentionIds, renderMentions, splitMessage } from "./mentions.ts";
+import {
+  extractRoleMentionIds,
+  renderMentions,
+  splitMessage,
+} from "./mentions.ts";
 
 const arrangeByOnlyDate = (now: Carbon): string => {
   return now.toString().split(" ")[0];
 };
+
+type SMResult = ScheduledMessage & ScheduledMessageSchema;
 
 export const startScheduledMessagesCron = (bot: AppBot) => {
   Deno.cron("scheduled-messages", "* * * * *", async () => {
@@ -18,25 +26,21 @@ export const startScheduledMessagesCron = (bot: AppBot) => {
     const nowOnlyDate = arrangeByOnlyDate(now);
     const weekOnlyDate = arrangeByOnlyDate(nowPlusWeek);
 
-    const due = await ScheduledMessage.where("is_active", true)
+    // @ts-ignore //
+    const due = (await ScheduledMessage.where("is_active", true)
       .where("next_run_at", "<=", now)
-      .get();
+      .get()) as SMResult[] | null;
+    if (!isset(due)) {
+      return;
+    }
     for (const scheduled of due) {
-      // @ts-ignore //
       const scheduledId = scheduled.id as number;
-      // @ts-ignore //
       const channelRowId = scheduled.discord_channel_id as number;
-      // @ts-ignore //
       const content = scheduled.content as string;
-      // @ts-ignore //
       const recurrenceType = scheduled.recurrence_type as
-        | "single"
-        | "weekly"
-        | "monthly";
-      // @ts-ignore //
+        "single" | "weekly" | "monthly";
       const dayOfMonth = scheduled.day_of_month as number | null;
 
-      // @ts-ignore //
       const scheduledTime = scheduled.scheduled_time as string;
 
       try {
