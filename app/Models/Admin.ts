@@ -14,15 +14,14 @@ class Admin extends Authenticatable<AdminSchema> {
     "password",
     "name",
     "remember_token",
+    "api_token",
   ];
 
   protected static override use = {
     HasFactory,
   };
 
-  protected static override _hidden = [
-    "password",
-  ];
+  protected static override _hidden = ["password"];
 }
 
 export default Admin;

@@ -189,7 +189,7 @@ export default class DatabaseSeeder extends Seeder {
         }
       }
     } else {
-      const myData: UserSchema = {
+      const myData: Partial<UserSchema> = {
         name: "Throy",
         discord: "kiratriz",
         email: "tgenesistroy@gmail.com",

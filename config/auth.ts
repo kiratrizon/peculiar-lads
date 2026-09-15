@@ -15,6 +15,10 @@ const constant: AuthConfig = {
       driver: "session",
       provider: "admins",
     },
+    api_admin: {
+      driver: "token",
+      provider: "admins",
+    },
   },
   providers: {
     users: {

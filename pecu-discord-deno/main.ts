@@ -402,10 +402,10 @@ bot.events.guildMemberRemove = async (user) => {
   }
 };
 
-startScheduledMessagesCron(bot);
+startScheduledMessagesCron();
 
 try {
-  bot.start();
+  await bot.start();
 } catch (e) {
   console.error("Failed to log in to Discord", e);
   Deno.exit(1);

@@ -886,7 +886,12 @@ globalFn(
 
     // $_GET build
     const allParams = [...requiredParams, ...optionalParams];
-    let buildUrl = config("app.url") + finalUrl;
+    let appUrl = (config("app.url") || "") as string;
+    // remove trailing slash or double slash in the final URL
+    if (appUrl.endsWith("/")) {
+      appUrl = appUrl.slice(0, -1);
+    }
+    let buildUrl = appUrl + finalUrl;
     const $_GET: string[] = [];
     Object.entries(params).forEach(([key, value]) => {
       if (!allParams.includes(key) && isset(value)) {

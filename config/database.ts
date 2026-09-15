@@ -5,7 +5,7 @@ const mySqlOptions = {
 };
 
 // @ts-ignore //
-mySqlOptions.maxConnection = env("MYSQL_MAX_CONNECTIONS", 3);
+mySqlOptions.maxConnection = env("MYSQL_MAX_CONNECTIONS", 4);
 
 const constant: DatabaseConfig = {
   default: env("DB_CONNECTION", "sqlite"),

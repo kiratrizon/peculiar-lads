@@ -8,6 +8,8 @@ import character from "./commands/character.ts";
 import scammer from "./commands/scammer.ts";
 import signup from "./commands/signup.ts";
 import login from "./commands/login.ts";
+import promote from "./commands/promote.ts";
+import demote from "./commands/demote.ts";
 import type { Command } from "./types.ts";
 
 export default {
@@ -21,4 +23,6 @@ export default {
   scammer,
   signup,
   login,
+  promote,
+  demote,
 } satisfies Record<string, Command>;

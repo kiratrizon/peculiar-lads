@@ -10,6 +10,7 @@ import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 import RedirectToLocal from "App/Http/Middlewares/RedirectToLocal.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
+import IsAdminApi from "App/Http/Middlewares/IsAdminApi.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -26,6 +27,7 @@ export default Application.withRouting({
       set_lang: LanguageSetter,
       bind_member: BindUser,
       bind_character: BindCharacter,
+      is_admin_api: IsAdminApi,
     });
     // middleware.append(RedirectToLocal);
     middleware.append(SetupLangVar);
