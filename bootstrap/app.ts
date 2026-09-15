@@ -14,7 +14,7 @@ import IsAdminApi from "App/Http/Middlewares/IsAdminApi.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
-  // api: async () => await import("../routes/api.ts"),
+  api: async () => await import("../routes/api.ts"),
   commands: async () => await import("../routes/console.ts"),
 })
   .withMiddleware((middleware) => {
