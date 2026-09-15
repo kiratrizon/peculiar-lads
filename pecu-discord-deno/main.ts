@@ -17,7 +17,6 @@ import {
 import builtCommands from "./built-commands.ts";
 import type { AppInteraction, Command } from "./types.ts";
 import { buildByeImage, buildWelcomeImage } from "./welcome.ts";
-import { startScheduledMessagesCron } from "./scheduler.ts";
 import { logErrorToDiscord } from "./errorLog.ts";
 import { ask } from "./chat.ts";
 import { handleQaMessage } from "./qaPoints.ts";
@@ -402,7 +401,9 @@ bot.events.guildMemberRemove = async (user) => {
   }
 };
 
-startScheduledMessagesCron();
+// The scheduled-messages cron is registered by routes/console.ts, not here -
+// this process runs on its own host (Dockerfile/fly.toml) where `route()` is
+// undefined, since only the web process defines it.
 
 try {
   await bot.start();

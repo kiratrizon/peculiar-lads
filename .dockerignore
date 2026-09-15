@@ -1,0 +1,19 @@
+# Secrets live in `fly secrets`, never in the image.
+.env
+
+.git
+.github
+.vscode
+.vite
+.specify
+.DS_Store
+
+# Re-created inside the image by `deno install`.
+node_modules
+
+# Web-only assets - the gateway process never serves HTTP.
+public/build
+resources
+
+storage/framework
+storage/logs

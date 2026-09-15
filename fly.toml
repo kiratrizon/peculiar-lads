@@ -1,0 +1,15 @@
+# Always-on host for the Discord gateway (pecu-discord-deno/server.ts).
+# The web app is unaffected and stays on Deno Deploy.
+app = "peculiarlads-bot"
+primary_region = "sin"
+
+[build]
+  dockerfile = "Dockerfile"
+
+# Deliberately no [http_service] / [[services]] block: the bot only makes
+# outbound connections, so there's nothing to route in - and with no service
+# attached, Fly never auto-stops the machine, which is the whole point.
+
+[[vm]]
+  size = "shared-cpu-1x"
+  memory = "512mb"
