@@ -1,6 +1,4 @@
-import { DiscordConfig } from "configs/@types/index.d.ts";
-
-const constant: DiscordConfig = {
+const constant = {
   guild_id: env("DISCORD_GUILD_ID", ""),
 };
 
