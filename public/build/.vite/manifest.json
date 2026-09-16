@@ -8,12 +8,21 @@
     "name": "sweetalert2.esm.all"
   },
   "resources/css/announcement.css": {
-    "file": "assets/announcement-DCB2w6kL.css",
+    "file": "assets/announcement-CIyzsXvg.css",
     "src": "resources/css/announcement.css",
     "isEntry": true,
     "name": "announcement",
     "names": [
       "announcement.css"
+    ]
+  },
+  "resources/css/app.css": {
+    "file": "assets/app-Dr70TqSx.css",
+    "src": "resources/css/app.css",
+    "isEntry": true,
+    "name": "app",
+    "names": [
+      "app.css"
     ]
   },
   "resources/css/dark.css": {
@@ -62,12 +71,12 @@
     ]
   },
   "resources/ts/app.ts": {
-    "file": "assets/app-imr_sIXn.js",
+    "file": "assets/app-D4xTHuQJ.js",
     "name": "app",
     "src": "resources/ts/app.ts",
     "isEntry": true,
     "css": [
-      "assets/app-CYIOBH1t.css"
+      "assets/app-Dr70TqSx.css"
     ]
   },
   "resources/ts/recruit/view.ts": {

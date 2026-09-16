@@ -6,13 +6,38 @@
 		background: var(--panel);
 		border-color: var(--border);
 	}
-	.coe-body {
-		color: var(--text-soft);
-		white-space: pre-wrap;
-		word-break: break-word;
-		line-height: 1.7;
-		max-height: 60vh;
+	.coe-doc {
+		max-height: 65vh;
 		overflow-y: auto;
+		padding-right: .5rem;
+	}
+	/* The source file separates sections with three blank lines and softer
+	   breaks with one. Lines that were written tight together each get their
+	   own block below, rather than newlines + white-space: pre-line - the
+	   prettier pass in HonoView rewraps the HTML and would move those breaks. */
+	.coe-p {
+		color: var(--text-soft);
+		line-height: 1.75;
+		margin-bottom: 1rem;
+	}
+	.coe-line {
+		display: block;
+	}
+	.coe-heading {
+		color: var(--text-main);
+		font-weight: 700;
+		letter-spacing: .04em;
+		line-height: 1.4;
+		margin: 2.25rem 0 1rem;
+		padding-top: 1.25rem;
+		border-top: 1px solid var(--border);
+	}
+	.coe-heading:first-child {
+		margin-top: 0;
+		padding-top: 0;
+		border-top: 0;
+		text-align: center;
+		font-size: 1.35rem;
 	}
 	.coe-note {
 		color: var(--text-soft);
@@ -43,12 +68,25 @@
 		@end
 
 		<div class="coe-shell backdrop-blur-xl border rounded-2xl p-6 md:p-8 shadow-2xl">
-			<div class="text-center mb-6">
-				<img class="theme-icon h-9 w-9 mx-auto mb-2" src="/assets/peculiarlads-icon-dark.png" alt="{{ env('GUILD_NAME') }}" />
-				<h1 class="text-2xl font-bold" style="color: var(--text-main);">PeculiarLads Code of Ethics</h1>
+			<div class="text-center mb-8">
+				<img class="theme-icon h-9 w-9 mx-auto" src="/assets/peculiarlads-icon-dark.png" alt="{{ env('GUILD_NAME') }}" />
 			</div>
 
-			<div class="coe-body text-sm md:text-base">{{ $content }}</div>
+			<article class="coe-doc text-sm md:text-base">
+				@each(block in $blocks)
+					@if(block.heading)
+						<h2 class="coe-heading text-lg">{{ block.text }}</h2>
+					@else
+						@each(paragraph in block.paragraphs)
+							<p class="coe-p">
+								@each(line in paragraph)
+									<span class="coe-line">{{ line }}</span>
+								@end
+							</p>
+						@end
+					@end
+				@end
+			</article>
 
 			@if($user && $alreadyAccepted)
 				<div class="mt-8 pt-6 border-t text-center" style="border-color: var(--border);">
@@ -87,7 +125,7 @@
 	var unlockAt = parseInt(button.getAttribute("data-unlock-at"), 10);
 	if (!unlockAt) return;
 
-	var defaultHint = hint ? hint.textContent : "";
+	var defaultHint = hint ? hint.textContent.trim() : "";
 
 	// Cosmetic only - the same deadline is enforced in
 	// CodeOfEthicsController.accept, so removing the attribute in devtools

@@ -9,12 +9,72 @@ import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 // created (users.created_at).
 const READ_DELAY_MINUTES = 5;
 
-const codeOfEthicsText = (): string => {
+type CoeBlock = {
+  heading: boolean;
+  // Heading text, empty for prose blocks.
+  text: string;
+  // One entry per paragraph, each a list of its lines. Lines written tight
+  // together ("Be respectful." / "Be mature." / ...) stay separate entries and
+  // the view gives each its own block element - relying on newlines plus
+  // white-space: pre-line doesn't survive the prettier pass HonoView runs on
+  // the rendered HTML.
+  paragraphs: string[][];
+};
+
+// The source document carries its structure in whitespace: runs of three blank
+// lines separate sections, a single blank line is a softer break inside one,
+// and consecutive lines are meant to stay stacked. Dumping it into a pre-wrap
+// block throws that away, so it's parsed into blocks here and rendered with
+// real typography in coe.edge.
+//
+// Headings are the emoji + UPPERCASE lines ("❤️ 1. BENEFICENCE — DO GOOD",
+// "⚔️ WE ARE A TEAM.", "THIS IS A GAME.") - detected by case rather than by a
+// list of literals, so editing the file doesn't mean editing this.
+const isHeadingLine = (line: string): boolean => {
+  const letters = line.replace(/[^A-Za-z]/g, "");
+  if (letters.length < 3) return false;
+  if (line.length > 90) return false;
+
+  const uppercase = letters.replace(/[^A-Z]/g, "").length;
+  return uppercase / letters.length >= 0.9;
+};
+
+const parseCodeOfEthics = (raw: string): CoeBlock[] => {
+  // The file is CRLF, so every "blank" line is actually "\r" and reads as
+  // non-empty unless normalised first.
+  const text = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
+  if (!text) return [];
+
+  return text
+    .split(/\n[ \t]*\n[ \t]*\n+/)
+    .map((section) => {
+      const paragraphs = section
+        .split(/\n[ \t]*\n/)
+        .map((paragraph) =>
+          paragraph.split("\n").map((line) => line.trim()).filter(Boolean)
+        )
+        .filter((lines) => lines.length > 0);
+
+      const heading = paragraphs.length === 1 && paragraphs[0].length === 1 &&
+        isHeadingLine(paragraphs[0][0]);
+
+      return {
+        heading,
+        text: heading ? paragraphs[0][0] : "",
+        paragraphs: heading ? [] : paragraphs,
+      };
+    })
+    .filter((block) => block.heading || block.paragraphs.length > 0);
+};
+
+const codeOfEthicsBlocks = (): CoeBlock[] => {
   try {
-    return Deno.readTextFileSync(basePath("rules/code_of_ethics.txt"));
+    return parseCodeOfEthics(
+      Deno.readTextFileSync(basePath("rules/code_of_ethics.txt")),
+    );
   } catch (e) {
     console.error("Failed to read rules/code_of_ethics.txt", e);
-    return "";
+    return [];
   }
 };
 
@@ -67,7 +127,7 @@ class CodeOfEthicsController extends Controller {
     // unlockAtEpoch drives the countdown in the browser; the server re-checks
     // the same deadline in accept(), so a tampered button buys nothing.
     return view("coe", {
-      content: codeOfEthicsText(),
+      blocks: codeOfEthicsBlocks(),
       user,
       readDelayMinutes: READ_DELAY_MINUTES,
       unlockAtEpoch: user ? this.unlocksAtMs(user) : null,

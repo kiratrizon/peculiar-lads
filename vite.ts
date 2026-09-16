@@ -51,6 +51,7 @@ const input: string[] = [
   "resources/ts/shared/member-show.ts",
   "resources/ts/shared/lang-select.ts",
   "resources/ts/shared/characters.ts",
+  "resources/css/app.css",
 ];
 
 export default <ViteConfig>{
