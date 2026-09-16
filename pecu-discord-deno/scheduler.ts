@@ -1,8 +1,7 @@
-// Built from config instead of route("keep-alive"): `route()` is defined by
-// the web process's Server.init, and this cron runs in the bot process (its
-// entry point is server.ts, which never loads hono/main.ts) - calling route()
-// there throws, and the throw would be swallowed by the catch below, leaving
-// scheduled messages silently unsent. Same URL either way:
+// Built from config rather than route("keep-alive") so this works from any
+// process: `route()` only exists where Server.init ran (the web app), and a
+// throw here would be swallowed by the catch below, leaving scheduled messages
+// silently unsent. Resolves to the same URL route() gives:
 // https://<app.url>/api/keep-alive
 const keepAliveUrl = () => {
   const appUrl = String(config("app.url") ?? "").replace(/\/+$/, "");
