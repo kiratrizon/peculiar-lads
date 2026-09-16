@@ -48,26 +48,26 @@
 				<h1 class="text-2xl font-bold" style="color: var(--text-main);">PeculiarLads Code of Ethics</h1>
 			</div>
 
-			<div class="coe-body text-sm md:text-base">{{ content }}</div>
+			<div class="coe-body text-sm md:text-base">{{ $content }}</div>
 
-			@if(user && alreadyAccepted)
+			@if($user && $alreadyAccepted)
 				<div class="mt-8 pt-6 border-t text-center" style="border-color: var(--border);">
 					<p class="coe-note text-sm">
 						You've already acknowledged the Code of Ethics. Welcome aboard!
 					</p>
 				</div>
-			@elseif(user)
+			@elseif($user)
 				<div class="mt-8 pt-6 border-t text-center" style="border-color: var(--border);">
 					<p class="coe-note text-sm mb-4" id="coe-hint">
-						Please read it through. This button unlocks {{ readDelayMinutes }} minutes after you register.
+						Please read it through. This button unlocks {{ $readDelayMinutes }} minutes after you register.
 					</p>
-					<form method="POST" action="{{ route('pecu-coe.accept', { user_id: user.id }) }}">
+					<form method="POST" action="{{ route('pecu-coe.accept', { user_id: $user.id }) }}">
 						@csrf()
 						<button
 							type="submit"
 							id="coe-accept"
 							class="coe-button font-semibold rounded-xl px-6 py-3"
-							data-unlock-at="{{ unlockAtEpoch }}"
+							data-unlock-at="{{ $unlockAtEpoch }}"
 							disabled
 						>I have Read this</button>
 					</form>
@@ -77,7 +77,7 @@
 	</div>
 </section>
 
-@if(user && !alreadyAccepted)
+@if($user && !$alreadyAccepted)
 <script>
 (function () {
 	var button = document.getElementById("coe-accept");
