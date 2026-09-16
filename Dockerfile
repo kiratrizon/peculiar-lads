@@ -1,10 +1,16 @@
-# Image for the Discord gateway process only - the web app stays on Deno
-# Deploy. The gateway holds a long-lived WebSocket, which Deploy's isolates
-# can't: they stop when traffic goes quiet and can run several at once, so the
-# bot would re-IDENTIFY on every cold start and double up on events.
+# Image for the whole app: the Honovel HTTP server, plus the Discord gateway
+# that routes/console.ts boots inside the same process.
 #
-# Entry point is pecu-discord-deno/server.ts (`deno task discord`), which pulls
-# in the framework globals and then main.ts.
+# Entry point is run-server.ts rather than index.ts: index.ts only exports the
+# Hono app (Deno Deploy serves a default export for you), so `deno run index.ts`
+# would listen on nothing - and with the gateway holding the event loop open,
+# you'd get a machine that looks healthy while serving no HTTP at all.
+# run-server.ts imports that same app and calls Deno.serve on it.
+#
+# Not `deno task smelt serve`: that spawns a child `deno --watch run-server.ts`
+# (a dev launcher that also kills whatever owns the port), which in a container
+# just adds a file watcher and a parent/child split that complicates SIGTERM on
+# every deploy.
 FROM denoland/deno:2.7.11
 
 WORKDIR /app
@@ -15,9 +21,9 @@ COPY . .
 # which resolves to its prebuilt linux-gnu binary here (a musl/alpine base
 # would need the -musl build instead).
 #
-# deno.json sets nodeModulesDir: "auto", so this both populates node_modules
-# and warms the remote module graph - a cold container boots straight into
-# bot.start() instead of downloading dependencies first.
-RUN deno install --entrypoint pecu-discord-deno/server.ts
+# deno.json sets nodeModulesDir: "auto", so this both populates node_modules and
+# warms the remote module graph - including routes/console.ts and the bot behind
+# it, which deno reaches through the static dynamic import in bootstrap/app.ts.
+RUN deno install --entrypoint vendor/honovel/framework/src/hono/run-server.ts
 
-CMD ["deno", "task", "discord"]
+CMD ["deno", "run", "-A", "vendor/honovel/framework/src/hono/run-server.ts"]

@@ -11,9 +11,14 @@
 # Re-created inside the image by `deno install`.
 node_modules
 
-# Web-only assets - the gateway process never serves HTTP.
-public/build
-resources
+# NOTE: resources/ (Edge views) and public/build (Vite output) must ship - the
+# container serves the web app now, and both are committed to git. Excluding
+# them was correct only while this image ran the gateway alone.
 
 storage/framework
 storage/logs
+
+# Local mkcert certs. run-server.ts serves TLS whenever it finds these, but
+# Fly's proxy speaks plain HTTP to internal_port - shipping them would turn
+# every request into a connection reset. Keep them locally for `smelt serve`.
+storage/ssl

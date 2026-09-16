@@ -1,15 +1,24 @@
-# Always-on host for the Discord gateway (pecu-discord-deno/server.ts).
-# The web app is unaffected and stays on Deno Deploy.
-app = "peculiarlads-bot"
+# Single always-on host for the whole app: the Honovel web server and the
+# Discord gateway run in one process (routes/console.ts boots the bot).
+app = "peculiarlads"
 primary_region = "sin"
 
 [build]
   dockerfile = "Dockerfile"
 
-# Deliberately no [http_service] / [[services]] block: the bot only makes
-# outbound connections, so there's nothing to route in - and with no service
-# attached, Fly never auto-stops the machine, which is the whole point.
+[http_service]
+  # run-server.ts binds env("APP_PORT"), which is 4443 in the imported secrets.
+  internal_port = 4443
+  force_https = true
+
+  # Non-negotiable with a gateway on board: an auto-stopped machine is a bot
+  # that has left Discord. This is what keeps the WebSocket alive through quiet
+  # hours, and min_machines_running keeps one up even with zero web traffic.
+  auto_stop_machines = 'off'
+  auto_start_machines = true
+  min_machines_running = 1
+  processes = ["app"]
 
 [[vm]]
   size = "shared-cpu-1x"
-  memory = "512mb"
+  memory = "1gb"
