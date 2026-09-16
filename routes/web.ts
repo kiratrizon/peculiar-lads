@@ -12,6 +12,7 @@ import MemberController from "App/Http/Controllers/MemberController.ts";
 import CharacterController from "App/Http/Controllers/CharacterController.ts";
 import DiscordChannelController from "App/Http/Controllers/DiscordChannelController.ts";
 import ScheduledMessageController from "App/Http/Controllers/ScheduledMessageController.ts";
+import CodeOfEthicsController from "App/Http/Controllers/CodeOfEthicsController.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 
 Route.prefix("/{lang?}")
@@ -251,6 +252,17 @@ Route.prefix("/{lang?}")
     Route.prefix("/pecu-records").group(() => {
       Route.get("/", [PecuRecordsController, "index"]);
     });
+
+    // Outside the "guest" group: a recruit lands here straight after applying,
+    // and members who are already logged in still need to be able to read it.
+    // {user_id?} is optional - without it the page is just the Code of Ethics,
+    // with it the acknowledge button appears.
+    Route.get("/pecu-coe/{user_id?}", [CodeOfEthicsController, "index"])
+      .name("pecu-coe")
+      .where("user_id", /\d+/);
+    Route.post("/pecu-coe/{user_id}", [CodeOfEthicsController, "accept"])
+      .name("pecu-coe.accept")
+      .where("user_id", /\d+/);
   });
 
 import { marked } from "marked";

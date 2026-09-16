@@ -7,6 +7,7 @@ import { Resend } from "resend";
 import Admin from "../../Models/Admin.ts";
 import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
 import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
+import { Carbon } from "helpers";
 import { discordRest } from "pecu-discord-deno/rest.ts";
 import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
@@ -86,7 +87,11 @@ class RecruitController extends Controller {
       discord: "required|min:4|max:50",
       discord_id: "nullable|max:20",
       reason: "required|min:10|max:500",
-      email: "required|email|min:4|max:50|unique:users,email",
+      // No `unique:users,email` - that rule runs a raw query with no
+      // deleted_at filter, so a returnee whose row was soft-deleted on leaving
+      // could never re-apply. Uniqueness is enforced below, against live rows
+      // only, with trashed rows restored instead of rejected.
+      email: "required|email|min:4|max:50",
     });
 
     // check if class is a number and exist in ThirdClass
@@ -119,24 +124,78 @@ class RecruitController extends Controller {
         nstg: "NSTG is not valid",
       }).withInput(request.except(['nstg']));
     }
-    const recruit = await User.create({
+    // Returnees: guildMemberRemove soft-deletes the users row, and the table's
+    // unique index on email means a fresh insert would collide with it
+    // forever. Match on email or discord_id - people come back with a new
+    // address more often than a new Discord account.
+    const applicantDiscordId = credentials.discord_id as string | undefined;
+
+    const matchApplicant = (query: ReturnType<typeof User.query>) => {
+      query.where("email", credentials.email);
+      // Only when they actually sent one: `orWhere("discord_id", "")` would
+      // match any row whose discord_id was stored empty rather than null.
+      if (applicantDiscordId) {
+        query.orWhere("discord_id", applicantDiscordId);
+      }
+      return query;
+    };
+
+    // A live match means they're already a member - only trashed rows get
+    // reused below.
+    const live = await matchApplicant(User.query()).first();
+
+    if (live) {
+      return redirect().back().withErrors({
+        email: "That email or Discord account is already registered.",
+      }).withInput(request.except(["email"]));
+    }
+
+    const applicationFields = {
       email: credentials.email,
       name: credentials.ign,
       discord: credentials.discord,
       discord_id: credentials.discord_id,
       reason: credentials.reason,
-    });
+      date_registered: Carbon.now().toString(),
+      // A returning member reads the Code of Ethics again, and gets their
+      // welcome banner posted again when they accept it.
+      coe_accepted_at: null,
+    };
+
+    // updateOrCreate restores a trashed match rather than inserting alongside
+    // it, so a returnee lands back on their original row - characters hang off
+    // that user_id and survive a member leaving, so they keep their roster.
+    // The wheres below are the match; withTrashed() is what lets it see them.
+    const recruit = await matchApplicant(
+      User.query().withTrashed(),
+    ).updateOrCreate({}, applicationFields);
 
     if (recruit) {
       // @ts-ignore //
       const recruitId = recruit.id as number;
-      await Character.create({
-        user_id: recruitId,
-        main: true,
-        third_class_id: classId,
-        nstg_level_id: nstgId,
-        ign: credentials.ign,
-      });
+
+      // Their old main character, if this is a returnee - update it in place
+      // instead of leaving a stale IGN/class behind a second "main" row.
+      const mainCharacter = await Character.where("user_id", recruitId)
+        .where("main", true)
+        .first();
+
+      if (mainCharacter) {
+        mainCharacter.fill({
+          third_class_id: classId,
+          nstg_level_id: nstgId,
+          ign: credentials.ign,
+        });
+        await mainCharacter.save();
+      } else {
+        await Character.create({
+          user_id: recruitId,
+          main: true,
+          third_class_id: classId,
+          nstg_level_id: nstgId,
+          ign: credentials.ign,
+        });
+      }
 
       const discordId = credentials.discord_id as string | undefined;
       if (discordId) {
@@ -242,7 +301,11 @@ class RecruitController extends Controller {
         ? `Hello ${credentials.ign}, your application has been approved! Complete your signup here: ${signupUrl}`
         : `Hello ${credentials.ign}, your application has been submitted. An admin will need to review it manually before you can sign up.`;
 
-      return redirect().route("welcome").with("message", successMessage);
+      // Straight to the Code of Ethics rather than back to the landing page -
+      // acknowledging it there is what posts their welcome banner in Discord.
+      return redirect()
+        .route("pecu-coe", { user_id: recruitId })
+        .with("message", successMessage);
     }
     return redirect().route("welcome").with("message", `Something went wrong. Please try again later.`).withInput();
   };

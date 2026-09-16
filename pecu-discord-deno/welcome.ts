@@ -3,15 +3,19 @@ import { avatarUrl, memberAvatarUrl } from "@discordeno/bot";
 import type { AppMember, AppUser } from "./types.ts";
 
 // A minimal shape covering everything buildMemberCard needs, so the same
-// drawing logic can serve both the guildMemberAdd (full Member, with a
-// possible per-guild avatar) and guildMemberRemove (User only) events.
+// drawing logic can serve the guildMemberRemove (User only) event and the
+// REST-fetched member behind the Code of Ethics welcome (welcomeMessage.ts).
+//
+// avatar/guildAvatar accept a string as well as a bigint: the gateway hands
+// over transformed bigint hashes, the REST API plain hash strings, and
+// discordeno's avatarUrl/memberAvatarUrl take either (BigString).
 type Subject = {
   id: bigint;
   username: string;
   discriminator: string;
-  avatar?: bigint;
+  avatar?: bigint | string;
   guildId?: bigint;
-  guildAvatar?: bigint;
+  guildAvatar?: bigint | string;
 };
 
 const pecuAssetsPath = (concatenation = "") => {
@@ -132,18 +136,21 @@ const buildMemberCard = async (
   return canvas.toBuffer("image/png");
 };
 
+// Takes the fields directly, so a REST-fetched member works as well as a
+// gateway one - welcomeMessage.ts builds the card from a web request now that
+// the banner is posted on Code of Ethics acceptance, not on join.
+export const buildWelcomeCard = (subject: Subject) =>
+  buildMemberCard(subject, `Welcome, ${subject.username}!`);
+
 export const buildWelcomeImage = (member: AppMember) =>
-  buildMemberCard(
-    {
-      id: member.id,
-      username: member.user?.username ?? member.nick ?? "there",
-      discriminator: member.user?.discriminator ?? "0",
-      avatar: member.user?.avatar,
-      guildId: member.guildId,
-      guildAvatar: member.avatar,
-    },
-    `Welcome, ${member.user?.username ?? member.nick ?? "there"}!`,
-  );
+  buildWelcomeCard({
+    id: member.id,
+    username: member.user?.username ?? member.nick ?? "there",
+    discriminator: member.user?.discriminator ?? "0",
+    avatar: member.user?.avatar,
+    guildId: member.guildId,
+    guildAvatar: member.avatar,
+  });
 
 // guildMemberRemove only gives us a bare User (the member has already left,
 // so there's no roles/guild-avatar data left to fetch) - see main.ts.

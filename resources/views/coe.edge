@@ -1,0 +1,119 @@
+@layouts.guest.default()
+
+@slot('main')
+<style>
+	.coe-shell {
+		background: var(--panel);
+		border-color: var(--border);
+	}
+	.coe-body {
+		color: var(--text-soft);
+		white-space: pre-wrap;
+		word-break: break-word;
+		line-height: 1.7;
+		max-height: 60vh;
+		overflow-y: auto;
+	}
+	.coe-note {
+		color: var(--text-soft);
+	}
+	.coe-flash {
+		background: var(--panel);
+		border-color: var(--accent);
+		color: var(--text-main);
+	}
+	.coe-button {
+		background: var(--accent);
+		color: #1e293b;
+		transition: opacity .2s ease;
+	}
+	.coe-button[disabled] {
+		opacity: .45;
+		cursor: not-allowed;
+	}
+</style>
+
+<section class="flex-1 px-4 py-12">
+	<div class="w-full max-w-3xl mx-auto">
+
+		@if(session().has("message"))
+			<div class="coe-flash border rounded-xl px-4 py-3 mb-6 text-sm">
+				{{ session().get('message') }}
+			</div>
+		@end
+
+		<div class="coe-shell backdrop-blur-xl border rounded-2xl p-6 md:p-8 shadow-2xl">
+			<div class="text-center mb-6">
+				<img class="theme-icon h-9 w-9 mx-auto mb-2" src="/assets/peculiarlads-icon-dark.png" alt="{{ env('GUILD_NAME') }}" />
+				<h1 class="text-2xl font-bold" style="color: var(--text-main);">PeculiarLads Code of Ethics</h1>
+			</div>
+
+			<div class="coe-body text-sm md:text-base">{{ content }}</div>
+
+			@if(user && alreadyAccepted)
+				<div class="mt-8 pt-6 border-t text-center" style="border-color: var(--border);">
+					<p class="coe-note text-sm">
+						You've already acknowledged the Code of Ethics. Welcome aboard!
+					</p>
+				</div>
+			@elseif(user)
+				<div class="mt-8 pt-6 border-t text-center" style="border-color: var(--border);">
+					<p class="coe-note text-sm mb-4" id="coe-hint">
+						Please read it through. This button unlocks {{ readDelayMinutes }} minutes after you register.
+					</p>
+					<form method="POST" action="{{ route('pecu-coe.accept', { user_id: user.id }) }}">
+						@csrf()
+						<button
+							type="submit"
+							id="coe-accept"
+							class="coe-button font-semibold rounded-xl px-6 py-3"
+							data-unlock-at="{{ unlockAtEpoch }}"
+							disabled
+						>I have Read this</button>
+					</form>
+				</div>
+			@end
+		</div>
+	</div>
+</section>
+
+@if(user && !alreadyAccepted)
+<script>
+(function () {
+	var button = document.getElementById("coe-accept");
+	var hint = document.getElementById("coe-hint");
+	if (!button) return;
+
+	var unlockAt = parseInt(button.getAttribute("data-unlock-at"), 10);
+	if (!unlockAt) return;
+
+	var defaultHint = hint ? hint.textContent : "";
+
+	// Cosmetic only - the same deadline is enforced in
+	// CodeOfEthicsController.accept, so removing the attribute in devtools
+	// just gets you redirected back here.
+	var tick = function () {
+		var remaining = unlockAt - Date.now();
+
+		if (remaining <= 0) {
+			button.disabled = false;
+			if (hint) hint.textContent = "Thanks for reading. You can acknowledge it now.";
+			return;
+		}
+
+		var totalSeconds = Math.ceil(remaining / 1000);
+		var minutes = Math.floor(totalSeconds / 60);
+		var seconds = totalSeconds % 60;
+		if (hint) {
+			hint.textContent = defaultHint + " (" + minutes + ":" + (seconds < 10 ? "0" : "") + seconds + " left)";
+		}
+		setTimeout(tick, 1000);
+	};
+
+	tick();
+})();
+</script>
+@end
+@endslot
+
+@end

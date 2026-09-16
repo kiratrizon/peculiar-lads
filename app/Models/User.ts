@@ -20,6 +20,11 @@ export type UserSchema = {
   invitation_link: string | null;
   // 0: not verified, 1: verified, 2: blocklisted
   verified: 0 | 1 | 2;
+  // Stamped on every application (RecruitController.store), including a
+  // returnee re-applying on a restored row - drives the Code of Ethics
+  // unlock delay. Null until they acknowledge it.
+  date_registered: string | null;
+  coe_accepted_at: string | null;
 };
 
 class User extends Authenticatable<UserSchema> implements JWTSubject {
@@ -36,6 +41,8 @@ class User extends Authenticatable<UserSchema> implements JWTSubject {
     "status",
     "invitation_link",
     "verified",
+    "date_registered",
+    "coe_accepted_at",
   ];
   protected static override _guarded: string[] = [];
 

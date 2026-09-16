@@ -6,7 +6,6 @@ Carbon.setCarbonTimezone(config("app").timezone ?? "UTC");
 
 import {
   ActivityTypes,
-  AllowedMentionsTypes,
   ChannelTypes,
   createBot,
   createDesiredPropertiesObject,
@@ -16,23 +15,12 @@ import {
 
 import builtCommands from "./built-commands.ts";
 import type { AppInteraction, Command } from "./types.ts";
-import { buildByeImage, buildWelcomeImage } from "./welcome.ts";
+import { buildByeImage } from "./welcome.ts";
 import { logErrorToDiscord } from "./errorLog.ts";
 import { ask } from "./chat.ts";
 import { handleQaMessage } from "./qaPoints.ts";
 import { Carbon } from "helpers";
 import User from "App/Models/User.ts";
-
-const ordinal = (n: number) => {
-  const rule = new Intl.PluralRules("en", { type: "ordinal" }).select(n);
-  const suffixes: Record<string, string> = {
-    one: "st",
-    two: "nd",
-    few: "rd",
-    other: "th",
-  };
-  return `${n}${suffixes[rule] ?? "th"}`;
-};
 
 // Mark every transformer property as "desired" so the bot behaves like a
 // typical discord.js client (full objects everywhere) instead of having to
@@ -195,46 +183,11 @@ bot.events.interactionCreate = async (interaction) => {
 };
 
 bot.events.guildMemberAdd = async (member, user) => {
-  try {
-    const channelId = env("WELCOME_CHANNEL_ID") as string | null;
-    if (!channelId) {
-      console.log("WELCOME_CHANNEL_ID is not set, skipping welcome banner.");
-      return;
-    }
-
-    const channel = await bot.helpers.getChannel(channelId);
-    if (
-      channel.type !== ChannelTypes.GuildText &&
-      channel.type !== ChannelTypes.GuildAnnouncement
-    ) {
-      console.log(`Channel ${channelId} is not a text channel.`);
-      return;
-    }
-
-    const image = await buildWelcomeImage(member);
-    const guild = await bot.helpers.getGuild(member.guildId, { counts: true });
-    const memberCount = ordinal(guild.approximateMemberCount ?? 0);
-
-    await bot.helpers.sendMessage(channelId, {
-      content: `Welcome <@${member.id}> to PeculiarLads, you are the ${memberCount} member!\n\nPeculiarLads is more than just a guild—we're a family of Dragon Nest SEA players who believe in the power of teamwork, friendship, and adventure.\n\n@everyone`,
-      files: [
-        {
-          blob: new Blob([new Uint8Array(image)], { type: "image/png" }),
-          name: "welcome.png",
-        },
-      ],
-      allowedMentions: {
-        parse: [
-          AllowedMentionsTypes.UserMentions,
-          AllowedMentionsTypes.EveryoneMentions,
-        ],
-      },
-    });
-  } catch (e) {
-    console.error("Error sending welcome banner", e);
-    logErrorToDiscord("guildMemberAdd: welcome banner", e);
-  }
-
+  // No welcome banner here anymore. Joining the server isn't the milestone -
+  // registering is, so the banner is posted once the recruit accepts the Code
+  // of Ethics on the website (CodeOfEthicsController.accept ->
+  // welcomeMessage.ts). All this event does now is DM them the link there and
+  // put them on the probation role.
   try {
     const joinUrl = new URL(env("PECU_WEB") as string);
     joinUrl.search = new URLSearchParams({
