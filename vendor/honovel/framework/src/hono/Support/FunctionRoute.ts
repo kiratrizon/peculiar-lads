@@ -223,9 +223,18 @@ export class URLArranger {
         return [r];
       }
 
-      // remove trailing slash duplicate when route ends with optional param
+      // duplicate the route with a trailing slash if route ends with optional param and doesn't end with a slash
       if (r.endsWith("?")) {
-        return [r];
+        const splittedR = r.split("/");
+        // remove "?" from the last segment
+        const lastSegment = splittedR.pop()?.replace(/\?$/, "");
+        const joinedR = splittedR.join("/");
+        if (joinedR === "/") {
+          return [joinedR, `${joinedR}${lastSegment}`];
+        } else {
+          // make another trailing so it will still accepted how laravel does it
+          return [joinedR, `${joinedR}/`, `${joinedR}/${lastSegment}`];
+        }
       }
 
       return [r, `${r}/`];
