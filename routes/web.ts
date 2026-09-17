@@ -257,8 +257,9 @@ Route.prefix("/{lang?}")
     // and members who are already logged in still need to be able to read it.
     // {user_id?} is optional - without it the page is just the Code of Ethics,
     // with it the acknowledge button appears.
-    Route.get("/pecu-coe/{user_id?}", [CodeOfEthicsController, "index"])
-      .name("pecu-coe")
+    Route.get("/pecu-coe", [CodeOfEthicsController, "index"]).name("pecu-coe");
+    Route.get("/pecu-coe/{user_id}", [CodeOfEthicsController, "index"])
+      .name("pecu-coe.show")
       .where("user_id", /\d+/);
     Route.post("/pecu-coe/{user_id}", [CodeOfEthicsController, "accept"])
       .name("pecu-coe.accept")
