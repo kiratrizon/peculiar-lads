@@ -8,13 +8,12 @@ import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
 import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
-import RedirectToLocal from "App/Http/Middlewares/RedirectToLocal.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 import IsAdminApi from "App/Http/Middlewares/IsAdminApi.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
-  api: async () => await import("../routes/api.ts"),
+  // api: async () => await import("../routes/api.ts"),
   commands: async () => await import("../routes/console.ts"),
 })
   .withMiddleware((middleware) => {

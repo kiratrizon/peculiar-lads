@@ -4,32 +4,15 @@ import User from "App/Models/User.ts";
 import { sendWelcomeMessage } from "pecu-discord-deno/welcomeMessage.ts";
 import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
-// Minutes a recruit has to sit with the Code of Ethics before the
-// acknowledge button unlocks, counted from when their application row was
-// created (users.created_at).
+// minutes to wait
 const READ_DELAY_MINUTES = 5;
 
 type CoeBlock = {
   heading: boolean;
-  // Heading text, empty for prose blocks.
   text: string;
-  // One entry per paragraph, each a list of its lines. Lines written tight
-  // together ("Be respectful." / "Be mature." / ...) stay separate entries and
-  // the view gives each its own block element - relying on newlines plus
-  // white-space: pre-line doesn't survive the prettier pass HonoView runs on
-  // the rendered HTML.
   paragraphs: string[][];
 };
 
-// The source document carries its structure in whitespace: runs of three blank
-// lines separate sections, a single blank line is a softer break inside one,
-// and consecutive lines are meant to stay stacked. Dumping it into a pre-wrap
-// block throws that away, so it's parsed into blocks here and rendered with
-// real typography in coe.edge.
-//
-// Headings are the emoji + UPPERCASE lines ("❤️ 1. BENEFICENCE — DO GOOD",
-// "⚔️ WE ARE A TEAM.", "THIS IS A GAME.") - detected by case rather than by a
-// list of literals, so editing the file doesn't mean editing this.
 const isHeadingLine = (line: string): boolean => {
   const letters = line.replace(/[^A-Za-z]/g, "");
   if (letters.length < 3) return false;
@@ -40,8 +23,6 @@ const isHeadingLine = (line: string): boolean => {
 };
 
 const parseCodeOfEthics = (raw: string): CoeBlock[] => {
-  // The file is CRLF, so every "blank" line is actually "\r" and reads as
-  // non-empty unless normalised first.
   const text = raw.replace(/\r\n/g, "\n").replace(/\r/g, "\n").trim();
   if (!text) return [];
 
@@ -51,11 +32,16 @@ const parseCodeOfEthics = (raw: string): CoeBlock[] => {
       const paragraphs = section
         .split(/\n[ \t]*\n/)
         .map((paragraph) =>
-          paragraph.split("\n").map((line) => line.trim()).filter(Boolean)
+          paragraph
+            .split("\n")
+            .map((line) => line.trim())
+            .filter(Boolean),
         )
         .filter((lines) => lines.length > 0);
 
-      const heading = paragraphs.length === 1 && paragraphs[0].length === 1 &&
+      const heading =
+        paragraphs.length === 1 &&
+        paragraphs[0].length === 1 &&
         isHeadingLine(paragraphs[0][0]);
 
       return {
@@ -87,9 +73,6 @@ type CoeUser = {
 };
 
 class CodeOfEthicsController extends Controller {
-  // The user id is optional on purpose: with one, the page is a recruit's
-  // acknowledgement step; without one (or with an id that no longer exists)
-  // it's just the Code of Ethics, readable by anyone.
   private resolveUser = async (userId: unknown): Promise<CoeUser | null> => {
     const id = parseInt(String(userId ?? ""));
     if (!isInteger(id)) return null;
@@ -103,9 +86,6 @@ class CodeOfEthicsController extends Controller {
       name: (user.name as string | null) ?? null,
       // @ts-ignore //
       discordId: (user.discord_id as string | null) ?? null,
-      // date_registered is stamped on each application, so a returnee gets a
-      // fresh 5 minutes instead of inheriting the unlock from their first
-      // stint. Falls back to created_at for rows that predate the column.
       // @ts-ignore //
       registeredAt: Carbon.parse(
         // @ts-ignore //
@@ -116,16 +96,15 @@ class CodeOfEthicsController extends Controller {
     };
   };
 
-  // Carbon's add* methods return a new instance, so this doesn't mutate
-  // registeredAt. `.to("milliseconds")` is how Carbon exposes epoch time.
   private unlocksAtMs = (user: CoeUser): number =>
     user.registeredAt.addMinutes(READ_DELAY_MINUTES).to("milliseconds");
 
-  public index: HttpDispatch = async ({ request }) => {
-    const user = await this.resolveUser(request.route("user_id"));
+  public index: HttpDispatch<{ user_id?: string | null }> = async (
+    { request },
+    { user_id },
+  ) => {
+    const user = await this.resolveUser(user_id);
 
-    // unlockAtEpoch drives the countdown in the browser; the server re-checks
-    // the same deadline in accept(), so a tampered button buys nothing.
     return view("coe", {
       blocks: codeOfEthicsBlocks(),
       user,
@@ -135,14 +114,16 @@ class CodeOfEthicsController extends Controller {
     });
   };
 
-  public accept: HttpDispatch = async ({ request }) => {
-    const user = await this.resolveUser(request.route("user_id"));
+  public accept: HttpDispatch<{ user_id?: string | null }> = async (
+    { request },
+    { user_id },
+  ) => {
+    const user = await this.resolveUser(user_id);
 
     if (!user) {
-      return redirect().route("welcome").with(
-        "message",
-        "That Code of Ethics link is no longer valid.",
-      );
+      return redirect()
+        .route("welcome")
+        .with("message", "That Code of Ethics link is no longer valid.");
     }
 
     // Idempotent: re-posting the form after acceptance must not fire a second
@@ -164,10 +145,9 @@ class CodeOfEthicsController extends Controller {
 
     const record = await User.find(user.id);
     if (!record) {
-      return redirect().route("welcome").with(
-        "message",
-        "That Code of Ethics link is no longer valid.",
-      );
+      return redirect()
+        .route("welcome")
+        .with("message", "That Code of Ethics link is no longer valid.");
     }
 
     record.fill({ coe_accepted_at: Carbon.now().toString() });

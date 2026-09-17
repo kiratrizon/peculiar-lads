@@ -253,10 +253,7 @@ Route.prefix("/{lang?}")
       Route.get("/", [PecuRecordsController, "index"]);
     });
 
-    // Outside the "guest" group: a recruit lands here straight after applying,
-    // and members who are already logged in still need to be able to read it.
-    // {user_id?} is optional - without it the page is just the Code of Ethics,
-    // with it the acknowledge button appears.
+    // Code of Ethics
     Route.get("/pecu-coe/{user_id?}", [CodeOfEthicsController, "index"])
       .name("pecu-coe")
       .where("user_id", /\d+/);

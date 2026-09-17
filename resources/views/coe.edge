@@ -11,10 +11,6 @@
 		overflow-y: auto;
 		padding-right: .5rem;
 	}
-	/* The source file separates sections with three blank lines and softer
-	   breaks with one. Lines that were written tight together each get their
-	   own block below, rather than newlines + white-space: pre-line - the
-	   prettier pass in HonoView rewraps the HTML and would move those breaks. */
 	.coe-p {
 		color: var(--text-soft);
 		line-height: 1.75;
@@ -127,9 +123,6 @@
 
 	var defaultHint = hint ? hint.textContent.trim() : "";
 
-	// Cosmetic only - the same deadline is enforced in
-	// CodeOfEthicsController.accept, so removing the attribute in devtools
-	// just gets you redirected back here.
 	var tick = function () {
 		var remaining = unlockAt - Date.now();
 
