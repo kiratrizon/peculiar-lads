@@ -9,6 +9,7 @@ import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
 import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
 import { Carbon } from "helpers";
 import { discordRest } from "pecu-discord-deno/rest.ts";
+import { grantVerifiedRole } from "pecu-discord-deno/verifiedRole.ts";
 import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
 class RecruitController extends Controller {
@@ -199,33 +200,7 @@ class RecruitController extends Controller {
 
       const discordId = credentials.discord_id as string | undefined;
       if (discordId) {
-        try {
-          const guildId = env("DISCORD_GUILD_ID") as string;
-          const autoRoleId = env("AUTO_ROLE_ID") as string;
-          const verifiedRoleId = env("VERIFIED_ROLE_ID") as string;
-          const guildMember = await discordRest.getMember(guildId, discordId);
-
-          if (autoRoleId && guildMember.roles.includes(autoRoleId)) {
-            await discordRest.removeRole(
-              guildId,
-              discordId,
-              autoRoleId,
-              "Submitted guild application",
-            );
-          }
-
-          if (!guildMember.roles.includes(verifiedRoleId)) {
-            await discordRest.addRole(
-              guildId,
-              discordId,
-              verifiedRoleId,
-              "Submitted guild application",
-            );
-          }
-        } catch (error) {
-          console.error("Failed to update roles for recruit", error);
-          logErrorToDiscord("RecruitController.store: role sync", error);
-        }
+        await grantVerifiedRole(discordId, "Submitted guild application");
       }
 
       // Automatic blocklist check + immediate invite link generation, so the
@@ -238,12 +213,15 @@ class RecruitController extends Controller {
       ).count();
 
       let signupUrl: string | null = null;
+      // Also the Code of Ethics link below - it's the one identifier a recruit
+      // has that nobody can guess.
+      let invitationLink: string | null = null;
 
       if (isBlackListed > 0) {
         recruit.fill({ verified: 2, status: 2 });
       } else {
         const timeNow = date("YmdHis");
-        const invitationLink = `${recruitId}-${timeNow}-${crypto.randomUUID()}`;
+        invitationLink = `${recruitId}-${timeNow}-${crypto.randomUUID()}`;
         recruit.fill({
           verified: 1,
           status: 1,
@@ -253,16 +231,22 @@ class RecruitController extends Controller {
       }
       await recruit.save();
 
-      if (discordId && signupUrl) {
+      // The redirect below drops them straight on the Code of Ethics page, but
+      // that link is gone the moment they close the tab - so pecu-pecu DMs it
+      // too. Same invitation link either way, and acknowledging it there is
+      // what grants the verified role and posts their welcome banner.
+      if (discordId && signupUrl && invitationLink) {
+        const coeUrl = `${env("PECU_WEB")}pecu-coe/${invitationLink}`;
+
         try {
           const dmChannel = await discordRest.getDmChannel(discordId);
           await discordRest.sendMessage(dmChannel.id, {
             content:
-              `Your application looks good! Complete your signup here: ${signupUrl}`,
+              `Your application looks good!\n\n**1.** Read our Code of Ethics and tap "I have Read this" to get verified: ${coeUrl}\n**2.** Complete your signup here: ${signupUrl}`,
           });
         } catch (error) {
-          console.error("Failed to DM signup link to recruit", error);
-          logErrorToDiscord("RecruitController.store: signup DM", error);
+          console.error("Failed to DM onboarding links to recruit", error);
+          logErrorToDiscord("RecruitController.store: onboarding DM", error);
         }
       }
 
@@ -303,8 +287,12 @@ class RecruitController extends Controller {
 
       // Straight to the Code of Ethics rather than back to the landing page -
       // acknowledging it there is what posts their welcome banner in Discord.
+      //
+      // Keyed by the invitation link. A blocklisted applicant never gets one,
+      // so they land on the plain document with no acknowledge button - and no
+      // welcome banner, which is the point.
       return redirect()
-        .route("pecu-coe", { user_id: recruitId })
+        .route("pecu-coe", invitationLink ? { inviteLink: invitationLink } : {})
         .with("message", successMessage);
     }
     return redirect().route("welcome").with("message", `Something went wrong. Please try again later.`).withInput();

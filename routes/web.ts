@@ -254,12 +254,12 @@ Route.prefix("/{lang?}")
     });
 
     // Code of Ethics
-    Route.get("/pecu-coe/{user_id?}", [CodeOfEthicsController, "index"])
+    Route.get("/pecu-coe/{inviteLink?}", [CodeOfEthicsController, "index"])
       .name("pecu-coe")
-      .where("user_id", /\d+/);
-    Route.post("/pecu-coe/{user_id}", [CodeOfEthicsController, "accept"])
+      .where("inviteLink", /^\d+-\d{14}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
+    Route.post("/pecu-coe/{inviteLink}", [CodeOfEthicsController, "accept"])
       .name("pecu-coe.accept")
-      .where("user_id", /\d+/);
+      .where("inviteLink", /^\d+-\d{14}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/);
   });
 
 import { marked } from "marked";

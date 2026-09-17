@@ -95,7 +95,7 @@
 					<p class="coe-note text-sm mb-4" id="coe-hint">
 						Please read it through. This button unlocks {{ $readDelayMinutes }} minutes after you register.
 					</p>
-					<form method="POST" action="{{ route('pecu-coe.accept', { user_id: $user.id }) }}">
+					<form method="POST" action="{{ route('pecu-coe.accept', { inviteLink: $user.inviteLink }) }}">
 						@csrf()
 						<button
 							type="submit"

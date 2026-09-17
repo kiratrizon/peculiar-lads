@@ -2,10 +2,16 @@ import Controller from "App/Http/Controllers/Controller.ts";
 import { Carbon } from "helpers";
 import User from "App/Models/User.ts";
 import { sendWelcomeMessage } from "pecu-discord-deno/welcomeMessage.ts";
+import { grantVerifiedRole } from "pecu-discord-deno/verifiedRole.ts";
 import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
 // minutes to wait
 const READ_DELAY_MINUTES = 5;
+
+// Same shape RecruitController.store generates and routes/web.ts constrains:
+// "<id>-<YmdHis>-<uuid v4>".
+const INVITE_LINK_PATTERN =
+  /^\d+-\d{14}-[0-9a-f]{8}-[0-9a-f]{4}-4[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
 type CoeBlock = {
   heading: boolean;
@@ -66,6 +72,7 @@ const codeOfEthicsBlocks = (): CoeBlock[] => {
 
 type CoeUser = {
   id: number;
+  inviteLink: string;
   name: string | null;
   discordId: string | null;
   registeredAt: Carbon;
@@ -73,15 +80,23 @@ type CoeUser = {
 };
 
 class CodeOfEthicsController extends Controller {
-  private resolveUser = async (userId: unknown): Promise<CoeUser | null> => {
-    const id = parseInt(String(userId ?? ""));
-    if (!isInteger(id)) return null;
+  // Keyed by the invitation link rather than a row id or a Discord id: it's
+  // generated per application (RecruitController.store) and is the only
+  // identifier a recruit has that can't be guessed or enumerated. Signing up
+  // doesn't clear it, so the link keeps working afterwards.
+  private resolveUser = async (
+    inviteLink: unknown,
+  ): Promise<CoeUser | null> => {
+    const token = String(inviteLink ?? "");
+    if (!INVITE_LINK_PATTERN.test(token)) return null;
 
-    const user = await User.find(id);
+    const user = await User.where("invitation_link", token).first();
     if (!user) return null;
 
     return {
-      id,
+      // @ts-ignore //
+      id: user.id as number,
+      inviteLink: token,
       // @ts-ignore //
       name: (user.name as string | null) ?? null,
       // @ts-ignore //
@@ -99,11 +114,11 @@ class CodeOfEthicsController extends Controller {
   private unlocksAtMs = (user: CoeUser): number =>
     user.registeredAt.addMinutes(READ_DELAY_MINUTES).to("milliseconds");
 
-  public index: HttpDispatch<{ user_id?: string | null }> = async (
+  public index: HttpDispatch<{ inviteLink?: string | null }> = async (
     { request },
-    { user_id },
+    { inviteLink },
   ) => {
-    const user = await this.resolveUser(user_id);
+    const user = await this.resolveUser(inviteLink);
 
     return view("coe", {
       blocks: codeOfEthicsBlocks(),
@@ -114,11 +129,11 @@ class CodeOfEthicsController extends Controller {
     });
   };
 
-  public accept: HttpDispatch<{ user_id?: string | null }> = async (
+  public accept: HttpDispatch<{ inviteLink?: string | null }> = async (
     { request },
-    { user_id },
+    { inviteLink },
   ) => {
-    const user = await this.resolveUser(user_id);
+    const user = await this.resolveUser(inviteLink);
 
     if (!user) {
       return redirect()
@@ -130,13 +145,13 @@ class CodeOfEthicsController extends Controller {
     // welcome banner into the channel.
     if (user.acceptedAt) {
       return redirect()
-        .route("pecu-coe", { user_id: user.id })
+        .route("pecu-coe", { inviteLink: user.inviteLink })
         .with("message", "You've already acknowledged the Code of Ethics.");
     }
 
     if (Carbon.now().to("milliseconds") < this.unlocksAtMs(user)) {
       return redirect()
-        .route("pecu-coe", { user_id: user.id })
+        .route("pecu-coe", { inviteLink: user.inviteLink })
         .with(
           "message",
           `Please take a few more minutes to read it through - the button unlocks ${READ_DELAY_MINUTES} minutes after you register.`,
@@ -153,19 +168,22 @@ class CodeOfEthicsController extends Controller {
     record.fill({ coe_accepted_at: Carbon.now().toString() });
     await record.save();
 
+    // Everything Discord-side needs an account to act on; an applicant without
+    // a linked Discord id just gets the acknowledgement recorded.
     if (user.discordId) {
       try {
+        await grantVerifiedRole(user.discordId, "Accepted the Code of Ethics");
         await sendWelcomeMessage(user.discordId);
       } catch (e) {
         // The acknowledgement itself is already saved - a Discord hiccup
         // shouldn't make the recruit think their click didn't register.
-        console.error("Failed to send welcome message after CoE", e);
-        logErrorToDiscord("CodeOfEthicsController.accept: welcome", e);
+        console.error("Failed to finish Discord onboarding after CoE", e);
+        logErrorToDiscord("CodeOfEthicsController.accept: discord", e);
       }
     }
 
     return redirect()
-      .route("pecu-coe", { user_id: user.id })
+      .route("pecu-coe", { inviteLink: user.inviteLink })
       .with("message", "Thank you! Welcome to PeculiarLads.");
   };
 }
