@@ -28,9 +28,12 @@ const constant: SessionConfig = {
 
   domain: env("SESSION_DOMAIN"),
 
-  secure: env("SESSION_SECURE_COOKIE", false), // Set to true in production or if you have certificate
+  // Defaults to on in production so the cookie is never sent over plaintext,
+  // while local http:// development still receives it.
+  secure: env("SESSION_SECURE_COOKIE", IS_PRODUCTION),
 
-  httpOnly: env("SESSION_HTTP_ONLY", false),
+  // Nothing in the frontend reads the session cookie, so keep it away from JS.
+  httpOnly: env("SESSION_HTTP_ONLY", true),
 
   sameSite: env("SESSION_SAME_SITE", "lax"),
 
