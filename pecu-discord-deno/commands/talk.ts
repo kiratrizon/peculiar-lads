@@ -1,6 +1,6 @@
 import { ApplicationCommandOptionTypes } from "@discordeno/bot";
 
-import { ask } from "../chat.ts";
+import { ask, toMessageFiles } from "../chat.ts";
 import type { AppInteraction, Command } from "../types.ts";
 
 const QUESTION_OPTION_NAME = "question";
@@ -16,17 +16,20 @@ const execute = async (interaction: AppInteraction) => {
     content: `Calculating answer to "${question}"...`,
   });
 
-  const answer = await ask(
+  const result = await ask(
     interaction.user.id.toString(),
     question,
     interaction.applicationId,
   );
 
-  if (answer === null) {
+  if (result === null) {
     await interaction.edit("Internal Server Error");
   } else {
-    const newReply = `${interaction.user.username}: ${question}${answer}`;
-    await interaction.edit(newReply);
+    const newReply = `${interaction.user.username}: ${question}${result.text}`;
+    await interaction.edit({
+      content: newReply,
+      files: await toMessageFiles(result.images),
+    });
   }
 };
 

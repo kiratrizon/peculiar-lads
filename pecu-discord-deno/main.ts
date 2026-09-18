@@ -17,7 +17,7 @@ import builtCommands from "./built-commands.ts";
 import type { AppInteraction, Command } from "./types.ts";
 import { buildByeImage } from "./welcome.ts";
 import { logErrorToDiscord } from "./errorLog.ts";
-import { ask } from "./chat.ts";
+import { ask, toMessageFiles } from "./chat.ts";
 import { handleQaMessage } from "./qaPoints.ts";
 import { Carbon } from "helpers";
 import User from "App/Models/User.ts";
@@ -240,15 +240,30 @@ bot.events.messageCreate = async (message) => {
 
   try {
     if (message.mentionedUserIds.includes(bot.id)) {
-      const question =
-        message.content.replace(MENTION_PATTERN(bot.id), "").trim() || "hi";
+      const attachments = (message.attachments ?? []).map((attachment) => ({
+        url: attachment.url,
+        filename: attachment.filename,
+        contentType: attachment.contentType,
+      }));
 
-      const answer =
-        (await ask(message.author.id.toString(), question, bot.id)) ??
-        "Internal Server Error";
-      if (answer) {
+      const question =
+        message.content.replace(MENTION_PATTERN(bot.id), "").trim() ||
+        (attachments.length ? "(no text, see the attachment)" : "hi");
+
+      const result = await ask(
+        message.author.id.toString(),
+        question,
+        bot.id,
+        attachments,
+      );
+
+      const content = result ? result.text : "Internal Server Error";
+      const files = result ? await toMessageFiles(result.images) : [];
+
+      if (content || files.length) {
         await bot.helpers.sendMessage(message.channelId, {
-          content: answer,
+          content,
+          files,
           messageReference: {
             messageId: message.id,
             channelId: message.channelId,
