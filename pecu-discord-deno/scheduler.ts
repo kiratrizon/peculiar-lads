@@ -5,7 +5,7 @@ import { logErrorToDiscord } from "./errorLog.ts";
 // here, because the cron and the Discord side lived in separate processes -
 // one app on Fly means the cron can just call the code.
 export const startScheduledMessagesCron = () => {
-  Deno.cron("scheduled-messages", "* * * * *", async () => {
+  Deno.cron("scheduled-messages", "*/5 * * * *", async () => {
     try {
       await dispatchDueScheduledMessages();
     } catch (e) {
