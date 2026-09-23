@@ -10,6 +10,8 @@ import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 import IsAdminApi from "App/Http/Middlewares/IsAdminApi.ts";
+import InternalServerErrorHttpException from "Illuminate/Foundation/HttpExceptions/InternalServerErrorHttpException.ts";
+import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
@@ -39,6 +41,13 @@ export default Application.withRouting({
           return response().json({ message: "Not Found" }, 404);
         }
         return "Not Found";
+      },
+    );
+    exceptions.render<typeof InternalServerErrorHttpException>(
+      InternalServerErrorHttpException,
+      async ({ request }, e) => {
+        await logErrorToDiscord("Internal Server Error", e);
+        return response().html("Internal Server Error", 500);
       },
     );
   })

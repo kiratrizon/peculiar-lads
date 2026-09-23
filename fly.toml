@@ -6,6 +6,9 @@ primary_region = "sin"
 [build]
   dockerfile = "Dockerfile"
 
+[env]
+  HOSTNAME = "0.0.0.0"
+
 [http_service]
   # run-server.ts binds env("APP_PORT"), which is 4443 in the imported secrets.
   internal_port = 4443
