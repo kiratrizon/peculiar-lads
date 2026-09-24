@@ -10,6 +10,7 @@ import signup from "./commands/signup.ts";
 import login from "./commands/login.ts";
 import promote from "./commands/promote.ts";
 import demote from "./commands/demote.ts";
+import avatar from "./commands/avatar.ts";
 import type { Command } from "./types.ts";
 
 export default {
@@ -25,4 +26,5 @@ export default {
   login,
   promote,
   demote,
+  avatar,
 } satisfies Record<string, Command>;
