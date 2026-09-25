@@ -1,4 +1,4 @@
-import { createCanvas, loadImage } from "@napi-rs/canvas";
+import { createCanvas, GlobalFonts, loadImage } from "@napi-rs/canvas";
 import { avatarUrl, memberAvatarUrl } from "@discordeno/bot";
 import type { AppMember, AppUser } from "./types.ts";
 
@@ -26,9 +26,33 @@ const pecuAssetsPath = (concatenation = "") => {
   );
 };
 
-const iconFiles = Array.from(Deno.readDirSync(pecuAssetsPath())).filter(
+const readDirOrEmpty = (path: string) => {
+  try {
+    return Array.from(Deno.readDirSync(path));
+  } catch {
+    return [];
+  }
+};
+
+const iconFiles = readDirOrEmpty(pecuAssetsPath()).filter(
   (file) => file.isFile && file.name.endsWith(".png"),
 );
+
+const CARD_FONT_FAMILY = "PecuCard";
+
+const fontFiles = readDirOrEmpty(pecuAssetsPath("fonts")).filter(
+  (file) => file.isFile && /\.(ttf|otf)$/i.test(file.name),
+);
+
+for (const file of fontFiles) {
+  GlobalFonts.registerFromPath(
+    pecuAssetsPath(`fonts/${file.name}`),
+    CARD_FONT_FAMILY,
+  );
+}
+
+// Falls back to the system font stack if no font file is bundled.
+const cardFont = fontFiles.length ? `"${CARD_FONT_FAMILY}"` : "sans-serif";
 
 type Palette = { text: string; ring: string };
 
@@ -51,11 +75,6 @@ const pickByVariant = (variant: string) => {
 const paletteFor = (variant: string): Palette =>
   palettes[variant] ?? defaultPalette;
 
-// Discordeno doesn't have a `displayAvatarURL()` convenience method on the
-// member/user objects (unlike discord.js's GuildMember/User). Instead it
-// exposes plain URL-builder helpers (`avatarUrl`, `memberAvatarUrl`) that you
-// feed the raw avatar hash into. This mirrors displayAvatarURL's behavior of
-// preferring the guild-specific avatar over the global one when present.
 const resolveAvatarUrl = (subject: Subject): string => {
   if (subject.guildId && subject.guildAvatar) {
     const url = memberAvatarUrl(subject.guildId, subject.id, {
@@ -120,10 +139,11 @@ const buildMemberCard = async (
   ctx.textAlign = "center";
   ctx.fillStyle = palette.text;
   let fontSize = Math.round(canvas.height * 0.045);
-  do {
-    ctx.font = `bold ${fontSize}px sans-serif`;
+  ctx.font = `bold ${fontSize}px ${cardFont}`;
+  while (ctx.measureText(text).width > maxTextWidth && fontSize > 10) {
     fontSize -= 2;
-  } while (ctx.measureText(text).width > maxTextWidth && fontSize > 10);
+    ctx.font = `bold ${fontSize}px ${cardFont}`;
+  }
 
   const textY = canvas.height * 0.88;
 
@@ -136,9 +156,6 @@ const buildMemberCard = async (
   return canvas.toBuffer("image/png");
 };
 
-// Takes the fields directly, so a REST-fetched member works as well as a
-// gateway one - welcomeMessage.ts builds the card from a web request now that
-// the banner is posted on Code of Ethics acceptance, not on join.
 export const buildWelcomeCard = (subject: Subject) =>
   buildMemberCard(subject, `Welcome, ${subject.username}!`);
 
@@ -152,8 +169,6 @@ export const buildWelcomeImage = (member: AppMember) =>
     guildAvatar: member.avatar,
   });
 
-// guildMemberRemove only gives us a bare User (the member has already left,
-// so there's no roles/guild-avatar data left to fetch) - see main.ts.
 export const buildByeImage = (user: AppUser) =>
   buildMemberCard(
     {
@@ -165,10 +180,13 @@ export const buildByeImage = (user: AppUser) =>
     `Bye, ${user.username}!`,
   );
 
-// QA-channel leveling card - no guild-avatar data available here (built from
-// a plain message author, not a full member), same as buildByeImage.
 export const buildLevelUpImage = (
-  author: { id: bigint; username: string; discriminator: string; avatar?: bigint },
+  author: {
+    id: bigint;
+    username: string;
+    discriminator: string;
+    avatar?: bigint;
+  },
   level: number,
 ) =>
   buildMemberCard(
