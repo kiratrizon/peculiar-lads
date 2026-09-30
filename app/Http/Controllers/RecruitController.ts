@@ -9,11 +9,9 @@ import { Cache, DB } from "Illuminate/Support/Facades/index.ts";
 import BlockListedPlayer from "../../Models/BlockListedPlayer.ts";
 import { Carbon } from "helpers";
 import { discordRest } from "pecu-discord-deno/rest.ts";
-import { grantVerifiedRole } from "pecu-discord-deno/verifiedRole.ts";
 import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 
 class RecruitController extends Controller {
-
   private static mailer: Resend;
 
   private static initMailer() {
@@ -30,17 +28,22 @@ class RecruitController extends Controller {
   public getRecruits: HttpDispatch = async ({ request }) => {
     const recruits = await User.where("status", "!=", 3).get();
     return response().json({
-      recruits
+      recruits,
     });
   };
 
   // GET /resource/{Recruit}
-  public show: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
+  public show: HttpDispatch<{ recruit: User }> = async (
+    { request },
+    { recruit },
+  ) => {
     // @ts-ignore //
     const recruitId = recruit.id as number;
     const character = await Character.where("user_id", recruitId).first();
     if (!character) {
-      return redirect().route("admin.recruits").with("message", "Application character not found");
+      return redirect()
+        .route("admin.recruits")
+        .with("message", "Application character not found");
     }
     // @ts-ignore //
     const nstgID = character.nstg_level_id as number;
@@ -49,10 +52,14 @@ class RecruitController extends Controller {
     const nstg = await NSTGLevel.find(nstgID);
     const classJob = await ThirdClass.find(classID);
     if (!nstg) {
-      return redirect().route("admin.recruits").with("message", "NSTG not found");
+      return redirect()
+        .route("admin.recruits")
+        .with("message", "NSTG not found");
     }
     if (!classJob) {
-      return redirect().route("admin.recruits").with("message", "Class not found");
+      return redirect()
+        .route("admin.recruits")
+        .with("message", "Class not found");
     }
 
     recruit.forceFill({
@@ -75,8 +82,8 @@ class RecruitController extends Controller {
   public create: HttpDispatch = async ({ request }) => {
     // Return form or data for creating resource
     return response().json({
-      message: `create`
-    })
+      message: `create`,
+    });
   };
 
   // POST /resource
@@ -98,32 +105,44 @@ class RecruitController extends Controller {
     // check if class is a number and exist in ThirdClass
     const classId = parseInt(credentials.class);
     if (!isInteger(classId)) {
-      return redirect().back().withErrors({
-        class: "Class is required",
-      }).withInput(request.except(['class']));
+      return redirect()
+        .back()
+        .withErrors({
+          class: "Class is required",
+        })
+        .withInput(request.except(["class"]));
     }
     // @ts-ignore //
     credentials.class = classId;
     const classExist = await ThirdClass.find(classId);
     if (!classExist) {
-      return redirect().back().withErrors({
-        class: "Class is not valid",
-      }).withInput(request.except(['class']));
+      return redirect()
+        .back()
+        .withErrors({
+          class: "Class is not valid",
+        })
+        .withInput(request.except(["class"]));
     }
     // check if nstg is a number and exist in NSTGLevel
     const nstgId = parseInt(credentials.nstg);
     if (!isInteger(nstgId)) {
-      return redirect().back().withErrors({
-        nstg: "NSTG is required",
-      }).withInput(request.except(['nstg']));
+      return redirect()
+        .back()
+        .withErrors({
+          nstg: "NSTG is required",
+        })
+        .withInput(request.except(["nstg"]));
     }
     // @ts-ignore //
     credentials.nstg = nstgId;
     const nstgExist = await NSTGLevel.find(nstgId);
     if (!nstgExist) {
-      return redirect().back().withErrors({
-        nstg: "NSTG is not valid",
-      }).withInput(request.except(['nstg']));
+      return redirect()
+        .back()
+        .withErrors({
+          nstg: "NSTG is not valid",
+        })
+        .withInput(request.except(["nstg"]));
     }
     // Returnees: guildMemberRemove soft-deletes the users row, and the table's
     // unique index on email means a fresh insert would collide with it
@@ -146,9 +165,12 @@ class RecruitController extends Controller {
     const live = await matchApplicant(User.query()).first();
 
     if (live) {
-      return redirect().back().withErrors({
-        email: "That email or Discord account is already registered.",
-      }).withInput(request.except(["email"]));
+      return redirect()
+        .back()
+        .withErrors({
+          email: "That email or Discord account is already registered.",
+        })
+        .withInput(request.except(["email"]));
     }
 
     const applicationFields = {
@@ -199,9 +221,6 @@ class RecruitController extends Controller {
       }
 
       const discordId = credentials.discord_id as string | undefined;
-      if (discordId) {
-        await grantVerifiedRole(discordId, "Submitted guild application");
-      }
 
       // Automatic blocklist check + immediate invite link generation, so the
       // applicant can go straight to signup instead of waiting for an admin
@@ -241,8 +260,7 @@ class RecruitController extends Controller {
         try {
           const dmChannel = await discordRest.getDmChannel(discordId);
           await discordRest.sendMessage(dmChannel.id, {
-            content:
-              `Your application looks good!\n\n**1.** Read our Code of Ethics and tap "I have Read this" to get verified: ${coeUrl}\n**2.** Complete your signup here: ${signupUrl}`,
+            content: `Your application looks good!\n\n**1.** Read our Code of Ethics and tap "I have Read this" to get verified: ${coeUrl}\n**2.** Complete your signup here: ${signupUrl}`,
           });
         } catch (error) {
           console.error("Failed to DM onboarding links to recruit", error);
@@ -250,13 +268,18 @@ class RecruitController extends Controller {
         }
       }
 
-      const adminEmails = await Admin.query().select("email").whereNotNull("email").where("email", "!=", "").get();
+      const adminEmails = await Admin.query()
+        .select("email")
+        .whereNotNull("email")
+        .where("email", "!=", "")
+        .get();
       if (adminEmails.length > 0) {
-
         RecruitController.initMailer();
         try {
           const to: string[] = ["genesistroy.fdc@gmail.com"];
-          const emails = adminEmails.map((admin) => admin.getAttribute("email") as string);
+          const emails = adminEmails.map(
+            (admin) => admin.getAttribute("email") as string,
+          );
           if (to.length > 0) {
             const data = {
               ign: credentials.ign as string,
@@ -266,8 +289,10 @@ class RecruitController extends Controller {
               discord: recruit.getAttribute("discord") as string,
               email: recruit.getAttribute("email") as string,
               reason: recruit.getAttribute("reason") as string,
-              reviewUrl: route("admin.recruits.show", { recruit: recruit.getAttribute("id") }),
-            }
+              reviewUrl: route("admin.recruits.show", {
+                recruit: recruit.getAttribute("id"),
+              }),
+            };
             await RecruitController.mailer.emails.send({
               from: "Eirazyn <onboarding@resend.dev>",
               to,
@@ -295,7 +320,10 @@ class RecruitController extends Controller {
         .route("pecu-coe", invitationLink ? { inviteLink: invitationLink } : {})
         .with("message", successMessage);
     }
-    return redirect().route("welcome").with("message", `Something went wrong. Please try again later.`).withInput();
+    return redirect()
+      .route("welcome")
+      .with("message", `Something went wrong. Please try again later.`)
+      .withInput();
   };
 
   private recruitApplicationTemplate(data: {
@@ -353,16 +381,17 @@ class RecruitController extends Controller {
           <p style="margin-top: 6px;">${data.reason}</p>
         </div>
 
-        ${data.reviewUrl
-        ? `
+        ${
+          data.reviewUrl
+            ? `
         <div style="text-align: center; margin-top: 24px;">
           <a href="${data.reviewUrl}" style="display: inline-block; padding: 10px 18px; background: #eab308; color: #1e293b; text-decoration: none; border-radius: 6px; font-weight: bold;">
             Review Application
           </a>
         </div>
         `
-        : ""
-      }
+            : ""
+        }
 
       </div>
 
@@ -376,8 +405,10 @@ class RecruitController extends Controller {
   `;
   }
 
-  public inviteRecruit: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
-
+  public inviteRecruit: HttpDispatch<{ recruit: User }> = async (
+    { request },
+    { recruit },
+  ) => {
     // @ts-ignore //
     const recruitId = recruit.id;
     const timeNow = date("YmdHis");
@@ -392,20 +423,28 @@ class RecruitController extends Controller {
     if (saved) {
       return response().json({
         message: "Invitation link sent successfully",
-        invitation_link: recruit.getAttribute("invitation_link") as string
-      })
+        invitation_link: recruit.getAttribute("invitation_link") as string,
+      });
     }
-    return response().json({
-      message: "Something went wrong"
-    }, 500)
+    return response().json(
+      {
+        message: "Something went wrong",
+      },
+      500,
+    );
   };
 
-  public verify: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
-
+  public verify: HttpDispatch<{ recruit: User }> = async (
+    { request },
+    { recruit },
+  ) => {
     // @ts-ignore //
     const ign = recruit.name as string;
 
-    const isBlackListed = await BlockListedPlayer.whereRaw(DB.raw(`lower(ign) = ?`), [ign.toLowerCase()]).count();
+    const isBlackListed = await BlockListedPlayer.whereRaw(
+      DB.raw(`lower(ign) = ?`),
+      [ign.toLowerCase()],
+    ).count();
     let verifyValue: UserSchema["verified"] = 0;
     if (isBlackListed > 0) {
       verifyValue = 2;
@@ -418,14 +457,17 @@ class RecruitController extends Controller {
     try {
       const _ = await recruit.save();
     } catch (_error) {
-      // 
+      //
     }
     return response().json({
-      verified: verifyValue
-    })
-  }
+      verified: verifyValue,
+    });
+  };
 
-  public decline: HttpDispatch<{ recruit: User }> = async ({ request }, { recruit }) => {
+  public decline: HttpDispatch<{ recruit: User }> = async (
+    { request },
+    { recruit },
+  ) => {
     // @ts-ignore //
     recruit.fill({
       status: 2,
@@ -434,13 +476,16 @@ class RecruitController extends Controller {
       const _ = await recruit.save();
       return response().json({
         message: "Recruit rejected successfully",
-      })
+      });
     } catch (_error) {
-      return response().json({
-        message: "Something went wrong",
-      }, 500)
+      return response().json(
+        {
+          message: "Something went wrong",
+        },
+        500,
+      );
     }
-  }
+  };
 }
 
 export default RecruitController;
