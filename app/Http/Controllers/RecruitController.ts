@@ -294,7 +294,7 @@ class RecruitController extends Controller {
               }),
             };
             await RecruitController.mailer.emails.send({
-              from: "Eirazyn <onboarding@resend.dev>",
+              from: "Pecu-pecu <onboarding@resend.dev>",
               to,
               subject: "New Recruit Application - " + credentials.ign,
               html: this.recruitApplicationTemplate(data),

@@ -27,20 +27,26 @@ const execute = async (interaction: AppInteraction) => {
   const memberId = String(memberOptionValue);
   const member = await discordRest.getMember(String(guildId), memberId);
 
-  if (!member.avatar) {
+  const avatarHash =
+    member.avatar ??
+    interaction.data?.resolved?.users?.get(BigInt(memberId))?.avatar;
+
+  if (!avatarHash) {
     await interaction.respond({
-      content: `<@${memberId}> does not have a server avatar in this server.`,
+      content: `<@${memberId}> has no avatar at all.`,
     });
     return;
   }
 
-  // No `format` for animated avatars: discordeno only falls back to gif when
-  // the caller leaves it unset, so hardcoding png would freeze them.
-  const avatarUrl = memberAvatarUrl(String(guildId), memberId, {
-    avatar: member.avatar,
-    size: 1024,
-    ...(member.avatar.startsWith("a_") ? {} : { format: "png" as const }),
-  });
+  const avatarHashText = String(avatarHash);
+
+  const avatarUrl = member.avatar
+    ? memberAvatarUrl(String(guildId), memberId, {
+        avatar: avatarHashText,
+        size: 1024,
+        ...(avatarHashText.startsWith("a_") ? {} : { format: "png" as const }),
+      })
+    : `https://cdn.discordapp.com/avatars/${memberId}/${avatarHashText}.png?size=1024`;
 
   if (!avatarUrl) {
     await interaction.respond({
