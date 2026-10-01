@@ -173,6 +173,27 @@ class RecruitController extends Controller {
         .withInput(request.except(["email"]));
     }
 
+    const existingIgnCharacter = await Character.where(
+      "ign",
+      credentials.ign,
+    ).first();
+
+    const existingIgnOwnerStillActive = existingIgnCharacter
+      ? await User.query()
+          .where("id", existingIgnCharacter.getAttribute("user_id"))
+          .whereNull("deleted_at")
+          .first()
+      : null;
+
+    if (existingIgnCharacter && existingIgnOwnerStillActive) {
+      return redirect()
+        .back()
+        .withErrors({
+          ign: "That IGN is already owned by an active account.",
+        })
+        .withInput(request.except(["ign"]));
+    }
+
     const applicationFields = {
       email: credentials.email,
       name: credentials.ign,
@@ -197,14 +218,24 @@ class RecruitController extends Controller {
       // @ts-ignore //
       const recruitId = recruit.id as number;
 
-      // Their old main character, if this is a returnee - update it in place
-      // instead of leaving a stale IGN/class behind a second "main" row.
+      // Some accounts are sold/transferred to a new owner, but only if the old
+      // owner row is soft-deleted do we allow a handoff. If the old owner is
+      // still active, signup is blocked above and this block is not reached.
       const mainCharacter = await Character.where("user_id", recruitId)
         .where("main", true)
         .first();
 
-      if (mainCharacter) {
+      if (existingIgnCharacter && existingIgnOwnerStillActive) {
+        existingIgnCharacter.fill({
+          user_id: recruitId,
+          third_class_id: classId,
+          nstg_level_id: nstgId,
+          ign: credentials.ign,
+        });
+        await existingIgnCharacter.save();
+      } else if (mainCharacter) {
         mainCharacter.fill({
+          user_id: recruitId,
           third_class_id: classId,
           nstg_level_id: nstgId,
           ign: credentials.ign,
