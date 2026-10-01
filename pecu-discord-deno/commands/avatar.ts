@@ -1,5 +1,6 @@
 import {
   ApplicationCommandOptionTypes,
+  avatarUrl,
   memberAvatarUrl,
 } from "@discordeno/bot";
 import { discordRest } from "../rest.ts";
@@ -27,43 +28,43 @@ const execute = async (interaction: AppInteraction) => {
   const memberId = String(memberOptionValue);
   const member = await discordRest.getMember(String(guildId), memberId);
 
-  const avatarHash =
-    member.avatar ??
-    interaction.data?.resolved?.users?.get(BigInt(memberId))?.avatar;
+  // Both hashes come from the REST response, so they are plain strings. The
+  // interaction's resolved users are NOT usable here: the transformer converts
+  // their avatar to a bigint, which does not interpolate into a CDN path.
+  const user = member.user;
 
-  if (!avatarHash) {
-    await interaction.respond({
-      content: `<@${memberId}> has no avatar at all.`,
-    });
-    return;
-  }
+  // No `format` for animated avatars: discordeno only falls back to gif when
+  // the caller leaves it unset, so hardcoding png would freeze them.
+  const formatFor = (hash?: string) =>
+    hash?.startsWith("a_") ? {} : { format: "png" as const };
 
-  const avatarHashText = String(avatarHash);
-
-  const avatarUrl = member.avatar
+  const serverAvatarLink = member.avatar
     ? memberAvatarUrl(String(guildId), memberId, {
-        avatar: avatarHashText,
+        avatar: member.avatar,
         size: 1024,
-        ...(avatarHashText.startsWith("a_") ? {} : { format: "png" as const }),
+        ...formatFor(member.avatar),
       })
-    : `https://cdn.discordapp.com/avatars/${memberId}/${avatarHashText}.png?size=1024`;
+    : undefined;
 
-  if (!avatarUrl) {
-    await interaction.respond({
-      content: `Could not build an avatar link for <@${memberId}>.`,
+  const globalAvatar = user?.avatar ?? undefined;
+
+  const avatarLink =
+    serverAvatarLink ??
+    avatarUrl(memberId, user?.discriminator ?? "0", {
+      avatar: globalAvatar,
+      size: 1024,
+      ...formatFor(globalAvatar),
     });
-    return;
-  }
 
-  const username =
-    interaction.data?.resolved?.users?.get(BigInt(memberId))?.username ??
-    memberId;
+  const username = user?.username ?? memberId;
 
   await interaction.respond({
     embeds: [
       {
-        title: `${username}'s Server Avatar`,
-        image: { url: avatarUrl },
+        title: serverAvatarLink
+          ? `${username}'s Server Avatar`
+          : `${username}'s Avatar`,
+        image: { url: avatarLink },
       },
     ],
   });
