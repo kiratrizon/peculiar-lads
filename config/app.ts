@@ -1,6 +1,4 @@
 // config/app.ts
-
-import RouteServiceProvider from "App/Providers/RouteServiceProvider.ts";
 import { AppConfig } from "configs/@types/index.d.ts";
 
 const constant: AppConfig = {
@@ -74,7 +72,7 @@ const constant: AppConfig = {
     store: env("MAINTENANCE_STORE", null),
   },
 
-  providers: [RouteServiceProvider],
+  providers: [],
 };
 
 export default constant;

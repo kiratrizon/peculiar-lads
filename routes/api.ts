@@ -1,5 +1,4 @@
 import { Route } from "Illuminate/Support/Facades/index.ts";
 
-Route.get("/", async ({ request }) => {
-  return response().json({ message: "API is working!" });
-});
+// if group param is string then it will use the groupRoutingAlias in bootstrap/app.ts
+Route.prefix("/pecu").group("pecu");
