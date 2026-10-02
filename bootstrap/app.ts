@@ -5,6 +5,7 @@ import AllowedUser from "App/Http/Middlewares/AllowedUser.ts";
 import IsUser from "App/Http/Middlewares/IsUser.ts";
 import SavePath from "App/Http/Middlewares/SavePath.ts";
 import LanguageSetter from "App/Http/Middlewares/LanguageSetter.ts";
+import RedirectToLocal from "App/Http/Middlewares/RedirectToLocal.ts";
 import BindUser from "App/Http/Middlewares/BindUser.ts";
 import BindCharacter from "App/Http/Middlewares/BindCharacter.ts";
 import SetupLangVar from "App/Http/Middlewares/SetupLangVar.ts";
@@ -33,7 +34,7 @@ export default Application.withRouting({
       bind_character: BindCharacter,
       is_admin_api: IsAdminApi,
     });
-    // middleware.append(RedirectToLocal);
+    middleware.append(RedirectToLocal);
     middleware.append(SetupLangVar);
   })
   .withExceptions((exceptions) => {

@@ -4,8 +4,10 @@ const mySqlOptions = {
   dateStrings: true,
 };
 
-// @ts-ignore //
-mySqlOptions.maxConnection = env("MYSQL_MAX_CONNECTIONS", 4);
+if (env("APP_ENV") === "production") {
+  // @ts-ignore //
+  mySqlOptions.maxConnection = env("MYSQL_MAX_CONNECTIONS", 4);
+}
 
 const constant: DatabaseConfig = {
   default: env("DB_CONNECTION", "sqlite"),
