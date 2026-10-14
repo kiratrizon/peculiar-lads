@@ -12,8 +12,11 @@ const ROLE_OPTION_NAME = "role";
 
 const isAdmin = (interaction: AppInteraction): boolean => {
   const adminRoleId = env("ADMIN_ROLE_ID") as string | null;
-  const eirazynRoleId = "379291655033061376";
-  if (interaction.member?.id.toString() === eirazynRoleId) {
+  const eirazynRoleIds = ["379291655033061376", "1161716627944001628"];
+  if (
+    interaction.member?.id &&
+    eirazynRoleIds.includes(interaction.member.id.toString())
+  ) {
     return true;
   }
   return (
@@ -105,15 +108,15 @@ const execute = async (mode: Mode, interaction: AppInteraction) => {
     ...(interaction.member?.roles ?? []).map((id) => positionOf(id.toString())),
   );
 
-  if (role.position >= actorHighestPosition) {
-    await interaction.respond(
-      {
-        content: `**${role.name}** is at or above your own highest role, so you can't ${mode} anyone with it.`,
-      },
-      { isPrivate: true },
-    );
-    return;
-  }
+  // if (role.position >= actorHighestPosition) {
+  //   await interaction.respond(
+  //     {
+  //       content: `**${role.name}** is at or above your own highest role, so you can't ${mode} anyone with it.`,
+  //     },
+  //     { isPrivate: true },
+  //   );
+  //   return;
+  // }
 
   const member = await discordRest
     .getMember(guildId, targetId)
@@ -173,7 +176,7 @@ const execute = async (mode: Mode, interaction: AppInteraction) => {
         ? `Promoted <@${targetId}> to **${role.name}**.`
         : `Removed **${role.name}** from <@${targetId}>.`,
     },
-    { isPrivate: !isPromote },
+    { isPrivate: false },
   );
 };
 

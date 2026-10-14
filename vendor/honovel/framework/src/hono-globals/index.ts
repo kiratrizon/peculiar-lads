@@ -29,7 +29,14 @@ Object.defineProperty(globalThis, "globalFn", {
     if (typeof value !== "function") {
       throw new Error("Value must be a function");
     }
-    (globalThis as any)[key] = value;
+    if (key in globalThis) {
+      throw new Error(`Global function "${key}" already exists`);
+    }
+    Object.defineProperty(globalThis, key, {
+      value,
+      writable: false,
+      configurable: false,
+    });
   },
   writable: false,
   configurable: false,
@@ -212,10 +219,7 @@ globalFn("publicPath", function (concatenation = "") {
   const dir = path.join("public", concatenation);
   return basePath(dir);
 });
-globalFn("storagePath", function (concatenation = "") {
-  const dir = path.join("storage", concatenation);
-  return basePath(dir);
-});
+
 globalFn("resourcePath", function (concatenation = "") {
   const dir = path.join("resources", concatenation);
   return basePath(dir);
