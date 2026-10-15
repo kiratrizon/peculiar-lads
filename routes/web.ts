@@ -16,7 +16,7 @@ import CodeOfEthicsController from "App/Http/Controllers/CodeOfEthicsController.
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 
 // for render health checker
-Route.head("/", async ({requ})=>{
+Route.head("/", async ()=>{
   return response().header("X-Powered-By", "PeculiarLads").text("OK");
 })
 
