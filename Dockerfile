@@ -4,6 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-RUN deno install --entrypoint pecu-discord-deno/server.ts
+RUN deno install --entrypoint vendor/honovel/framework/src/hono/run-server.ts
 
-CMD ["deno", "task", "discord"]
+CMD ["deno", "task", "smelt", "serve"]

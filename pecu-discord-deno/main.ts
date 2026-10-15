@@ -21,7 +21,6 @@ import { ask, toMessageFiles } from "./chat.ts";
 import { handleQaMessage } from "./qaPoints.ts";
 import { Carbon } from "helpers";
 import User from "App/Models/User.ts";
-import { startScheduledMessagesCron } from "./scheduler.ts";
 
 // Mark every transformer property as "desired" so the bot behaves like a
 // typical discord.js client (full objects everywhere) instead of having to
@@ -375,7 +374,6 @@ bot.events.guildMemberRemove = async (user) => {
 
 try {
   await bot.start();
-  startScheduledMessagesCron();
 } catch (e) {
   console.error("Failed to log in to Discord", e);
   Deno.exit(1);
