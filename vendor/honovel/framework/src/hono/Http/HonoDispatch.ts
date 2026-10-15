@@ -1,4 +1,5 @@
 import HonoClosure from "./HonoClosure.ts";
+import { HonoResponse } from "HonoHttp/HonoResponse.ts";
 import { handleAction } from "../Support/FunctionRoute.ts";
 
 class HonoDispatch {
@@ -20,6 +21,14 @@ class HonoDispatch {
     }
   }
   public async build(c: MyContext) {
+    const request = c.get("myHono").request;
+    if (
+      request.isMethod("HEAD") &&
+      isObject(this.#returnedData) &&
+      !(this.#returnedData instanceof HonoResponse)
+    ) {
+      throw new Error("HEAD method cannot return a response.");
+    }
     return await handleAction(this.#returnedData, c);
   }
 
