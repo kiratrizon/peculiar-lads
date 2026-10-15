@@ -118,16 +118,19 @@ if (config("app").env === "local") {
   }
 }
 
-const headFunction: MiddlewareHandler = async (
-  c: MyContext,
-  next: () => Promise<void>,
-) => {
-  const { request } = c.get("myHono");
-  if (!request.isMethod("HEAD")) {
-    return await myError(c);
-  }
-  return await next();
-};
+// Hono dispatches HEAD through GET routes, so HEAD-only routes are registered
+// as GET. Every handler of such a route must pass non-HEAD requests through
+// with next(), otherwise it would shadow a GET route on the same path.
+const headOnly = (builds: MiddlewareHandler[]): MiddlewareHandler[] =>
+  builds.map(
+    (handler): MiddlewareHandler =>
+      async (c: MyContext, next: () => Promise<void>) => {
+        if (c.req.method.toUpperCase() !== "HEAD") {
+          return await next();
+        }
+        return await handler(c, next);
+      },
+  );
 // Moved to RouteHelpers.ts
 const domainGroup = createDomainGroup;
 
@@ -547,10 +550,9 @@ class Server {
                 returnedDispatch as MiddlewareHandler,
               ];
               if (methodarr.length === 1 && arrayFirst(methodarr) === "head") {
-                allBuilds.splice(1, 0, headFunction);
                 splittedUri.forEach((str) => {
                   // @ts-ignore //
-                  newApp.get(str, ...allBuilds);
+                  newApp.get(str, ...headOnly(allBuilds));
                 });
               } else {
                 // @ts-ignore //
@@ -720,10 +722,9 @@ class Server {
                   methodarr.length === 1 &&
                   arrayFirst(methodarr) === "head"
                 ) {
-                  allBuilds.splice(1, 0, headFunction);
                   splittedUri.forEach((str) => {
                     // @ts-ignore //
-                    myNewGroup.get(str, ...allBuilds);
+                    myNewGroup.get(str, ...headOnly(allBuilds));
                   });
                 } else {
                   // @ts-ignore //
@@ -742,11 +743,10 @@ class Server {
                     hasOnlySlash.method.length === 1 &&
                     hasOnlySlash.method[0] === "head"
                   ) {
-                    hasOnlySlash.allBuilds.splice(1, 0, headFunction);
                     newAppGroup.get(
                       // @ts-ignore //
                       grp == "/" ? grp : `${grp}/`,
-                      ...hasOnlySlash.allBuilds,
+                      ...headOnly(hasOnlySlash.allBuilds),
                     );
                   } else {
                     newAppGroup.on(
