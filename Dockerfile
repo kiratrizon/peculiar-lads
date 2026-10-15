@@ -6,4 +6,4 @@ COPY . .
 
 RUN deno install --entrypoint vendor/honovel/framework/src/hono/run-server.ts
 
-CMD ["deno", "run", "-A", "vendor/honovel/framework/src/hono/run-server.ts"]
+CMD ["deno", "task", "discord"]
