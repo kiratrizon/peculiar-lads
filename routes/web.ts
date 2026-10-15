@@ -15,6 +15,11 @@ import ScheduledMessageController from "App/Http/Controllers/ScheduledMessageCon
 import CodeOfEthicsController from "App/Http/Controllers/CodeOfEthicsController.ts";
 import NotFoundHttpException from "Illuminate/Foundation/HttpExceptions/NotFoundHttpException.ts";
 
+// for render health checker
+Route.head("/", async ()=>{
+  return response().header("X-Powered-By", "PeculiarLads");
+})
+
 Route.prefix("/{lang?}")
   .where("lang", /[A-Za-z]{2,3}(?:-[A-Za-z]{2,8})?/)
   .middleware("set_lang")
