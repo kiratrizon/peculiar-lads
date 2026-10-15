@@ -54,7 +54,7 @@ const deployCommands = async () => {
     await bot.helpers.upsertGlobalApplicationCommands(payload);
   } catch (e) {
     console.error(`Error Deploying`, e);
-    logErrorToDiscord("deployCommands", e);
+    await logErrorToDiscord("deployCommands", e);
   }
 };
 
@@ -121,7 +121,7 @@ bot.events.interactionCreate = async (interaction) => {
       await command.handleAutocomplete(interaction);
     } catch (e) {
       console.error(e);
-      logErrorToDiscord(`autocomplete:${interaction.data?.name}`, e);
+      await logErrorToDiscord(`autocomplete:${interaction.data?.name}`, e);
     }
     return;
   }
@@ -139,7 +139,7 @@ bot.events.interactionCreate = async (interaction) => {
       await command.handleModal(interaction);
     } catch (e) {
       console.error(e);
-      logErrorToDiscord(`modal:${commandName}`, e);
+      await logErrorToDiscord(`modal:${commandName}`, e);
       await replyError(interaction);
     }
     return;
@@ -177,7 +177,7 @@ bot.events.interactionCreate = async (interaction) => {
     await command.execute(interaction);
   } catch (e) {
     console.error(e);
-    logErrorToDiscord(`command:${interaction.data?.name}`, e);
+    await logErrorToDiscord(`command:${interaction.data?.name}`, e);
     await replyError(interaction);
   }
 };
@@ -202,7 +202,7 @@ bot.events.guildMemberAdd = async (member, user) => {
     });
   } catch (e) {
     console.error("Error sending application DM to new member", e);
-    logErrorToDiscord("guildMemberAdd: application DM", e);
+    await logErrorToDiscord("guildMemberAdd: application DM", e);
   }
 
   try {
@@ -214,7 +214,7 @@ bot.events.guildMemberAdd = async (member, user) => {
     }
   } catch (e) {
     console.error("Error assigning auto role", e);
-    logErrorToDiscord("guildMemberAdd: auto role", e);
+    await logErrorToDiscord("guildMemberAdd: auto role", e);
   }
 };
 
@@ -275,7 +275,7 @@ bot.events.messageCreate = async (message) => {
     }
   } catch (e) {
     console.error("Error replying to mention", e);
-    logErrorToDiscord("messageCreate: mention reply", e);
+    await logErrorToDiscord("messageCreate: mention reply", e);
   }
 
   try {
@@ -285,7 +285,7 @@ bot.events.messageCreate = async (message) => {
     }
   } catch (e) {
     console.error("Error handling QA points", e);
-    logErrorToDiscord("messageCreate: qa points", e);
+    await logErrorToDiscord("messageCreate: qa points", e);
   }
 
   try {
@@ -329,7 +329,7 @@ bot.events.messageCreate = async (message) => {
     );
   } catch (e) {
     console.error("Error swapping roles on message", e);
-    logErrorToDiscord("messageCreate: role swap", e);
+    await logErrorToDiscord("messageCreate: role swap", e);
   }
 };
 
@@ -365,7 +365,7 @@ bot.events.guildMemberRemove = async (user) => {
     await User.where("discord_id", user.id.toString()).delete();
   } catch (e) {
     console.error("Error sending bye banner", e);
-    logErrorToDiscord("guildMemberRemove: bye banner", e);
+    await logErrorToDiscord("guildMemberRemove: bye banner", e);
   }
 };
 

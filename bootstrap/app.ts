@@ -17,7 +17,7 @@ import { logErrorToDiscord } from "pecu-discord-deno/errorLog.ts";
 export default Application.withRouting({
   web: async () => await import("../routes/web.ts"),
   api: async () => await import("../routes/api.ts"),
-  commands: async () => await import("../routes/console.ts"),
+  // commands: async () => await import("../routes/console.ts"),
 })
   .groupRoutingAlias((group) => {
     group.pecu = async () => await import("../routes/pecu-route/test.ts");

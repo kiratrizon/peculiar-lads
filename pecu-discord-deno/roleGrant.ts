@@ -158,7 +158,7 @@ const execute = async (mode: Mode, interaction: AppInteraction) => {
     }
   } catch (e) {
     console.error(`Failed to ${mode} member`, e);
-    logErrorToDiscord(`command:${mode}`, e);
+    await logErrorToDiscord(`command:${mode}`, e);
     await interaction.respond(
       {
         content: `Couldn't ${isPromote ? "add" : "remove"} **${role.name}**. Make sure the bot has Manage Roles and that its own role sits above **${role.name}**.`,
@@ -176,7 +176,7 @@ const execute = async (mode: Mode, interaction: AppInteraction) => {
         ? `Promoted <@${targetId}> to **${role.name}**.`
         : `Removed **${role.name}** from <@${targetId}>.`,
     },
-    { isPrivate: false },
+    { isPrivate: true },
   );
 };
 

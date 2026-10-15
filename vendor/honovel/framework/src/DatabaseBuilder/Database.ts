@@ -855,7 +855,7 @@ export const dbCloser = async () => {
       `dbCloser: timed out after ${DB_CLOSE_TIMEOUT_MS}ms waiting for connections to close, exiting anyway.`,
     );
   }
-  Deno.exit(0);
+  // Deno.exit(0);
 };
 
 export { default as DatabaseHelper } from "./DatabaseHelper.ts";

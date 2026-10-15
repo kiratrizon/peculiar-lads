@@ -19,7 +19,9 @@ const ordinal = (n: number) => {
   return `${n}${suffixes[rule] ?? "th"}`;
 };
 
-export const sendWelcomeMessage = async (discordId: string): Promise<boolean> => {
+export const sendWelcomeMessage = async (
+  discordId: string,
+): Promise<boolean> => {
   const channelId = env("WELCOME_CHANNEL_ID") as string | null;
   if (!channelId) {
     console.log("WELCOME_CHANNEL_ID is not set, skipping welcome banner.");
@@ -60,8 +62,7 @@ export const sendWelcomeMessage = async (discordId: string): Promise<boolean> =>
     const memberCount = ordinal(guild.approximateMemberCount ?? 0);
 
     await discordRest.sendMessage(channelId, {
-      content:
-        `Welcome <@${discordId}> to PeculiarLads, you are the ${memberCount} member!\n\nPeculiarLads is more than just a guild—we're a family of Dragon Nest SEA players who believe in the power of teamwork, friendship, and adventure.\n\n@everyone`,
+      content: `Welcome <@${discordId}> to PeculiarLads, you are the ${memberCount} member!\n\nPeculiarLads is more than just a guild—we're a family of Dragon Nest SEA players who believe in the power of teamwork, friendship, and adventure.\n\n@everyone`,
       files: [
         {
           blob: new Blob([new Uint8Array(image)], { type: "image/png" }),
@@ -79,7 +80,7 @@ export const sendWelcomeMessage = async (discordId: string): Promise<boolean> =>
     return true;
   } catch (e) {
     console.error("Error sending welcome banner", e);
-    logErrorToDiscord("sendWelcomeMessage", e);
+    await logErrorToDiscord("sendWelcomeMessage", e);
     return false;
   }
 };

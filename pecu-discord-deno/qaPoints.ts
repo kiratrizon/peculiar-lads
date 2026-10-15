@@ -51,7 +51,7 @@ const grantLevelRoles = async (
       await bot.helpers.addRole(guildId, userId, roleId, "QA leveling reward");
     } catch (e) {
       console.error(`Failed to grant QA level role "${tier.name}"`, e);
-      logErrorToDiscord(`qaPoints: grant role ${tier.name}`, e);
+      await logErrorToDiscord(`qaPoints: grant role ${tier.name}`, e);
     }
   }
 };

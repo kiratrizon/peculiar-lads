@@ -295,7 +295,10 @@ class RecruitController extends Controller {
           });
         } catch (error) {
           console.error("Failed to DM onboarding links to recruit", error);
-          logErrorToDiscord("RecruitController.store: onboarding DM", error);
+          await logErrorToDiscord(
+            "RecruitController.store: onboarding DM",
+            error,
+          );
         }
       }
 
@@ -333,7 +336,10 @@ class RecruitController extends Controller {
           }
         } catch (error) {
           console.error(error);
-          logErrorToDiscord("RecruitController.store: admin email", error);
+          await logErrorToDiscord(
+            "RecruitController.store: admin email",
+            error,
+          );
         }
       }
 

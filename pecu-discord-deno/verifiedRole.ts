@@ -30,7 +30,7 @@ export const grantVerifiedRole = async (
     return true;
   } catch (error) {
     console.error("Failed to grant the verified role", error);
-    logErrorToDiscord("grantVerifiedRole", error);
+    await logErrorToDiscord("grantVerifiedRole", error);
     return false;
   }
 };

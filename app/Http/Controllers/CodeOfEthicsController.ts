@@ -178,7 +178,7 @@ class CodeOfEthicsController extends Controller {
         // The acknowledgement itself is already saved - a Discord hiccup
         // shouldn't make the recruit think their click didn't register.
         console.error("Failed to finish Discord onboarding after CoE", e);
-        logErrorToDiscord("CodeOfEthicsController.accept: discord", e);
+        await logErrorToDiscord("CodeOfEthicsController.accept: discord", e);
       }
     }
 
