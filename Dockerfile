@@ -6,4 +6,4 @@ COPY . .
 
 RUN deno install --entrypoint vendor/honovel/framework/src/hono/run-server.ts
 
-CMD ["deno", "task", "smelt", "serve"]
+CMD ["deno", "task", "smelt", "serve", "--host=0.0.0.0"]
