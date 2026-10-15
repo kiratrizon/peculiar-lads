@@ -3,7 +3,11 @@
 // type-only and erases at runtime.
 
 // mysql
-import type { ConnectionOptions, Pool as MPool } from "mysql2/promise";
+import type {
+  ConnectionOptions,
+  Pool as MPool,
+  PoolOptions,
+} from "mysql2/promise";
 
 // postgresql
 import type { Pool as PgPool } from "@db/pgsql";
@@ -35,6 +39,29 @@ type TInsertOrUpdateBuilder = {
   table: string;
   data: Record<string, unknown>;
 };
+
+const POOL_LIFETIME_DEFAULTS = {
+  idleTimeout: 60_000,
+  maxIdle: 0,
+  keepAliveInitialDelay: 10_000,
+} as const;
+
+function withPoolLifetime(
+  poolParams: Partial<ConnectionOptions>,
+  options: MySQLConnectionConfigRaw["options"],
+): PoolOptions {
+  const configured = options as
+    (MySQLConnectionConfigRaw["options"] & Partial<PoolOptions>) | undefined;
+  return {
+    ...poolParams,
+    idleTimeout: configured?.idleTimeout ?? POOL_LIFETIME_DEFAULTS.idleTimeout,
+    maxIdle: configured?.maxIdle ?? POOL_LIFETIME_DEFAULTS.maxIdle,
+    enableKeepAlive: configured?.enableKeepAlive ?? true,
+    keepAliveInitialDelay:
+      configured?.keepAliveInitialDelay ??
+      POOL_LIFETIME_DEFAULTS.keepAliveInitialDelay,
+  } as PoolOptions;
+}
 
 // This is for RDBMS like MySQL, PostgreSQL, etc.
 export class Database {
@@ -106,7 +133,7 @@ export class Database {
       } catch (error) {
         if (error instanceof Error) {
           console.error(`Query failed: ${newQuery}`, `Params:`, newParams);
-          throw new SQLError(error.message);
+          throw new SQLError(error.message, error?.cause);
         }
         console.error(error);
         throw error;
@@ -239,7 +266,7 @@ export class Database {
                 poolParams.dateStrings = true;
               }
               Database.connections[key].write.push(
-                mysql.createPool(poolParams),
+                mysql.createPool(withPoolLifetime(poolParams, defaultOptions)),
               );
             });
           } else {
@@ -264,7 +291,7 @@ export class Database {
                 poolParams.dateStrings = true;
               }
               Database.connections[key].write.push(
-                mysql.createPool(poolParams),
+                mysql.createPool(withPoolLifetime(poolParams, defaultOptions)),
               );
             });
           }
@@ -295,7 +322,9 @@ export class Database {
               if (defaultOptions?.dateStrings) {
                 poolParams.dateStrings = true;
               }
-              Database.connections[key].read.push(mysql.createPool(poolParams));
+              Database.connections[key].read.push(
+                mysql.createPool(withPoolLifetime(poolParams, defaultOptions)),
+              );
             });
           }
         }

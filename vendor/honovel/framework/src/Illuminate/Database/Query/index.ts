@@ -3,9 +3,31 @@ import { DB } from "../../Support/Facades/index.ts";
 import Paginator from "../../Pagination/Paginator.ts";
 
 export class SQLError extends Error {
-  constructor(message: string) {
+  /** Driver error code, e.g. "ECONNRESET", "PROTOCOL_CONNECTION_LOST", "ER_DUP_ENTRY". */
+  public readonly code?: string;
+  public readonly errno?: number;
+  public readonly sqlState?: string;
+  /** True when the driver considers the connection unusable from here on. */
+  public readonly fatal?: boolean;
+
+  constructor(message: string, cause?: unknown) {
     super(message);
     this.name = "SQLError";
+    // Without these a caller cannot tell a dropped connection from a
+    // constraint violation except by matching on the message text.
+    if (cause && typeof cause === "object") {
+      const driverError = cause as {
+        code?: string;
+        errno?: number;
+        sqlState?: string;
+        fatal?: boolean;
+      };
+      this.code = driverError.code;
+      this.errno = driverError.errno;
+      this.sqlState = driverError.sqlState;
+      this.fatal = driverError.fatal;
+      this.cause = cause;
+    }
   }
 }
 

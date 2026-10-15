@@ -1,4 +1,5 @@
 import Honovel from "Honovel";
+import { dbCloser } from "Database";
 
 const app = Honovel.app;
 
@@ -127,6 +128,19 @@ try {
   handleStartupFailure(error);
 }
 
-// import { dbCloser } from "Database";
-
-// Deno.addSignalListener("SIGINT", dbCloser);
+// Close pools on the way out instead of letting the process drop sockets the
+// server then has to time out. SIGTERM is what Fly sends on deploy and scale
+// down; SIGINT is Ctrl-C in development.
+//
+// Registered per signal rather than in one loop because Deno only supports a
+// subset per platform - SIGTERM in particular throws on Windows - and losing
+// one listener should not cost the others.
+for (const signal of ["SIGINT", "SIGTERM"] as const) {
+  try {
+    Deno.addSignalListener(signal, dbCloser);
+  } catch (error) {
+    if (config("app").debug) {
+      console.warn(`Could not listen for ${signal} on this platform:`, error);
+    }
+  }
+}
