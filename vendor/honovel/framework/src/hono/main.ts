@@ -452,7 +452,9 @@ class Server {
 
     for (const [key, val] of Object.entries(ordered)) {
       if (key == "commands") {
-        this.console = val;
+        if (isFunction(val)) {
+          await val();
+        }
         continue;
       }
       if (key == "health") {
@@ -853,10 +855,6 @@ class Server {
         path.join(storagePath("framework/route"), "routes.json"),
         prettyRoutes,
       );
-    }
-
-    if (isset(this.console) && isFunction(this.console)) {
-      await this.console();
     }
 
     if (isset(this.health) && isString(this.health)) {
