@@ -458,8 +458,11 @@ class Server {
         continue;
       }
       if (key == "health") {
-        // @ts-ignore //
-        this.health = val as string;
+        if (isset(key) && isString(key)) {
+          this.app.get(key, async (c: MyContext) => {
+            return c.text("OK", 200);
+          });
+        }
         continue;
       }
       try {
@@ -855,12 +858,6 @@ class Server {
         path.join(storagePath("framework/route"), "routes.json"),
         prettyRoutes,
       );
-    }
-
-    if (isset(this.health) && isString(this.health)) {
-      this.app.get(this.health, async (c: MyContext) => {
-        return c.text("OK", 200);
-      });
     }
   }
 }
