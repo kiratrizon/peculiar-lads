@@ -31,9 +31,13 @@ export default class LanguageSetter {
         path.shift();
         path.shift();
 
-        const redirectPath = [
-          `${config("app.locale", "en") !== request.getLanguage() ? `/${request.getLanguage()}` : ""}${path.length ? `/${path.join("/")}` : ""}`,
-        ];
+        const langSegment =
+          config("app.locale", "en") !== request.getLanguage()
+            ? `/${request.getLanguage()}`
+            : "";
+        const restOfPath = path.length ? `/${path.join("/")}` : "";
+        // add a fallback to the default locale if the lang is not allowed
+        const redirectPath = [`${langSegment}${restOfPath}` || "/"];
         if (isset(queryString) && !empty(queryString)) {
           redirectPath.push(queryString);
         }
