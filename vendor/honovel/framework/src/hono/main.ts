@@ -254,6 +254,12 @@ class Server {
       );
       const appRouter = application?.getRouter();
       const appRouterMiddleware = appRouter?.middleware;
+
+      // get the health path directly
+      const healthPath = appRouter?.routers?.health;
+      if (isString(healthPath) && !empty(healthPath)) {
+        this.health = healthPath;
+      }
       // push
       globalMiddleware.push(...toMiddleware(appRouterMiddleware.global));
     } catch (_e) {
@@ -386,6 +392,11 @@ class Server {
 
     const asterisk = "*";
 
+    // server health load
+    if (withDefaults && isset(Server.health) && isString(Server.health)) {
+      app.get(Server.health, (c: MyContext) => c.text("OK", 200));
+    }
+
     if (withDefaults) {
       app.use(asterisk, methodOverride({ app }));
       app.use(...myStaticDefaults);
@@ -457,12 +468,9 @@ class Server {
         }
         continue;
       }
+
+      // health is removed and must be accessed outside routes that has globalMiddlewre
       if (key == "health") {
-        if (isset(key) && isString(key)) {
-          this.app.get(key, async (c: MyContext) => {
-            return c.text("OK", 200);
-          });
-        }
         continue;
       }
       try {
